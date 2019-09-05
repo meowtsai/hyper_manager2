@@ -641,7 +641,7 @@ const allRoutes = [
 //所有要在leftSideBar顯示的路徑
 const loggedInUser = getLoggedInUser();
 const authProtectedRoutes =
-    loggedInUser.uid === 112
+(loggedInUser !== null && loggedInUser.uid === 112)
         ? [
               dashboardRoutes,
               appRoutes,
