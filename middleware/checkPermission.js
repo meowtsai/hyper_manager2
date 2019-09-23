@@ -13,10 +13,8 @@ module.exports = async function(req, res, next, resource, operation) {
   try {
     const decoded = jwt.verify(token, jwtSecret);
 
-    req.user = decoded.user;
-
-    const user = await Admin_user.findByUid(req.user);
-
+    const user = await Admin_user.findByUid(decoded.user);
+    req.user = user;
     const role = user.role;
 
     const is_permitted =

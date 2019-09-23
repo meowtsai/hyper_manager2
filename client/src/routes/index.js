@@ -88,6 +88,16 @@ const PersonalVisitForm = React.lazy(() => import('../pages/offline/personal_vis
 
 const GovLetterForm = React.lazy(() => import('../pages/offline/gov_letter/GovLetterForm'));
 
+
+//service
+
+const ServiceOverview = React.lazy(() => import('../pages/service/questions/overview'));
+const AllocateListPage = React.lazy(() => import('../pages/service/allocate'));
+const QuesionsListPage = React.lazy(() => import('../pages/service/questions'));
+const SingleQuestionPage = React.lazy(() => import('../pages/service/questions/view'));
+
+const TestPage = React.lazy(() => import('../pages/service/questions/TestPage'));
+
 // handle auth and authorization
 
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
@@ -537,6 +547,7 @@ const featuresRoutes = {
     ],
 };
 
+
 const platformRoutesSub = {
     path: '/platform',
     name: 'Platform',
@@ -549,7 +560,74 @@ const platformRoutesSub = {
         },
     ],
 };
+// online cs
 
+const serviceRoutesSub = {
+    path: '/service',
+    name: 'Service',
+    children: [
+        {
+            path: '/service/view/:question_id',
+            name: '客服案件檢視',
+            component: SingleQuestionPage,
+            route: PrivateRoute,
+        },
+    ],
+}
+const serviceRoutes = {
+    path: '/service',
+    name: '客服',
+    icon: ' dripicons-device-desktop',
+    children: [
+        {
+            exact: true,
+            path:'/service',
+            name:'總覽',
+            component:ServiceOverview,
+            route: PrivateRoute,
+        },
+        {
+            exact: true,
+            path: '/service/questions/todo',
+            name: '待處理案件',
+            component: QuesionsListPage,
+                    route: PrivateRoute,
+
+        },
+        {
+            path: '/service/questions/get_list',
+            name: '等待中案件',
+            component: QuesionsListPage,
+            route: PrivateRoute,
+
+        },
+        {
+            exact: true,
+            path: '/service/allocate',
+            name: '派單系統',
+            children: [
+                {
+                    path: '/service/allocate/list',
+                    name: '案件處理列表',
+                    component: AllocateListPage,
+                    route: PrivateRoute,
+                },
+                {
+                    path: '/service/tickets/detail',
+                    name: '領取案件',
+                    component: ProjectDetail,
+                    route: PrivateRoute,
+                },{
+                    path: '/service/tickets/detail',
+                    name: '個人總覽數據',
+                    component: ProjectDetail,
+                    route: PrivateRoute,
+                },
+            ],
+        },
+
+    ],
+};
 // offline cs
 const offlineRoutes = {
     path: '/offline',
@@ -604,6 +682,13 @@ const offlineRoutesSub = {
             component: GovLetterForm,
             route: PrivateRoute,
         },
+        {
+            path: '/test',
+            name: '測試',
+            component: TestPage,
+            route: PrivateRoute,
+        },
+        
     ],
 };
 
@@ -636,6 +721,8 @@ const allRoutes = [
     offlineRoutes,
     offlineRoutesSub,
     myDashboardRoutes,
+    serviceRoutes,
+    serviceRoutesSub
 ];
 
 //所有要在leftSideBar顯示的路徑
@@ -651,8 +738,9 @@ const authProtectedRoutes =
               featuresRoutes,
               offlineRoutes,
               myDashboardRoutes,
+              serviceRoutes
           ]
-        : [dashboardRoutes, offlineRoutes];
+        : [dashboardRoutes, offlineRoutes,serviceRoutes];
 
 const allFlattenRoutes = flattenRoutes(allRoutes);
 

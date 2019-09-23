@@ -5,6 +5,9 @@ function nl2br(str) {
   return str.replace(/([^>])\n/g, "$1<br/>\n");
 }
 
+function nl2brB(str) {
+  return str.replace(/\n/g, "<br />\n");
+}
 const set_filename = () => md5(uniqid());
 
 const isEmpty = value =>
@@ -13,4 +16,4 @@ const isEmpty = value =>
   (typeof value === "object" && Object.keys(value).length === 0) ||
   (typeof value === "string" && value.trim().length === 0);
 
-module.exports = { nl2br, set_filename, isEmpty };
+module.exports = { nl2br, nl2brB, set_filename, isEmpty };

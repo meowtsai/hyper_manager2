@@ -77,6 +77,7 @@ const Admin_user = {
       .catch(err => ({ error: err.message }));
   },
   checkPermission: async (resource, op, role) => {
+    if (role === "admin") return true;
     return await db2
       .promise()
       .query(
@@ -93,7 +94,7 @@ const Admin_user = {
           return false;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch(err => false);
   },
   getAdminRoles: async () => {
     return await db2
@@ -162,6 +163,24 @@ const Admin_user = {
           return rows;
         } else {
           return { error: "刪除失敗" };
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getAllowedGames: async role => {
+    return await db2
+      .promise()
+      .query(
+        `select GROUP_CONCAT(p.resource) as allow_games
+      from admin_permissions p join admin_resources rs on p.resource=rs.resource
+      where p.role=? and rs.parent ='all_game'`,
+        [role]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows[0].allow_games;
+        } else {
+          return null;
         }
       })
       .catch(err => ({ error: err.message }));

@@ -1,7 +1,8 @@
 const express = require("express");
 const path = require("path");
 const fileUpload = require("express-fileupload");
-
+const requestIp = require("request-ip");
+const helmet = require("helmet");
 const app = express();
 
 app.use(
@@ -15,7 +16,8 @@ app.use(
     }
   })
 );
-
+app.use(requestIp.mw());
+app.use(helmet());
 app.use("/uploads", express.static("client/public/uploads"));
 app.use(express.json());
 
@@ -28,6 +30,7 @@ app.use("/api/platform", require("./routes/api/platform"));
 app.use("/api/servers", require("./routes/api/servers"));
 app.use("/api/offline_cs", require("./routes/api/offline_cs"));
 app.use("/api/admin_users", require("./routes/api/admin_users"));
+app.use("/api/questions", require("./routes/api/questions"));
 
 //serve static assets if in production
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "stage") {
