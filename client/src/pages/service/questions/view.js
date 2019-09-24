@@ -131,7 +131,7 @@ const QuestionInfo = ({
   let allocateMark;
   if (question.allocate_status.toString() === "1") {
     allocateMark = (
-      <span className="text-danger">
+      <span className="text-warning">
         <i className="mdi mdi-hand"></i> 已後送給{question.allocate_user_name}
       </span>
     );
@@ -139,7 +139,14 @@ const QuestionInfo = ({
     allocateMark = (
       <span className="text-success">
         <i className="mdi mdi-hand-okay"></i>
-        {question.allocate_user_name}處理完畢
+        {question.allocate_user_name}後送處理完畢
+      </span>
+    );
+  } else if (question.allocate_status.toString() === "3") {
+    allocateMark = (
+      <span className="text-danger">
+        <i className="mdi mdi-alert-box-outline"></i>
+        {question.allocate_user_name}請求額外資訊
       </span>
     );
   }
@@ -165,8 +172,10 @@ const QuestionInfo = ({
       );
   }
 
-  const finishAllocateSubmit = e => {
-    e.preventDefault();
+  const finishAllocateSubmit = allocate_status => {
+    //e.preventDefault();
+    //console.log("allocate_status", allocate_status);
+    //return;
     if (finishAllocateNote === "") {
       setErrors({ ...errors, finishAllocateNote: "請填寫處理描述" });
       return;
@@ -178,7 +187,7 @@ const QuestionInfo = ({
     };
 
     //console.log("finishAllocateSubmit clicked", uFields);
-    allocateQuestion(uFields, 2);
+    allocateQuestion(uFields, allocate_status);
   };
 
   return (
@@ -197,24 +206,43 @@ const QuestionInfo = ({
               {allocateMark}
               <div>{allocateResultMark}</div>
 
-              <Form inline onSubmit={finishAllocateSubmit}>
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                  <Input
-                    type="text"
-                    name="finish_allocate"
-                    id="finish_allocate"
-                    placeholder="處理描述.."
-                    value={finishAllocateNote}
-                    onChange={e => setFinishAllocateNote(e.target.value)}
-                    invalid={errors.finishAllocateNote ? true : false}
-                  />
-                  <FormFeedback>{errors.finishAllocateNote}</FormFeedback>
-                </FormGroup>
+              {(question.allocate_status.toString() === "1" ||
+                question.allocate_status.toString() === "3") && (
+                <Form>
+                  <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                    <Input
+                      type="textarea"
+                      rows="5"
+                      name="finish_allocate"
+                      id="finish_allocate"
+                      placeholder="處理描述.."
+                      value={finishAllocateNote}
+                      onChange={e => setFinishAllocateNote(e.target.value)}
+                      invalid={errors.finishAllocateNote ? true : false}
+                    />
+                    <FormFeedback>{errors.finishAllocateNote}</FormFeedback>
+                  </FormGroup>
 
-                <Button color="primary" type="submit">
-                  處理完成
-                </Button>
-              </Form>
+                  <Button
+                    color="success"
+                    type="button"
+                    onClick={e => finishAllocateSubmit(2)}
+                    className="float-right mt-1"
+                  >
+                    <i className="mdi mdi-check"></i>
+                    處理完成
+                  </Button>
+                  <Button
+                    color="danger"
+                    type="button"
+                    onClick={e => finishAllocateSubmit(3)}
+                    className="float-right mt-1"
+                  >
+                    <i className="mdi mdi-progress-alert"></i>
+                    需要協助
+                  </Button>
+                </Form>
+              )}
             </td>
           </tr>
           <tr>
@@ -534,7 +562,7 @@ const SingleQuestionPage = ({
                         type="text"
                         name="allocateNote"
                         id="allocateNote"
-                        placeholder="處理描述.."
+                        placeholder="後送描述.."
                         value={allocateNote}
                         onChange={e => setAllocateNote(e.target.value.trim())}
                         invalid={errors.allocateNote ? true : false}
@@ -544,10 +572,10 @@ const SingleQuestionPage = ({
 
                     <button
                       type="button"
-                      className="btn btn-primary m-1"
+                      className="btn btn-warning m-1"
                       onClick={submitAllocate}
                     >
-                      <i className="mdi mdi-account-edit mr-1"></i> 送出
+                      <i className="mdi mdi-account-edit"></i> 送出
                     </button>
                   </CardBody>
                 </Card>

@@ -200,7 +200,11 @@ function* allocateQuestion({ payload }) {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     url: `/api/questions/${
-      allocateStatus === 2 ? "finish_allocate_json" : "allocate_json"
+      allocateStatus === 2
+        ? "finish_allocate_json"
+        : allocateStatus === 3
+        ? "request_allocate_json"
+        : "allocate_json"
     }`
   };
 

@@ -255,12 +255,60 @@ router.put(
 
     const updatedResult = `${
       allocate_result === null ? "" : allocate_result
-    }${dt} - ${req.user.name}：${result}<br>`;
+    }${dt} - ${req.user.name}：[後送]${result}<br>`;
 
     const updatedField = {
       allocate_admin_uid: allocate_admin_uid,
       allocate_date: dt,
       allocate_status: 1,
+      allocate_result: updatedResult,
+      close_admin_uid: null,
+      system_closed_start: null
+    };
+
+    const dbResult = await QuestionsModel.findByIdAndUpdate(
+      question_id,
+      updatedField
+    );
+
+    //console.log(result);
+    if (dbResult.affectedRows === 1) {
+      res.json({
+        msg: "後送成功",
+        id: question_id,
+        updatedField: updatedField
+      });
+    } else {
+      res.status(500).json({ msg: `失敗(${dbResult.error})` });
+    }
+  }
+);
+
+router.put(
+  "/request_allocate_json",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "modify");
+  },
+  async (req, res) => {
+    //console.log("allocate_json", req.body);
+    const {
+      question_id,
+      allocate_result,
+      result,
+      allocate_admin_uid
+    } = req.body;
+
+    const dt = moment()
+      .local()
+      .format("YYYY-MM-DD HH:mm");
+
+    const updatedResult = `${
+      allocate_result === null ? "" : allocate_result
+    }${dt} - ${req.user.name}：[資料請求]${result}<br>`;
+
+    const updatedField = {
+      allocate_admin_uid: allocate_admin_uid,
+      allocate_status: 3,
       allocate_result: updatedResult,
       close_admin_uid: null,
       system_closed_start: null
@@ -296,7 +344,7 @@ router.put(
       .local()
       .format("YYYY-MM-DD HH:mm");
 
-    const updatedResult = `${allocate_result}${dt} - ${req.user.name}：${result}<br>`;
+    const updatedResult = `${allocate_result}${dt} - ${req.user.name}：[處理完成]${result}<br>`;
 
     const updatedField = {
       allocate_admin_uid: req.user.uid,
