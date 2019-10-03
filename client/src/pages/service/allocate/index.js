@@ -1,25 +1,98 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Card, CardBody } from "reactstrap";
+import { Row, Col, Card, CardBody, Button, Alert } from "reactstrap";
+import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
+import filterFactory, {
+  textFilter,
+  selectFilter
+} from "react-bootstrap-table2-filter";
 import PageTitle from "../../../components/PageTitle";
-import { getAllocateData } from "../../../redux/actions";
+import {
+  getAllocateData,
+  takeAllocationTasks,
+  clearAllocationMessage
+} from "../../../redux/actions";
 import Moment from "react-moment";
 import Spinner from "../../../components/Spinner";
 import PropTypes from "prop-types";
+import AllocateStatusBadge from "./AllocateStatusBadge";
 
-const AllocateListPage = ({ records, getAllocateData, loading, error }) => {
+const AllocateListPage = ({
+  newTasks,
+  records,
+  getAllocateData,
+  updateOKMessage,
+  clearAllocationMessage,
+  takeAllocationTasks,
+  loading,
+  question_type,
+  question_status,
+  error,
+  allocationStatus,
+  user
+}) => {
   const [arrangedData, setArrangedData] = useState([]);
-  console.log("arrangedData", arrangedData);
+  const [selAssigneeOptions, setSelAssigneeOptions] = useState({});
+  const [defaultAssignee, setDefaultAssignee] = useState("");
+
+  const mainTitle = "派單系統 - 待處理列表";
+
+  //console.log("records", records);
   useEffect(() => {
     getAllocateData();
+    document.title = mainTitle;
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     setArrangedData(records);
+
+    const selAssigneeOptionsArray = new Set(records.map(q => q.assignee_name));
+    let tmpS = {};
+    selAssigneeOptionsArray.forEach((g, index) => {
+      if (g === user.admin_name) {
+        setDefaultAssignee(index);
+      }
+
+      tmpS[index] = g;
+    });
+    setSelAssigneeOptions(tmpS);
   }, [records]);
+
+  useEffect(() => {
+    //console.log("updateOKMessage effect", updateOKMessage);
+    //console.log("error effect", error);
+    let timeOutId;
+    if (
+      (updateOKMessage !== undefined && updateOKMessage !== null) ||
+      (error !== undefined && error !== null)
+    ) {
+      //console.log("error effect", error);
+      timeOutId = setTimeout(() => {
+        clearAllocationMessage();
+        //console.log("error effect timeOutId", timeOutId);
+      }, 2000);
+    }
+    return () => {
+      clearTimeout(timeOutId);
+    };
+  }, [updateOKMessage, error]);
+
+  const clickTakeOnTasks = () => {
+    takeAllocationTasks();
+  };
+
+  let selStatusOptions = {};
+
+  const selectOption = allocationStatus
+    ? Object.keys(allocationStatus).map(statusKey => statusKey)
+    : [];
+
+  selectOption.forEach((t, index) => {
+    selStatusOptions[t] = allocationStatus[t].text;
+  });
 
   //#  	案件編號：點選案件編號可連結至案件檢視頁面
   // 問題類型：用戶所選擇的問題類型
@@ -28,42 +101,147 @@ const AllocateListPage = ({ records, getAllocateData, loading, error }) => {
   // 負責人：
   const columns = [
     {
-      dataField: "id",
-      text: "編號",
-      sort: true
-    },
-    {
-      dataField: "type",
-      text: "問題類型",
-      sort: true
-    },
-
-    {
-      dataField: "content",
-      text: "提問描述"
-    },
-
-    {
-      dataField: "allocate_status",
-      text: "後送狀態",
-      sort: true
-    },
-    {
-      dataField: "allocate_admin_name",
-      text: "負責人",
-      sort: true
-    },
-    {
-      dataField: "allocate_date",
-      text: "指派時間",
+      dataField: "question_ctime",
+      text: "提問時間",
       sort: true,
       formatter: (cellContent, row) => {
         return (
-          <Moment format="YYYY-MM-DD HH:mm:ss">{row.allocate_date}</Moment>
+          <Moment format="YYYY-MM-DD HH:mm:ss">{row.allocation_time}</Moment>
         );
+      }
+    },
+    {
+      dataField: "question_id",
+      text: "提問單",
+      filter: textFilter(),
+      sort: true
+    },
+    {
+      dataField: "character_name",
+      text: "暱稱",
+      headerStyle: (column, colIndex) => {
+        return { width: "200px" };
+      },
+      filter: textFilter(),
+      formatter: (cellContent, row) => {
+        return (
+          <p className="text-dark">
+            {row.character_name}{" "}
+            <span className="text-muted">({row.server_name})</span>
+            <span className="d-block">UID:{row.partner_uid}</span>
+          </p>
+        );
+      }
+    },
+    {
+      dataField: "content",
+      text: "玩家提問",
+      headerStyle: (column, colIndex) => {
+        return { width: "318px" };
+      },
+      attrs: (cell, row) => ({ title: `${row.content}` }),
+      filter: textFilter(),
+      formatter: (cellContent, row) => {
+        return (
+          <Fragment>
+            <Link
+              to={`/service/view/${row.question_id}`}
+              className="text-info font-weight-bold mb-1 d-block"
+            >
+              <p
+                dangerouslySetInnerHTML={{
+                  __html:
+                    row.content.length > 100
+                      ? row.content.substr(0, 100) + "..."
+                      : row.content
+                }}
+                title={row.content}
+              ></p>
+            </Link>
+          </Fragment>
+        );
+      }
+    },
+
+    {
+      dataField: "allocate_cause",
+      text: "後送描述",
+      headerStyle: (column, colIndex) => {
+        return { width: "318px" };
+      },
+      formatter: (cellContent, row) => {
+        return (
+          <Fragment>
+            <p className="font-13 text-dark">
+              <Moment format="YYYY-MM-DD HH:mm:ss">
+                {row.allocation_time}
+              </Moment>{" "}
+              -{row.assignor_name}: {row.allocate_cause}
+            </p>
+          </Fragment>
+        );
+      }
+    },
+    {
+      dataField: "allocate_status",
+      text: "後送狀態",
+      sort: true,
+      formatter: (cellContent, row) => {
+        return (
+          <Fragment>
+            <p className="font-13 text-dark">
+              <AllocateStatusBadge status_code={row.allocate_status} />
+            </p>
+            {row.lastestNote}
+          </Fragment>
+        );
+      },
+      filter: selectFilter({
+        options: selStatusOptions
+      })
+    },
+
+    {
+      dataField: "assignee_name",
+      text: "被指派者",
+      sort: true,
+      filter: selectFilter({
+        options: selAssigneeOptions,
+        defaultValue: defaultAssignee
+      }),
+      style: (cell, row) => {
+        if (row.ins_status === "new") {
+          return {
+            backgroundColor: "#81c784"
+          };
+        }
       }
     }
   ];
+
+  const customTotal = (from, to, size) => (
+    <span className="react-bootstrap-table-pagination-total ml-2">
+      顯示 {size} 筆總數中的 {from} ~ {to} 紀錄
+    </span>
+  );
+
+  let getTasksBtn;
+  if (user.role === "cs_master" || user.role === "admin") {
+    getTasksBtn = (
+      <Card>
+        <CardBody>
+          <Button
+            color="primary"
+            className="btn-rounded"
+            onClick={clickTakeOnTasks}
+          >
+            領取案件
+          </Button>
+        </CardBody>
+      </Card>
+    );
+  }
+
   if (loading) {
     return <Spinner className="m-2" color="secondary" />;
   }
@@ -74,10 +252,24 @@ const AllocateListPage = ({ records, getAllocateData, loading, error }) => {
           { label: "客服", path: "/service/", active: false },
           { label: "派單系統", path: "/service/allocate/list", active: true }
         ]}
-        title={"派單系統 - 待處理列表"}
+        title={mainTitle}
       />
       <Row className="mb-2">
-        <Col lg={4} />
+        <Col lg={4}>
+          {error && (
+            <Alert color="danger" isOpen={error ? true : false}>
+              <div>{error}</div>
+            </Alert>
+          )}
+
+          {updateOKMessage && (
+            <Alert color="success" isOpen={updateOKMessage ? true : false}>
+              <div>{updateOKMessage}</div>
+            </Alert>
+          )}
+
+          {getTasksBtn}
+        </Col>
       </Row>
       <Row className="mb-2">
         <Col lg={12}>
@@ -85,16 +277,22 @@ const AllocateListPage = ({ records, getAllocateData, loading, error }) => {
             <CardBody>
               <BootstrapTable
                 bootstrap4
+                classes="font-13"
                 keyField="id"
                 data={arrangedData}
                 columns={columns}
+                filter={filterFactory()}
                 defaultSorted={[
                   {
                     dataField: "id",
                     order: "desc"
                   }
                 ]}
-                pagination={paginationFactory({ sizePerPage: 10 })}
+                pagination={paginationFactory({
+                  sizePerPage: 10,
+                  showTotal: true,
+                  paginationTotalRenderer: customTotal
+                })}
                 wrapperClasses="table-responsive"
               />
             </CardBody>
@@ -106,15 +304,22 @@ const AllocateListPage = ({ records, getAllocateData, loading, error }) => {
 };
 
 AllocateListPage.propTypes = {
-  getAllocateData: PropTypes.func.isRequired
+  getAllocateData: PropTypes.func.isRequired,
+  takeAllocationTasks: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
   records: state.ServiceAllocate.list,
   loading: state.ServiceAllocate.loading,
-  error: state.ServiceAllocate.error
+  error: state.ServiceAllocate.error,
+  newTasks: state.ServiceAllocate.newTasks,
+  updateOKMessage: state.ServiceAllocate.updateOKMessage,
+  question_type: state.Service.question_type,
+  question_status: state.Service.question_status,
+  allocationStatus: state.ServiceAllocate.allocationStatus,
+  user: state.Auth.user
 });
 
 export default connect(
   mapStateToProps,
-  { getAllocateData }
+  { getAllocateData, takeAllocationTasks, clearAllocationMessage }
 )(AllocateListPage);

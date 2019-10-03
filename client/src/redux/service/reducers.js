@@ -18,9 +18,7 @@ import {
   CLOSE_QUESTION,
   CLOSE_QUESTION_SUCCESS,
   CLOSE_QUESTION_FAILED,
-  GET_TEST_DATA,
   GET_TEST_DATA_SUCCESS,
-  GET_TEST_DATA_FAILED,
   GET_OVERVIEW,
   GET_OVERVIEW_SUCCESS,
   GET_OVERVIEW_FAILED,
@@ -48,13 +46,13 @@ type State = {
   ovToday?: {} | null,
   ovTotal?: {} | null,
   ovAllocate?: [] | null,
+  ovAllocateNew?: [] | null,
   updateOKMessage?: string
 };
 
 const Service = (state: State = INIT_STATE, action: ServiceAction) => {
   switch (action.type) {
     case GET_OVERVIEW:
-    case GET_QUESTIONS:
     case GET_CURRENT_QUESTION:
     case ALLOCATE_QUESTION:
     case REPLY_QUESTION:
@@ -64,7 +62,11 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         loading: true,
         error: null
       };
-
+    case GET_QUESTIONS:
+      return {
+        ...state,
+        error: null
+      };
     case ALLOCATE_QUESTION_SUCCESS:
       return {
         ...state,
@@ -130,21 +132,25 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         error: null
       };
     case GET_OVERVIEW_SUCCESS:
-      const { ovToday, ovTotal, ovAllocate } = action.payload;
+      const { ovToday, ovTotal, ovAllocate, ovAllocateNew } = action.payload;
       return {
         ...state,
         ovToday,
         ovTotal,
         ovAllocate,
+        ovAllocateNew,
         loading: false,
         error: null
       };
+
     case GET_QUESTIONS_SUCCESS:
       const {
         query,
         question_type,
         question_status,
-        reply_query
+        reply_query,
+        newAllocationStatus,
+        allocation_status
       } = action.payload;
       return {
         ...state,
@@ -152,6 +158,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         question_type,
         question_status,
         reply_query,
+        newAllocationStatus,
+        allocation_status,
         loading: false,
         error: null
       };

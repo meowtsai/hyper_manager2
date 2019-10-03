@@ -11,33 +11,35 @@ import {
   Alert,
   Table,
   Badge,
-  Input,
-  Form,
-  FormGroup,
   Button,
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  FormFeedback
+  ModalFooter
 } from "reactstrap";
 import classNames from "classnames";
 import { connect } from "react-redux";
 import SimpleMDEReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import "moment/locale/zh-tw";
+
 import {
   getCurrentQuestion,
   allocateQuestion,
   replyQuestion,
   clearMessage,
-  closeQuestion
+  closeQuestion,
+  getAllocateById,
+  putAllocation,
+  postAllocation,
+  clearAllocationMessage
 } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Moment from "react-moment";
 import moment from "moment";
 import PropTypes from "prop-types";
 import Spinner from "../../../components/Spinner";
+import AllocationList from "./AllocationList";
 
 const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
   const [modal, setModal] = useState(false);
@@ -68,14 +70,13 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
         <CardSubtitle tag="h6">
           <Moment format="YYYY-MM-DD HH:mm:ss">{reply.create_time}</Moment>
         </CardSubtitle>
-
+        <hr />
         <CardText>
-          <hr />
-          <p
+          <span
             dangerouslySetInnerHTML={{
               __html: reply.content
             }}
-          ></p>
+          ></span>
         </CardText>
         <CardText className="mt-4">
           {reply.is_official.toString() === "1" && (
@@ -112,8 +113,8 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
 const PicInfo = ({ pic_path }) => {
   if (!pic_path) return null;
   return (
-    <a href={pic_path} target="_blank">
-      <img src={pic_path} style={{ maxWidth: "400px" }} />
+    <a href={pic_path} target="_blank" rel="noopener noreferrer">
+      <img src={pic_path} style={{ maxWidth: "400px" }} alt="玩家圖檔" />
     </a>
   );
 };
@@ -205,8 +206,9 @@ const QuestionInfo = ({
               {isReadMark}
               {allocateMark}
               <div>{allocateResultMark}</div>
+              <div className="text-info font-12">請至原站台處理後送</div>
 
-              {(question.allocate_status.toString() === "1" ||
+              {/* {(question.allocate_status.toString() === "1" ||
                 question.allocate_status.toString() === "3") && (
                 <Form>
                   <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
@@ -242,7 +244,7 @@ const QuestionInfo = ({
                     需要協助
                   </Button>
                 </Form>
-              )}
+              )} */}
             </td>
           </tr>
           <tr>
@@ -343,6 +345,7 @@ const QuestionInfo = ({
               <a
                 target="_blank"
                 href={`https://whatismyipaddress.com/ip/${question.ip}`}
+                rel="noopener noreferrer"
               >
                 查看ip資訊
               </a>
@@ -374,18 +377,25 @@ const QuestionInfo = ({
 
 const SingleQuestionPage = ({
   getCurrentQuestion,
+  getAllocateById,
   allocateQuestion,
+  postAllocation,
+  putAllocation,
   replyQuestion,
   closeQuestion,
   clearMessage,
+  clearAllocationMessage,
   updateOKMessage,
+  allocateUpdateOKMessage,
   question_status,
   question_type,
   current,
   loading,
   error,
   match,
-  user
+  user,
+  allocation,
+  allocation_logs
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -395,15 +405,15 @@ const SingleQuestionPage = ({
     ? match.params.question_id
     : null;
 
-  const [selected, setSelected] = useState({});
-  const [allocateAdminUid, setAllocateAdminUid] = useState("");
-  const [allocateNote, setAllocateNote] = useState("");
   const [finishAllocateNote, setFinishAllocateNote] = useState("");
-  const [errors, setErrors] = useState({});
+
   const [reply, setReply] = useState("");
 
   useEffect(() => {
     getCurrentQuestion(question_id);
+    getAllocateById(question_id);
+    document.title = `提問單# ${question_id} `;
+
     // eslint-disable-next-line
   }, []);
 
@@ -413,7 +423,6 @@ const SingleQuestionPage = ({
     if (updateOKMessage !== undefined && updateOKMessage !== null) {
       timeOutId = setTimeout(() => {
         setReply("");
-        setAllocateNote("");
         setFinishAllocateNote("");
         clearMessage();
       }, 2000);
@@ -423,28 +432,27 @@ const SingleQuestionPage = ({
     };
   }, [updateOKMessage]);
 
+  useEffect(() => {
+    //console.log("allocateUpdateOKMessage effect", allocateUpdateOKMessage);
+    let timeOutId;
+    if (
+      allocateUpdateOKMessage !== undefined &&
+      allocateUpdateOKMessage !== null
+    ) {
+      timeOutId = setTimeout(() => {
+        setReply("");
+        setFinishAllocateNote("");
+        clearAllocationMessage();
+      }, 2000);
+    }
+    return () => {
+      clearTimeout(timeOutId);
+    };
+  }, [allocateUpdateOKMessage]);
+
   if (loading) {
     return <Spinner className="m-2" color="secondary" />;
   }
-
-  const submitAllocate = () => {
-    if (allocateNote === "") {
-      setErrors({ ...errors, allocateNote: "請填寫後送描述" });
-      return;
-    }
-    delete errors["allocateNote"];
-    setErrors(errors);
-    const uFields = {
-      question_id: current.question.id,
-      allocate_result: current.question.allocate_result,
-      result: allocateNote,
-      allocate_admin_uid:
-        allocateAdminUid !== ""
-          ? allocateAdminUid
-          : current.allocate_users[0].uid
-    };
-    allocateQuestion(uFields, 1);
-  };
 
   const onReplySubmit = () => {
     const replyField = {
@@ -508,6 +516,14 @@ const SingleQuestionPage = ({
                   <div>{updateOKMessage}</div>
                 </Alert>
               )}
+              {allocateUpdateOKMessage && (
+                <Alert
+                  color="success"
+                  isOpen={allocateUpdateOKMessage ? true : false}
+                >
+                  <div>{allocateUpdateOKMessage}</div>
+                </Alert>
+              )}
               <Card>
                 <CardBody>
                   <h5>案件編號 #{current.question.id}</h5>
@@ -536,47 +552,19 @@ const SingleQuestionPage = ({
                 </CardBody>
               </Card>
             </Col>
-            <Col sm={2}></Col>
 
-            <Col sm={4}>
+            <Col sm={6}>
               {current.question.status !== "4" && (
-                <Card className="tilebox-one">
+                <Card>
                   <CardBody>
-                    <i className="dripicons-upload float-right text-muted"></i>
-                    <h5 className="text-muted text-uppercase mt-0">後送給</h5>
-                    <Input
-                      type="select"
-                      name="allocate_admin_uid"
-                      className="col-sm-6 m-1 p-0 sm"
-                      onChange={e => setAllocateAdminUid(e.target.value)}
-                    >
-                      {current.allocate_users.map(user => (
-                        <option key={`au-${user.uid}`} value={user.uid}>
-                          {user.name}
-                        </option>
-                      ))}
-                    </Input>
-
-                    <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                      <Input
-                        type="text"
-                        name="allocateNote"
-                        id="allocateNote"
-                        placeholder="後送描述.."
-                        value={allocateNote}
-                        onChange={e => setAllocateNote(e.target.value.trim())}
-                        invalid={errors.allocateNote ? true : false}
-                      />
-                      <FormFeedback>{errors.allocateNote}</FormFeedback>
-                    </FormGroup>
-
-                    <button
-                      type="button"
-                      className="btn btn-warning m-1"
-                      onClick={submitAllocate}
-                    >
-                      <i className="mdi mdi-account-edit"></i> 送出
-                    </button>
+                    <AllocationList
+                      q_id={current.question.id}
+                      allocation={allocation}
+                      allocation_logs={allocation_logs}
+                      postAllocation={postAllocation}
+                      putAllocation={putAllocation}
+                      user={user}
+                    />
                   </CardBody>
                 </Card>
               )}
@@ -665,7 +653,12 @@ const mapStateToProps = state => ({
   loading: state.Service.loading,
   error: state.Service.error,
   updateOKMessage: state.Service.updateOKMessage,
-  user: state.Auth.user
+  user: state.Auth.user,
+  allocation: state.ServiceAllocate.allocation,
+  allocation_logs: state.ServiceAllocate.allocation_logs,
+  allocate_loading: state.ServiceAllocate.loading,
+  allocate_error: state.ServiceAllocate.error,
+  allocateUpdateOKMessage: state.ServiceAllocate.updateOKMessage
 });
 
 export default connect(
@@ -674,7 +667,11 @@ export default connect(
     getCurrentQuestion,
     allocateQuestion,
     clearMessage,
+    clearAllocationMessage,
     replyQuestion,
-    closeQuestion
+    closeQuestion,
+    getAllocateById,
+    putAllocation,
+    postAllocation
   }
 )(SingleQuestionPage);

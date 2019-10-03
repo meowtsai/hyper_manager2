@@ -581,7 +581,7 @@ const serviceRoutes = {
     children: [
         {
             exact: true,
-            path:'/service',
+            path:'/service/overview',
             name:'總覽',
             component:ServiceOverview,
             route: PrivateRoute,
@@ -603,27 +603,11 @@ const serviceRoutes = {
         },
         {
             exact: true,
-            path: '/service/allocate',
-            name: '派單系統',
-            children: [
-                {
-                    path: '/service/allocate/list',
-                    name: '案件處理列表',
-                    component: AllocateListPage,
+            path: '/service/allocate/list',
+            name: '派單系統- 案件列表',
+            component: AllocateListPage,
                     route: PrivateRoute,
-                },
-                {
-                    path: '/service/tickets/detail',
-                    name: '領取案件',
-                    component: ProjectDetail,
-                    route: PrivateRoute,
-                },{
-                    path: '/service/tickets/detail',
-                    name: '個人總覽數據',
-                    component: ProjectDetail,
-                    route: PrivateRoute,
-                },
-            ],
+            
         },
 
     ],

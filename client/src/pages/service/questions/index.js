@@ -3,15 +3,9 @@ import { connect } from "react-redux";
 import {
   Row,
   Col,
-  Button,
   Card,
   CardBody,
-  Label,
-  Table,
   Input,
-  Form,
-  FormGroup,
-  Alert,
   Badge,
   DropdownToggle,
   DropdownMenu,
@@ -24,7 +18,6 @@ import filterFactory, {
   textFilter,
   selectFilter
 } from "react-bootstrap-table2-filter";
-import { Link } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
 import {
   getGames,
@@ -35,6 +28,7 @@ import {
 import Moment from "react-moment";
 import moment from "moment";
 import Spinner from "../../../components/Spinner";
+import AllocateStatusBadge from "../allocate/AllocateStatusBadge";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import PropTypes from "prop-types";
 import "moment/locale/zh-tw";
@@ -48,6 +42,8 @@ const QuestionListPage = ({
   question_type = {},
   question_status = {},
   reply_query,
+  newAllocationStatus,
+
   updateQuestionType,
   updateQuestionStatus,
   location
@@ -55,97 +51,47 @@ const QuestionListPage = ({
   //console.log("location", location);
   // console.log("match", rest);
   // console.log("query", rest);
-  const mainTitle = "客服案件列表";
+
   const mainPath = "/service";
   const pathName = location.pathname.split("/");
   const defaultStatus = pathName[pathName.length - 1] === "todo" ? "1" : "2";
+
+  const mainTitle =
+    defaultStatus === "1" ? "待處理案件(自動重整)" : "等待中案件";
+
   // console.log("query", rest);
   const [arrangedData, setArrangedData] = useState([]);
-  const [gameId, setGameId] = useState("");
-  const [status, setStatus] = useState(defaultStatus);
-  const [keyword, setKeyword] = useState("");
-  const [type, setType] = useState("");
 
   moment.locale("zh-tw");
   //console.log("games", games);
 
   useEffect(() => {
-    const condition = { status };
+    const condition = { status: defaultStatus };
     getQuestions(condition);
     if (games.length === 0) {
       getGames();
     }
+
+    document.title = mainTitle;
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     setArrangedData(records);
-  }, [records]);
 
-  const filterStatus = (id, value) => {
-    //console.log("filterStatus", id, value);
-    let newData = records;
-    switch (id) {
-      case "gameId":
-        setGameId(value);
-        if (value !== "") {
-          newData = records.filter(record => record.game_id === value);
-        }
-        if (type !== "") {
-          newData = newData.filter(record => record.type === type);
-        }
-        if (status !== "") {
-          newData = newData.filter(record => record.status === status);
-        }
-        break;
-      case "type":
-        setType(value);
-        if (value !== "") {
-          newData = records.filter(record => record.type === value);
-        }
-        if (gameId !== "") {
-          newData = newData.filter(record => record.game_id === gameId);
-        }
-        if (status !== "") {
-          newData = newData.filter(record => record.status === status);
-        }
-        break;
-      case "status":
-        setStatus(value);
-        if (value !== "") {
-          newData = records.filter(record => record.status === value);
-        }
-        if (gameId !== "") {
-          newData = newData.filter(record => record.game_id === gameId);
-        }
-        if (type !== "") {
-          newData = newData.filter(record => record.type === type);
-        }
-        break;
-      case "keyword":
-        setKeyword(value);
-        if (value !== "") {
-          newData = records.filter(
-            record => JSON.stringify(record).indexOf(value) > -1
-          );
-        }
-        if (gameId !== "") {
-          newData = newData.filter(record => record.game_id === gameId);
-        }
-        if (type !== "") {
-          newData = newData.filter(record => record.type === type);
-        }
-        if (status !== "") {
-          newData = newData.filter(record => record.status === status);
-        }
-        break;
-      default:
-        //console.log("into default");
-        break;
+    if (defaultStatus === "1") {
+      let timeOutId;
+
+      timeOutId = setTimeout(() => {
+        getQuestions();
+        //console.log("getQuestions effect timeOutId", timeOutId);
+      }, 30000);
+      return () => {
+        //console.log("getQuestions effect  clearTimeout timeOutId", timeOutId);
+        clearTimeout(timeOutId);
+      };
     }
-
-    setArrangedData(newData);
-  };
+  }, [records]);
 
   const onTypeChange = (id, newType) => {
     //console.log("call onTypeChange", id, newType);
@@ -153,7 +99,6 @@ const QuestionListPage = ({
   };
 
   const onStatusChange = (id, newStatus) => {
-    console.log("call updateStatus", id);
     //調回處理中 1 or 隱藏 0
     updateQuestionStatus(id, newStatus);
   };
@@ -171,7 +116,7 @@ const QuestionListPage = ({
   selTypeArray.forEach((t, index) => {
     selTypeOptions[index] = question_type[t];
   });
-  console.log("selTypeOptions", selTypeOptions);
+  //console.log("selTypeOptions", selTypeOptions);
 
   const columns = [
     {
@@ -181,6 +126,9 @@ const QuestionListPage = ({
     {
       dataField: "game_name",
       text: "遊戲",
+      headerStyle: (column, colIndex) => {
+        return { width: "138px" };
+      },
       formatter: cell => selGameOptions[cell],
       filter: selectFilter({
         options: selGameOptions
@@ -189,6 +137,9 @@ const QuestionListPage = ({
     {
       dataField: "character_name",
       text: "角色名稱",
+      headerStyle: (column, colIndex) => {
+        return { width: "138px" };
+      },
       filter: textFilter(),
       formatter: (cellContent, row) => {
         return (
@@ -196,11 +147,9 @@ const QuestionListPage = ({
             {row.character_name}{" "}
             <span className="text-muted">({row.server_name})</span>
             {row.is_in_game === "0" ? (
-              <Badge color="success-lighten" className="mr-1">
-                玩家填寫
-              </Badge>
+              <Badge color="success-lighten">自填</Badge>
             ) : (
-              <div>{row.partner_uid}</div>
+              <span className="d-block">{row.partner_uid}</span>
             )}
           </p>
         );
@@ -245,8 +194,10 @@ const QuestionListPage = ({
       formatter: (cellContent, row) => {
         return (
           <Fragment>
-            <Link
-              to={`${mainPath}/view/${row.id}`}
+            <a
+              href={`${mainPath}/view/${row.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-info font-weight-bold mb-1 d-block"
             >
               <p
@@ -258,7 +209,7 @@ const QuestionListPage = ({
                 }}
                 title={row.content}
               ></p>
-            </Link>
+            </a>
 
             {row.pic_path1 && (
               <i className="mdi mdi-image-size-select-actual"></i>
@@ -272,17 +223,40 @@ const QuestionListPage = ({
       dataField: "status",
       text: "狀態",
       formatter: (cell, row) => {
+        let newAllocateMark;
+        const newAllocateRecord = newAllocationStatus.filter(
+          al => al.question_id === row.id
+        );
+        //newAllocateMark = newAllocateRecord.length > 0 ? "後送" : "";
+        if (newAllocateRecord.length > 0) {
+          newAllocateMark = (
+            <Fragment>
+              <hr />
+              <span className="pr-2 text-nowrap mb-0 d-inline-block">
+                <i className="mdi mdi-briefcase-outline text-muted"></i>{" "}
+                <AllocateStatusBadge
+                  status_code={newAllocateRecord[0].allocate_status}
+                />
+              </span>
+              <span className="text-nowrap mb-2 d-inline-block">
+                <i className="mdi mdi-face text-muted"></i>{" "}
+                <b>{newAllocateRecord[0].assignee_name}</b>{" "}
+              </span>
+            </Fragment>
+          );
+        }
+
         let allocateMark;
         if (row.allocate_status === "1") {
           allocateMark = (
-            <span className="text-danger">
-              <i className="mdi mdi-hand"></i>
+            <span className="text-danger d-block">
+              <i className="mdi mdi-hand"></i>[舊版]後送中
             </span>
           );
         } else if (row.allocate_status === "2") {
           allocateMark = (
-            <span className="text-success">
-              <i className="mdi mdi-hand-okay"></i>
+            <span className="text-success d-block">
+              <i className="mdi mdi-hand-okay"></i>[舊版]後送完成
             </span>
           );
         }
@@ -309,7 +283,7 @@ const QuestionListPage = ({
         } else if (row.status === "4") {
           statusColor = "success-lighten";
           statusText = `${
-            row.system_closed == "1"
+            row.system_closed === "1"
               ? "系統"
               : row.close_admin_uid
               ? ""
@@ -324,6 +298,7 @@ const QuestionListPage = ({
             </Badge>
             {isReadMark}
             {allocateMark}
+            {newAllocateMark}
           </Fragment>
         );
       }
@@ -348,8 +323,8 @@ const QuestionListPage = ({
           }, {}); //{"蟻力_客服D":2,"蟻力_客服Q":2,"蟻力_客服L":1,"蟻力_客服Z":1}
         return (
           <ul className="list-unstyled">
-            {Object.keys(countedNames).map(uname => (
-              <li>
+            {Object.keys(countedNames).map((uname, index) => (
+              <li key={`${row.id}-cs-uname${index}`}>
                 {uname}({countedNames[uname]})
               </li>
             ))}
@@ -425,6 +400,52 @@ const QuestionListPage = ({
           </React.Fragment>
         );
       }
+    },
+    {
+      dataField: "timer",
+      isDummyField: true,
+      text: "等待時間",
+
+      formatter: (cellContent, row) => {
+        let minutes;
+
+        if (row.last_replied === "N") {
+          //依照等級等待時長區分顏色12小內為綠色、23:59小時-12:00為橘色、大於24小時為紅色
+          minutes = moment().diff(moment(row.create_time), "minutes");
+        }
+        if (row.last_replied === "U") {
+          const replies = reply_query.filter(
+            reply => reply.question_id === row.id
+          );
+          let userFirstReplyTime;
+          for (let index = replies.length - 1; index > 0; index--) {
+            const reply = replies[index];
+            if (reply.is_official === "1") {
+              userFirstReplyTime = replies[index + 1]
+                ? replies[index + 1].create_time
+                : reply.create_time;
+              break;
+            } else {
+              userFirstReplyTime = replies[index].create_time;
+            }
+          }
+
+          minutes = moment().diff(moment(userFirstReplyTime), "minutes");
+        }
+
+        const tColor =
+          minutes < 720
+            ? "text-success"
+            : minutes < 1440
+            ? "text-warning"
+            : "text-danger";
+
+        return (
+          <span className={`${tColor} font-11`}>
+            {minutes ? `${Math.floor(minutes / 60)} h ${minutes % 60} m` : ""}
+          </span>
+        );
+      }
     }
   ];
 
@@ -444,93 +465,12 @@ const QuestionListPage = ({
           { label: "客服", path: "/service/", active: false },
           { label: "待處理案件", path: "/service/questions/list", active: true }
         ]}
-        title={"待處理案件(自動重整)"}
+        title={mainTitle}
       />
       <Row className="mb-2">
         <Col lg={12}>總筆數: {records.length} </Col>
       </Row>
-      <Row className="mb-2">
-        <Col lg={12}>
-          <Form inline className="mb-2 float-right">
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Label htmlFor="status" className="mr-sm-2">
-                遊戲:
-              </Label>
-              <Input
-                type="select"
-                name="gameId"
-                id="gameId"
-                className="custom-select"
-                onChange={e => filterStatus(e.target.id, e.target.value)}
-              >
-                <option value="">選擇遊戲...</option>
-                {games.map(game => (
-                  <option key={`sel-${game.game_id}`} value={game.game_id}>
-                    {game.game_name}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Label htmlFor="status" className="mr-sm-2">
-                問題類型:
-              </Label>
-              <Input
-                type="select"
-                name="type"
-                id="type"
-                className="custom-select"
-                onChange={e => filterStatus(e.target.id, e.target.value)}
-              >
-                <option value="">問題類型...</option>
-                {Object.keys(question_type).map(typeKey => (
-                  <option key={`type-${typeKey}`} value={typeKey}>
-                    {typeKey} - {question_type[typeKey]}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Label htmlFor="status" className="mr-sm-2">
-                狀態:
-              </Label>
-              <Input
-                type="select"
-                name="status"
-                id="status"
-                value={status}
-                className="custom-select"
-                onChange={e => filterStatus(e.target.id, e.target.value)}
-              >
-                <option value="">狀態...</option>
-                {Object.keys(question_status).map(statusKey => (
-                  <option key={`status-${statusKey}`} value={statusKey}>
-                    {statusKey} - {question_status[statusKey]}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Label htmlFor="search" className="mr-sm-2">
-                關鍵字:
-              </Label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="查找關鍵字..."
-                value={keyword}
-                onChange={e => filterStatus("keyword", e.target.value.trim())}
-              />
-            </FormGroup>
-            <Button
-              color={"primary"}
-              onClick={() => filterStatus("keyword", "")}
-            >
-              搜尋
-            </Button>
-          </Form>
-        </Col>
-      </Row>
+
       <Row className="mb-2">
         <Col lg={12}>
           <Card>
@@ -563,7 +503,7 @@ const QuestionListPage = ({
 };
 
 QuestionListPage.propTypes = {
-  getQuestionData: PropTypes.func.isRequired
+  getQuestions: PropTypes.func.isRequired
 };
 const mapStateToProps = state => ({
   games: state.Games.list,
@@ -572,7 +512,9 @@ const mapStateToProps = state => ({
   question_status: state.Service.question_status,
   reply_query: state.Service.reply_query,
   loading: state.Service.loading,
-  error: state.ServiceAllocate.error
+  error: state.ServiceAllocate.error,
+  newAllocationStatus: state.Service.newAllocationStatus,
+  allocation_status: state.Service.allocation_status
 });
 
 export default connect(

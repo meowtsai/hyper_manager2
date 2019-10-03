@@ -11,6 +11,7 @@ const ServiceOverview = ({
   ovAllocate,
   ovToday,
   ovTotal,
+  ovAllocateNew,
   loading,
   error
 }) => {
@@ -19,6 +20,7 @@ const ServiceOverview = ({
 
   useEffect(() => {
     getOverview();
+    document.title = mainTitle;
     // eslint-disable-next-line
   }, []);
 
@@ -124,7 +126,7 @@ const ServiceOverview = ({
           {ovAllocate && (
             <Card>
               <CardBody>
-                <h4 className="header-title">後送案件</h4>
+                <h4 className="header-title">[舊版]後送案件</h4>
                 <p className="text-muted font-14 mb-4">
                   目前 <code>後送</code> 案件。
                 </p>
@@ -178,7 +180,81 @@ const ServiceOverview = ({
         </Col>
       </Row>
       <Row className="mb-2">
-        <Col lg={9}></Col>
+        <Col lg={4}>
+          {ovAllocateNew && (
+            <Card>
+              <CardBody>
+                <h4 className="header-title">[新版]後送案件</h4>
+                <p className="text-muted font-14 mb-4">
+                  目前 <code>新版後送</code> 案件。
+                </p>
+
+                <Table className="mb-0" bordered size="sm">
+                  <tbody>
+                    <tr>
+                      <th className="text-nowrap">後送初始等待派單</th>
+                      <td>
+                        {ovAllocateNew
+                          .filter(item => item.allocate_status === 0)
+                          .map(member => (
+                            <span className="p-2">{member.cnt} 件</span>
+                          ))}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="text-nowrap">處理中</th>
+                      <td>
+                        {ovAllocateNew
+                          .filter(item => item.allocate_status === 1)
+                          .map(member => (
+                            <span className="p-2">
+                              {member.assignee_name}:{member.cnt}{" "}
+                            </span>
+                          ))}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="text-nowrap">已處理 - 後送PM或原廠</th>
+                      <td>
+                        {ovAllocateNew
+                          .filter(item => item.allocate_status === 2)
+                          .map(member => (
+                            <span className="p-2">
+                              {member.assignee_name}:{member.cnt}{" "}
+                            </span>
+                          ))}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="text-nowrap">已處理 - 等待玩家後續資訊</th>
+                      <td>
+                        {ovAllocateNew
+                          .filter(item => item.allocate_status === 3)
+                          .map(member => (
+                            <span className="p-2">
+                              {member.assignee_name}:{member.cnt}{" "}
+                            </span>
+                          ))}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="text-nowrap">已完成</th>
+                      <td>
+                        {ovAllocateNew
+                          .filter(item => item.allocate_status === 4)
+                          .map(member => (
+                            <span className="p-2">
+                              {member.assignee_name}:{member.cnt}{" "}
+                            </span>
+                          ))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </CardBody>
+            </Card>
+          )}
+        </Col>
       </Row>
     </Fragment>
   );
@@ -192,6 +268,7 @@ const mapStateToProps = state => ({
   ovToday: state.Service.ovToday,
   ovTotal: state.Service.ovTotal,
   ovAllocate: state.Service.ovAllocate,
+  ovAllocateNew: state.Service.ovAllocateNew,
   loading: state.Service.loading,
   error: state.Service.error
 });

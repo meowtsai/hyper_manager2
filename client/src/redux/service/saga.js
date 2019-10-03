@@ -31,8 +31,7 @@ import {
   replyQuestionSuccess,
   replyQuestionFailed,
   closeQuestionSuccess,
-  closeQuestionFailed,
-  clearMessage
+  closeQuestionFailed
 } from "./actions";
 
 /**
@@ -159,7 +158,7 @@ function* getOverview() {
  * edit question type
  */
 function* updateType({ payload }) {
-  const { qId, newType } = payload;
+  //const { qId, newType } = payload;
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,
@@ -292,7 +291,7 @@ function* closeQuestion({ payload }) {
  * edit question type
  */
 function* updateStatus({ payload }) {
-  const { qId, newStatus } = payload;
+  //const { qId, newStatus } = payload;
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,

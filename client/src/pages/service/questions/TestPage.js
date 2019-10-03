@@ -1,26 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, Fragment } from "react";
 import { connect } from "react-redux";
-import { getTestData } from "../../../redux/actions";
-import Moment from "react-moment";
-import moment from "moment";
-import PropTypes from "prop-types";
+import {
+  getAllocateById,
+  postAllocation,
+  putAllocation
+} from "../../../redux/actions";
+// import Moment from "react-moment";
+// import moment from "moment";
+import AllocationList from "./AllocationList";
+//import PropTypes from "prop-types";
 
-const TestPage = ({ getTestData, records }) => {
-  const [selected, setSelected] = useState({});
-  console.log("selected", selected);
+const TestPage = ({
+  getAllocateById,
+  putAllocation,
+  allocation,
+  allocation_logs,
+  user
+}) => {
   useEffect(() => {
-    getTestData();
+    //getTestData();
+    getAllocateById(312212);
     // eslint-disable-next-line
   }, []);
-
-  useEffect(() => {
-    if (records !== undefined) {
-      console.log(records);
-      //   if (records.length > 0) {
-      const record = records.filter(item => item.id === 308350)[0];
-      setSelected(record);
-    }
-  }, [records]);
 
   //   var start = moment([2007, 0, 5]);
   // var end   = moment([2007, 0, 10]);
@@ -28,31 +29,31 @@ const TestPage = ({ getTestData, records }) => {
   // end.from(start, true); // "5 days"
 
   return (
-    <div>
-      TestPage last_replied_time:
-      <Moment format="YYYY-MM-DD HH:mm:ss">
-        {selected.last_replied_time}
-      </Moment>{" "}
-      <br />
-      create_time:
-      <Moment format="YYYY-MM-DD HH:mm:ss">{selected.create_time}</Moment>{" "}
-      <br />
-      now:
-      <Moment format="YYYY-MM-DD HH:mm:ss"></Moment> <br />
-      {moment().from(moment(selected.last_replied_time))}
-    </div>
+    <Fragment>
+      <AllocationList
+        q_id={312212}
+        allocation={allocation}
+        allocation_logs={allocation_logs}
+        postAllocation={postAllocation}
+        putAllocation={putAllocation}
+        user={user}
+      />
+    </Fragment>
   );
 };
 
 TestPage.propTypes = {};
 
 const mapStateToProps = state => ({
-  records: state.Service.test_list,
-  loading: state.Service.loading,
-  error: state.ServiceAllocate.error
+  allocation: state.ServiceAllocate.allocation,
+  allocation_logs: state.ServiceAllocate.allocation_logs,
+  loading: state.ServiceAllocate.loading,
+  error: state.ServiceAllocate.error,
+  updateOKMessage: state.ServiceAllocate.updateOKMessage,
+  user: state.Auth.user
 });
 
 export default connect(
   mapStateToProps,
-  { getTestData }
+  { getAllocateById, putAllocation }
 )(TestPage);

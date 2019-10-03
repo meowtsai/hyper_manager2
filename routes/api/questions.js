@@ -8,6 +8,7 @@ const Admin_user = require("../../models/Admin_user");
 const RepliesModel = require("../../models/RepliesModel");
 const BatchTasksModel = require("../../models/BatchTasksModel");
 const LogAdminActionsModel = require("../../models/LogAdminActionsModel");
+const AllocationModel = require("../../models/AllocationModel");
 
 const SERVICE_CONFIG = require("../../config/service");
 
@@ -46,19 +47,21 @@ router.get(
     const dataToday = QuestionsModel.getOverviewData(allow_games, 1);
     const dataTotal = QuestionsModel.getOverviewData(allow_games, 2);
     const dataAllocate = QuestionsModel.getAllocateOverview(allow_games);
+    const dataAllocateNew = AllocationModel.getAllocateOverview();
 
-    Promise.all([dataToday, dataTotal, dataAllocate]).then(
-      ([ovToday, ovTotal, ovAllocate]) => {
+    Promise.all([dataToday, dataTotal, dataAllocate, dataAllocateNew]).then(
+      ([ovToday, ovTotal, ovAllocate, ovAllocateNew]) => {
         stat = {
           ovToday,
           ovTotal,
-          ovAllocate
+          ovAllocate,
+          ovAllocateNew
         };
 
         res.json(stat);
       },
       reason => {
-        console.log(reason);
+        //console.log(reason);
         res.json({ reason });
       }
     );
@@ -136,7 +139,7 @@ router.get(
         res.json({ stat, question_type, question_status });
       },
       reason => {
-        console.log(reason);
+        //console.log(reason);
         res.status(400).json({ msg: reason });
         res.json({ reason });
       }
@@ -163,6 +166,7 @@ router.post("/getList", auth, async (req, res) => {
   //const admin_uid = req.user.uid;
   const question_type = SERVICE_CONFIG.question_type;
   const question_status = SERVICE_CONFIG.question_status;
+  const allocation_status = SERVICE_CONFIG.allocationStatus;
   //console.log("server get list", req.body);
   const condition = req.body;
   //const action = req.query.action; //查詢
@@ -173,17 +177,28 @@ router.post("/getList", auth, async (req, res) => {
   } else {
     //default
   }
-
-  let reply_query = [];
-  if (query.length > 0) {
-    const q_ids = query.map(q => q.id).join(",");
-    //console.log("q_ids", q_ids);
-    reply_query = await RepliesModel.getRepliesByQid(q_ids);
-  }
+  const q_ids = query.length > 0 ? query.map(q => q.id).join(",") : [];
+  const pReply = RepliesModel.getRepliesByQid(q_ids);
+  const pAllocation = AllocationModel.getRecordsByQid(q_ids);
+  Promise.all([pReply, pAllocation]).then(
+    ([reply_query, newAllocationStatus]) => {
+      res.json({
+        query,
+        reply_query,
+        newAllocationStatus,
+        question_type,
+        question_status,
+        allocation_status
+      });
+    },
+    reason => {
+      //console.log(reason);
+      res.json({ reason });
+    }
+  );
 
   //const admin_uid = 86;
   //const questionsList = await QuestionsModel.getAllocateList(admin_uid, 1);
-  res.json({ query, reply_query, question_type, question_status });
 });
 
 router.put(
@@ -216,7 +231,7 @@ router.put(
     return checkPermission(req, res, next, "service", "modify");
   },
   async (req, res) => {
-    console.log("updateQuestionStatus", req.body);
+    //console.log("updateQuestionStatus", req.body);
     const { qId, newStatus } = req.body;
     const result = await QuestionsModel.findByIdAndUpdate(qId, {
       status: newStatus
@@ -487,13 +502,14 @@ router.put(
 
         /// EMAIL /////
         if (process.env.NODE_ENV != "development") {
-          let transporter = nodemailer.createTransport(smtp_server);
           const nodemailer = require("nodemailer");
           const smtp_server = require("../../config/default")["smtp_server"];
+          let transporter = nodemailer.createTransport(smtp_server);
+
           const fs = require("fs");
 
           let html_template = fs.readFileSync(
-            __dirname + "../../utils//template/mail.html",
+            __dirname + "/../../utils//template/mail.html",
             "utf8"
           );
 
@@ -516,7 +532,14 @@ router.put(
           };
 
           // send mail with defined transport object
-          let info = transporter.sendMail(mailOptions);
+          let maileSentResult;
+          try {
+            maileSentResult = await transporter.sendMail(mailOptions);
+            //console.log("Message sent: %s", maileSentResult);
+          } catch (error) {
+            maileSentResult = error;
+            //console.log("Message sent ERROR: %s", error);
+          }
 
           //console.log("Message sent: %s", info.messageId);
 
@@ -525,7 +548,7 @@ router.put(
       }
 
       res.json({
-        msg: "新增回覆成功。",
+        msg: `新增回覆成功。${maileSentResult}`,
         id: insResult.insertId,
         updatedField: {
           ...data,
