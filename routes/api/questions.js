@@ -501,7 +501,8 @@ router.put(
         }
 
         /// EMAIL /////
-        if (process.env.NODE_ENV != "development") {
+        //if (process.env.NODE_ENV != "development") {
+        if (process.env.NODE_ENV === "production") {
           const nodemailer = require("nodemailer");
           const smtp_server = require("../../config/default")["smtp_server"];
           let transporter = nodemailer.createTransport(smtp_server);

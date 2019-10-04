@@ -6,7 +6,8 @@ import {
   GET_ALLOCATE_BY_ID,
   POST_ALLOCATION,
   PUT_ALLOCATION,
-  TAKE_ALLOCATION_TASKS
+  TAKE_ALLOCATION_TASKS,
+  REASSIGN_ALLOCATION_TASK
 } from "./constants";
 
 import {
@@ -19,7 +20,9 @@ import {
   putAllocationSuccess,
   putAllocationFailed,
   takeAllocationTasksSuccess,
-  takeAllocationTasksFailed
+  takeAllocationTasksFailed,
+  reassignAllocationTaskSuccess,
+  reassignAllocationTaskFailed
 } from "./actions";
 
 /**
@@ -91,6 +94,25 @@ function* postAllocation({ payload: { qid, allocation_cause } }) {
   }
 }
 
+//{"allocation_id":3 , "new_assignee":86}
+function* reassignAllocation({ payload: { allocation_id, new_assignee } }) {
+  const options = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/allocation/reassign`,
+    data: { allocation_id, new_assignee }
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(reassignAllocationTaskSuccess(response.data));
+  } catch (error) {
+    let message;
+    message = error.response.data;
+    yield put(reassignAllocationTaskFailed(message));
+  }
+}
+
 function* putAllocation({ payload }) {
   //console.log(" postAllocation id", payload);
 
@@ -149,13 +171,18 @@ export function* watchTakeAllocationTasks(): any {
   yield takeEvery(TAKE_ALLOCATION_TASKS, takeAllocationTasks);
 }
 
+export function* watchReassignAllocation(): any {
+  yield takeEvery(REASSIGN_ALLOCATION_TASK, reassignAllocation);
+}
+
 function* serviceAllocateSaga(): any {
   yield all([
     fork(watchGetData),
     fork(watchGetDataById),
     fork(watchPostAllocationData),
     fork(watchPutAllocationData),
-    fork(watchTakeAllocationTasks)
+    fork(watchTakeAllocationTasks),
+    fork(watchReassignAllocation)
   ]);
 }
 

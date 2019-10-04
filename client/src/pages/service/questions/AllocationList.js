@@ -69,6 +69,13 @@ const AllocationList = ({
     if (allocation.allocate_status === 1 && allocation.assignee !== user.uid) {
       displayAllocationFeedbackArea = false;
     }
+
+    if (
+      (allocation.allocate_status === 3 || allocation.allocate_status === 4) &&
+      (user.role !== "admin" && user.role !== "ants")
+    ) {
+      displayAllocationFeedbackArea = false;
+    }
   }
 
   return (
@@ -254,7 +261,7 @@ const AllocationList = ({
                           <button
                             type="button"
                             className="btn btn-warning btn-sm mt-2"
-                            onClick={e => submitPutAllocate(1)}
+                            onClick={e => submitPutAllocate(0)}
                           >
                             補足條件
                           </button>

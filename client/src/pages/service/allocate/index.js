@@ -1,6 +1,17 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { Row, Col, Card, CardBody, Button, Alert } from "reactstrap";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Button,
+  Alert,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  UncontrolledButtonDropdown
+} from "reactstrap";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -12,7 +23,8 @@ import PageTitle from "../../../components/PageTitle";
 import {
   getAllocateData,
   takeAllocationTasks,
-  clearAllocationMessage
+  clearAllocationMessage,
+  reassignAllocationTask
 } from "../../../redux/actions";
 import Moment from "react-moment";
 import Spinner from "../../../components/Spinner";
@@ -20,17 +32,16 @@ import PropTypes from "prop-types";
 import AllocateStatusBadge from "./AllocateStatusBadge";
 
 const AllocateListPage = ({
-  newTasks,
   records,
   getAllocateData,
   updateOKMessage,
   clearAllocationMessage,
   takeAllocationTasks,
   loading,
-  question_type,
-  question_status,
   error,
   allocationStatus,
+  cs_members,
+  reassignAllocationTask,
   user
 }) => {
   const [arrangedData, setArrangedData] = useState([]);
@@ -82,6 +93,12 @@ const AllocateListPage = ({
 
   const clickTakeOnTasks = () => {
     takeAllocationTasks();
+  };
+
+  //{"allocation_id":3 , "new_assignee":86}
+
+  const reassignClick = (allocation_id, new_assignee) => {
+    reassignAllocationTask(allocation_id, new_assignee);
   };
 
   let selStatusOptions = {};
@@ -216,6 +233,27 @@ const AllocateListPage = ({
           };
         }
       }
+    },
+    {
+      dataField: "action",
+      isDummyField: true,
+      text: "操作",
+      formatter: (cell, row) => {
+        return (
+          <UncontrolledButtonDropdown addonType="append">
+            <DropdownToggle caret color="dark">
+              手動指派
+            </DropdownToggle>
+            <DropdownMenu>
+              {cs_members.map(cs => (
+                <DropdownItem onClick={e => reassignClick(row.id, cs.uid)}>
+                  {cs.name}
+                </DropdownItem>
+              ))}
+            </DropdownMenu>
+          </UncontrolledButtonDropdown>
+        );
+      }
     }
   ];
 
@@ -309,6 +347,7 @@ AllocateListPage.propTypes = {
 };
 const mapStateToProps = state => ({
   records: state.ServiceAllocate.list,
+  cs_members: state.ServiceAllocate.cs_members,
   loading: state.ServiceAllocate.loading,
   error: state.ServiceAllocate.error,
   newTasks: state.ServiceAllocate.newTasks,
@@ -321,5 +360,10 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getAllocateData, takeAllocationTasks, clearAllocationMessage }
+  {
+    getAllocateData,
+    takeAllocationTasks,
+    clearAllocationMessage,
+    reassignAllocationTask
+  }
 )(AllocateListPage);

@@ -15,10 +15,35 @@ import {
   TAKE_ALLOCATION_TASKS,
   TAKE_ALLOCATION_TASKS_SUCCESS,
   TAKE_ALLOCATION_TASKS_FAILED,
+  REASSIGN_ALLOCATION_TASK,
+  REASSIGN_ALLOCATION_TASK_SUCCESS,
+  REASSIGN_ALLOCATION_TASK_FAILED,
   CLEAR_ALLOCATION_MESSAGE
 } from "./constants";
 
 type ServiceAllocateAction = { type: string, payload: {} | string };
+
+export const reassignAllocationTask = (
+  allocation_id,
+  new_assignee
+): ServiceAllocateAction => ({
+  type: REASSIGN_ALLOCATION_TASK,
+  payload: { allocation_id, new_assignee }
+});
+
+export const reassignAllocationTaskSuccess = (
+  data: []
+): ServiceAllocateAction => ({
+  type: REASSIGN_ALLOCATION_TASK_SUCCESS,
+  payload: data
+});
+
+export const reassignAllocationTaskFailed = (
+  error: string
+): ServiceAllocateAction => ({
+  type: REASSIGN_ALLOCATION_TASK_FAILED,
+  payload: error
+});
 
 export const takeAllocationTasks = (): ServiceAllocateAction => ({
   type: TAKE_ALLOCATION_TASKS

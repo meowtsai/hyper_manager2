@@ -12,6 +12,9 @@ import {
   TAKE_ALLOCATION_TASKS,
   TAKE_ALLOCATION_TASKS_SUCCESS,
   TAKE_ALLOCATION_TASKS_FAILED,
+  REASSIGN_ALLOCATION_TASK,
+  REASSIGN_ALLOCATION_TASK_SUCCESS,
+  REASSIGN_ALLOCATION_TASK_FAILED,
   CLEAR_ALLOCATION_MESSAGE
 } from "./constants";
 
@@ -22,7 +25,8 @@ const INIT_STATE = {
   allocation: null,
   allocation_logs: null,
   allocationStatus: null,
-  updateOKMessage: null
+  updateOKMessage: null,
+  cs_members: []
 };
 
 type ServiceAllocateAction = { type: string, payload: {} | string };
@@ -46,6 +50,7 @@ const ServiceAllocate = (
     case POST_ALLOCATION:
     case PUT_ALLOCATION:
     case TAKE_ALLOCATION_TASKS:
+    case REASSIGN_ALLOCATION_TASK:
       return {
         ...state,
         error: null,
@@ -118,6 +123,14 @@ const ServiceAllocate = (
         ...state,
         list: action.payload.all_records,
         allocationStatus: action.payload.allocationStatus,
+        cs_members: action.payload.cs_members,
+        loading: false,
+        error: null
+      };
+    case REASSIGN_ALLOCATION_TASK_SUCCESS:
+      return {
+        ...state,
+        updateOKMessage: action.payload.msg,
         loading: false,
         error: null
       };
@@ -133,6 +146,7 @@ const ServiceAllocate = (
     case GET_ALLOCATE_DATA_FAILED:
     case GET_ALLOCATE_BY_ID_FAILED:
     case TAKE_ALLOCATION_TASKS_FAILED:
+    case REASSIGN_ALLOCATION_TASK_FAILED:
       return { ...state, error: action.payload, loading: false };
     default:
       return { ...state };

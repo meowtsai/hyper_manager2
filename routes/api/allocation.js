@@ -3,6 +3,7 @@ const router = express.Router();
 const validator = require("validator");
 const auth = require("../../middleware/auth");
 const QuestionsModel = require("../../models/QuestionsModel");
+const Admin_user = require("../../models/Admin_user");
 const AllocationModel = require("../../models/AllocationModel");
 const checkPermission = require("../../middleware/checkPermission");
 const SERVICE_CONFIG = require("../../config/service");
@@ -22,7 +23,9 @@ router.get("/test", auth, async (req, res) => {
 router.get("/list", auth, async (req, res) => {
   const all_records = await AllocationModel.getRecords();
   const allocationStatus = SERVICE_CONFIG.allocationStatus;
-  res.json({ all_records, allocationStatus });
+  const cs_members = await Admin_user.findAllByRole("cs_master");
+
+  res.json({ all_records, allocationStatus, cs_members });
 });
 
 //@route: GET /api/allocation
@@ -214,6 +217,63 @@ router.post(
   }
 );
 
+//可以任意變換負責人
+// a_id, assign to ,
+router.post(
+  "/reassign",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "modify");
+  },
+  async (req, res) => {
+    const user = req.user;
+
+    if (
+      user.role !== "cs_master" &&
+      user.role !== "admin" &&
+      user.role !== "pm"
+    ) {
+      return res.status(418).json({ msg: "無法任意變換" });
+    }
+
+    const { allocation_id, new_assignee } = req.body;
+
+    const assigneeUser = await Admin_user.findByUid({ uid: new_assignee });
+    //console.log("new_assignee", new_assignee);
+    //console.log("assigneeUser", assigneeUser);
+    if (!assigneeUser) {
+      return res.status(418).json({ msg: "用戶不存在" });
+    }
+
+    const allocation_task = await AllocationModel.findOne(allocation_id);
+    if (!allocation_task) {
+      return res.status(418).json({ msg: "案件不存在" });
+    }
+
+    const record = {
+      assignee: assigneeUser.uid,
+      allocate_status: 1,
+      update_time: new Date()
+    };
+
+    AllocationModel.findByIdAndUpdate(allocation_id, record);
+
+    const log = {
+      allocation_id: allocation_id,
+      allocate_status: 1,
+      allocate_note: "轉派給" + assigneeUser.name,
+      admin_uid: user.uid
+    };
+
+    AllocationModel.saveLog(log);
+
+    res.json({
+      msg: "案件轉派成功",
+      record: { ...record, allocation_id },
+      log
+    });
+  }
+);
+
 //@route: PUT /api/allocation
 //@desc:改變allocation task 的狀態並新增一筆history
 //ants 發現錯誤 自己結案
@@ -253,6 +313,12 @@ router.put(
       update_time: new Date()
     };
 
+    //表示可能補足條件的單子重新進入派單
+
+    if (allocate_status === 0) {
+      record.assignee = null;
+    }
+
     const updResult = await AllocationModel.findByIdAndUpdate(
       allocation_id,
       record
@@ -266,6 +332,10 @@ router.put(
     };
 
     const logResult = AllocationModel.saveLog(log);
+
+    if (allocate_status === 0) {
+      record.assignee_name = null;
+    }
 
     if (!updResult.error) {
       res.json({
