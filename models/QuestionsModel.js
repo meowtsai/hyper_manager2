@@ -2,7 +2,11 @@ const { db1, db2 } = require("../config/db");
 
 const QuestionsModel = {
   getAll: async (uid, { status = 1 }) => {
-    //console.log("findOne", account);
+    //console.log("QuestionsModel getall", uid, status);
+    let limitedCondition = "";
+    if (status.toString() === "4") {
+      limitedCondition = "or q.status='7' order by id desc limit 1000";
+    }
     return await db2
       .promise()
       .query(
@@ -13,12 +17,13 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where q.status=?
+        where q.status=?   ${limitedCondition}
       `,
         [uid, status]
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {
+          //console.log("QuestionsModel getall", rows.length);
           return rows;
         } else {
           return [];

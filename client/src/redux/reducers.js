@@ -11,6 +11,7 @@ import Games from "./games/reducers";
 import Servers from "./servers/reducers";
 import AdminUsers from "./adminUsers/reducers";
 import ServiceAllocate from "./serviceAllocate/reducers";
+import VIP from "./vip/reducers";
 import Service from "./service/reducers";
 export default combineReducers({
   Auth,
@@ -23,5 +24,6 @@ export default combineReducers({
   Servers,
   AdminUsers,
   ServiceAllocate,
-  Service
+  Service,
+  VIP
 });

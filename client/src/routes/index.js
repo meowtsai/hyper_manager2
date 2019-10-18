@@ -98,6 +98,9 @@ const SingleQuestionPage = React.lazy(() => import('../pages/service/questions/v
 
 const TestPage = React.lazy(() => import('../pages/service/questions/TestPage'));
 
+//vip
+const WhaleUserHome = React.lazy(() => import('../pages/vip/whale_users/WhaleUserHome'));
+
 // handle auth and authorization
 
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
@@ -602,6 +605,13 @@ const serviceRoutes = {
 
         },
         {
+            path: '/service/questions/closed',
+            name: '近期結案案件',
+            component: QuesionsListPage,
+            route: PrivateRoute,
+
+        },
+        {
             exact: true,
             path: '/service/allocate/list',
             name: '派單系統- 案件列表',
@@ -676,6 +686,21 @@ const offlineRoutesSub = {
     ],
 };
 
+// VIP
+const vipRoutes = {
+    path: '/vip',
+    name: 'VIP',
+    icon: 'dripicons-trophy', 
+    children: [
+        {
+            path: '/vip/whale_users',
+            name: '鯨魚用戶',
+            component: WhaleUserHome,
+            route: PrivateRoute,
+        }
+    ],
+};
+
 // flatten the list of all nested routes
 const flattenRoutes = routes => {
     let flatRoutes = [];
@@ -706,7 +731,8 @@ const allRoutes = [
     offlineRoutesSub,
     myDashboardRoutes,
     serviceRoutes,
-    serviceRoutesSub
+    serviceRoutesSub,
+    vipRoutes
 ];
 
 //所有要在leftSideBar顯示的路徑
@@ -722,7 +748,8 @@ const authProtectedRoutes =
               featuresRoutes,
               offlineRoutes,
               myDashboardRoutes,
-              serviceRoutes
+              serviceRoutes,
+              vipRoutes
           ]
         : [dashboardRoutes, offlineRoutes,serviceRoutes];
 

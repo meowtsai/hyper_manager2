@@ -54,10 +54,24 @@ const QuestionListPage = ({
 
   const mainPath = "/service";
   const pathName = location.pathname.split("/");
-  const defaultStatus = pathName[pathName.length - 1] === "todo" ? "1" : "2";
+  const path = pathName[pathName.length - 1];
+  // const defaultStatus = path === "todo" ? "1" : path === "get_list" ? "2" : "4";
 
-  const mainTitle =
-    defaultStatus === "1" ? "待處理案件(自動重整)" : "等待中案件";
+  // const mainTitle =
+  //   defaultStatus === "1" ? "待處理案件(自動重整)" : "等待中案件";
+
+  let defaultStatus;
+  let mainTitle;
+  if (path === "todo") {
+    defaultStatus = "1";
+    mainTitle = "待處理案件(自動重整)";
+  } else if (path === "get_list") {
+    defaultStatus = "2";
+    mainTitle = "等待中案件";
+  } else {
+    defaultStatus = "4";
+    mainTitle = "近期結案案件";
+  }
 
   // console.log("query", rest);
   const [arrangedData, setArrangedData] = useState([]);
@@ -121,7 +135,11 @@ const QuestionListPage = ({
   const columns = [
     {
       dataField: "id",
-      text: "#"
+      text: "#",
+      filter: textFilter(),
+      headerStyle: (column, colIndex) => {
+        return { width: "110px" };
+      }
     },
     {
       dataField: "game_name",
@@ -289,6 +307,9 @@ const QuestionListPage = ({
               ? ""
               : "玩家"
           } ${question_status[row.status]}`;
+        } else if (row.status === "7") {
+          statusColor = "secondary-lighten";
+          statusText = question_status[row.status];
         }
 
         return (
@@ -478,6 +499,9 @@ const QuestionListPage = ({
               <BootstrapTable
                 bootstrap4
                 keyField="id"
+                striped
+                hover
+                condensed
                 data={arrangedData}
                 columns={columns}
                 defaultSorted={[
@@ -492,7 +516,8 @@ const QuestionListPage = ({
                   showTotal: true,
                   paginationTotalRenderer: customTotal
                 })}
-                wrapperClasses="table-responsive"
+                classes="border-dark"
+                wrapperClasses="border-dark"
               />
             </CardBody>
           </Card>

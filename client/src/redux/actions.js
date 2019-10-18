@@ -9,3 +9,4 @@ export * from "./servers/actions";
 export * from "./adminUsers/actions";
 export * from "./serviceAllocate/actions";
 export * from "./service/actions";
+export * from "./vip/actions";

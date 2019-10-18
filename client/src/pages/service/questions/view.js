@@ -15,7 +15,8 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  ModalFooter
+  ModalFooter,
+  Input
 } from "reactstrap";
 import classNames from "classnames";
 import { connect } from "react-redux";
@@ -32,7 +33,8 @@ import {
   getAllocateById,
   putAllocation,
   postAllocation,
-  clearAllocationMessage
+  clearAllocationMessage,
+  updateQuestionType
 } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Moment from "react-moment";
@@ -124,9 +126,7 @@ const QuestionInfo = ({
   question_status,
   question_type,
   pic_plus,
-  allocateQuestion,
-  finishAllocateNote,
-  setFinishAllocateNote
+  updateQuestionType
 }) => {
   const [errors, setErrors] = useState({});
   let allocateMark;
@@ -173,22 +173,9 @@ const QuestionInfo = ({
       );
   }
 
-  const finishAllocateSubmit = allocate_status => {
-    //e.preventDefault();
-    //console.log("allocate_status", allocate_status);
-    //return;
-    if (finishAllocateNote === "") {
-      setErrors({ ...errors, finishAllocateNote: "請填寫處理描述" });
-      return;
-    }
-    const uFields = {
-      question_id: question.id,
-      allocate_result: question.allocate_result,
-      result: finishAllocateNote
-    };
-
-    //console.log("finishAllocateSubmit clicked", uFields);
-    allocateQuestion(uFields, allocate_status);
+  const onTypeChange = (id, newType) => {
+    console.log("call onTypeChange", id, newType);
+    updateQuestionType(id, newType);
   };
 
   return (
@@ -251,7 +238,24 @@ const QuestionInfo = ({
             <th>
               <span className="font-weight-bold ">提問類型：</span>
             </th>
-            <td colSpan="3">{question_type[question.type]}</td>
+            <td colSpan="3">
+              <Input
+                type="select"
+                name="sel_type"
+                className=" m-0 p-0"
+                value={question.type}
+                onChange={e => onTypeChange(question.id, e.target.value)}
+              >
+                {Object.keys(question_type).map(typeKey => (
+                  <option
+                    key={`type-${typeKey}-${question.id}`}
+                    value={typeKey}
+                  >
+                    {question_type[typeKey]}
+                  </option>
+                ))}
+              </Input>
+            </td>
           </tr>
           <tr>
             <th>
@@ -395,7 +399,8 @@ const SingleQuestionPage = ({
   match,
   user,
   allocation,
-  allocation_logs
+  allocation_logs,
+  updateQuestionType
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -405,9 +410,14 @@ const SingleQuestionPage = ({
     ? match.params.question_id
     : null;
 
+  const replyDefaultTemplate = `感謝您的回報！
+  
+  
+  
+    ***龍邑客服中心敬上***`;
   const [finishAllocateNote, setFinishAllocateNote] = useState("");
 
-  const [reply, setReply] = useState("");
+  const [reply, setReply] = useState(replyDefaultTemplate);
 
   useEffect(() => {
     getCurrentQuestion(question_id);
@@ -422,7 +432,7 @@ const SingleQuestionPage = ({
     let timeOutId;
     if (updateOKMessage !== undefined && updateOKMessage !== null) {
       timeOutId = setTimeout(() => {
-        setReply("");
+        setReply(replyDefaultTemplate);
         setFinishAllocateNote("");
         clearMessage();
       }, 2000);
@@ -440,7 +450,7 @@ const SingleQuestionPage = ({
       allocateUpdateOKMessage !== null
     ) {
       timeOutId = setTimeout(() => {
-        setReply("");
+        setReply(replyDefaultTemplate);
         setFinishAllocateNote("");
         clearAllocationMessage();
       }, 2000);
@@ -471,6 +481,16 @@ const SingleQuestionPage = ({
     //console.log("onModifyReplySubmit", replyField);
     replyQuestion(replyField);
   };
+
+  //調回處理中
+  const onRestoreSubmit = () => {
+    const qData = {
+      question_id: current.question.id
+    };
+    //原本的調回處理中應該是1, 但是其實能夠被結案的都是已經回覆的案件, 所以在後端會是設定為2
+    closeQuestion(qData, 1);
+  };
+
   const onCloseSubmit = () => {
     const qData = {
       question_id: current.question.id
@@ -536,6 +556,7 @@ const SingleQuestionPage = ({
                     allocateQuestion={allocateQuestion}
                     finishAllocateNote={finishAllocateNote}
                     setFinishAllocateNote={setFinishAllocateNote}
+                    updateQuestionType={updateQuestionType}
                   />
                   {current.replies.length > 0 &&
                     current.replies.map((reply, index) => (
@@ -554,20 +575,19 @@ const SingleQuestionPage = ({
             </Col>
 
             <Col sm={6}>
-              {current.question.status !== "4" && (
-                <Card>
-                  <CardBody>
-                    <AllocationList
-                      q_id={current.question.id}
-                      allocation={allocation}
-                      allocation_logs={allocation_logs}
-                      postAllocation={postAllocation}
-                      putAllocation={putAllocation}
-                      user={user}
-                    />
-                  </CardBody>
-                </Card>
-              )}
+              <Card>
+                <CardBody>
+                  <AllocationList
+                    q_id={current.question.id}
+                    q_status={current.question.status}
+                    allocation={allocation}
+                    allocation_logs={allocation_logs}
+                    postAllocation={postAllocation}
+                    putAllocation={putAllocation}
+                    user={user}
+                  />
+                </CardBody>
+              </Card>
             </Col>
           </Row>
           {(current.q_batch_info.length === 0 ||
@@ -578,6 +598,7 @@ const SingleQuestionPage = ({
                   <button
                     type="button"
                     className="float-right btn btn-danger m-1"
+                    onClick={onRestoreSubmit}
                   >
                     <i className="mdi mdi-restore"></i> 調回處理中
                   </button>
@@ -593,22 +614,27 @@ const SingleQuestionPage = ({
                     >
                       <i className="mdi mdi-check"></i> 確認送出
                     </button>
-                    <button
-                      type="button"
-                      className="float-right btn btn-danger m-1"
-                      onClick={onCloseSubmit}
-                    >
-                      <i className="dripicons-archive"></i> 立即結案
-                    </button>
                     {current.question.status === "2" &&
-                      current.question.allocate_status !== "1" && (
-                        <button
-                          type="button"
-                          className="float-right btn btn-warning m-1"
-                          onClick={onReserveSubmit}
-                        >
-                          <i className="mdi mdi-timer"></i> 預約結案
-                        </button>
+                      current.question.allocate_status !== "1" &&
+                      (allocation
+                        ? allocation.allocate_status === 4
+                        : true) && (
+                        <Fragment>
+                          <button
+                            type="button"
+                            className="float-right btn btn-danger m-1"
+                            onClick={onCloseSubmit}
+                          >
+                            <i className="dripicons-archive"></i> 立即結案
+                          </button>
+                          <button
+                            type="button"
+                            className="float-right btn btn-warning m-1"
+                            onClick={onReserveSubmit}
+                          >
+                            <i className="mdi mdi-timer"></i> 預約結案
+                          </button>
+                        </Fragment>
                       )}
                     {current.question.status === "7" && (
                       <Fragment>
@@ -672,6 +698,7 @@ export default connect(
     closeQuestion,
     getAllocateById,
     putAllocation,
-    postAllocation
+    postAllocation,
+    updateQuestionType
   }
 )(SingleQuestionPage);

@@ -265,6 +265,8 @@ function* closeQuestion({ payload }) {
         ? "reserved_question"
         : closeType === 4
         ? "close_question"
+        : closeType === 1
+        ? "restored_question"
         : "cancel_reserved_question"
     }`
   };

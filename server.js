@@ -32,6 +32,7 @@ app.use("/api/offline_cs", require("./routes/api/offline_cs"));
 app.use("/api/admin_users", require("./routes/api/admin_users"));
 app.use("/api/questions", require("./routes/api/questions"));
 app.use("/api/allocation", require("./routes/api/allocation"));
+app.use("/api/vip", require("./routes/api/vip"));
 
 //serve static assets if in production
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "stage") {

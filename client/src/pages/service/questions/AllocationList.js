@@ -10,6 +10,7 @@ import AllocateStatusBadge from "../allocate/AllocateStatusBadge";
 
 const AllocationList = ({
   q_id,
+  q_status,
   postAllocation,
   putAllocation,
   allocation,
@@ -61,6 +62,9 @@ const AllocationList = ({
   };
 
   let displayAllocationFeedbackArea = true;
+  if (q_status.toString() === "4") {
+    displayAllocationFeedbackArea = false;
+  }
 
   if (allocation) {
     if (allocation.allocate_status === 0 && allocation.assignor !== user.uid) {
@@ -86,7 +90,7 @@ const AllocationList = ({
             <h5>後送處理區</h5>
 
             <hr />
-            {!allocation && (
+            {!allocation && q_status !== "4" && (
               <Fragment>
                 <Input
                   type="textarea"
@@ -112,9 +116,28 @@ const AllocationList = ({
                 </div>
               </Fragment>
             )}
+            {q_status === "4" && (
+              <div className="text-muted font-14 m-2"> ＊提問單已結案。</div>
+            )}
             {allocation && (
               <Fragment>
                 <h6 className="card-title border p-2 mt-0 mb-0">
+                  <div className="text-left">
+                    <p className="text-muted">
+                      <strong>目前狀態 :</strong>
+                      <span className="ml-2">
+                        <AllocateStatusBadge
+                          status_code={allocation.allocate_status}
+                        />
+                      </span>
+                    </p>
+                    <p className="text-muted">
+                      <strong>處理專員 :</strong>
+                      <span className="ml-2">
+                        {allocation.assignee_name || "尚未指派"}
+                      </span>
+                    </p>
+                  </div>
                   <span className="ml-2">{allocation.admin_uname}</span> 在{" "}
                   <span className="ml-2">
                     <Moment format="YYYY-MM-DD HH:mm:ss">
@@ -124,32 +147,17 @@ const AllocationList = ({
                   發起後送
                 </h6>
                 <p
-                  className="mb-2 text-dark font-15 border card p-2"
+                  className="mb-2 text-primary font-15 border card p-2"
                   style={{ whiteSpace: "pre-line" }}
                 >
                   {allocation.allocate_cause}
                 </p>
 
-                <div className="text-left">
-                  <p className="text-muted">
-                    <strong>目前狀態 :</strong>
-                    <span className="ml-2">
-                      <AllocateStatusBadge
-                        status_code={allocation.allocate_status}
-                      />
-                    </span>
-                  </p>
-                  <p className="text-muted">
-                    <strong>處理專員 :</strong>
-                    <span className="ml-2">{allocation.assignee_name}</span>
-                  </p>
-                </div>
-
                 <hr />
                 {allocation.allocate_status === 0 && (
                   <div className="text-info mt-2">
                     {" "}
-                    本後送單還在等候派發 ....
+                    本後送單還在等候派發, 但發起人可以結束本後送 ....
                   </div>
                 )}
                 {Array.isArray(allocation_logs) && allocation_logs.length > 0 && (

@@ -174,6 +174,9 @@ router.post("/getList", auth, async (req, res) => {
   let query = [];
   if (action) {
     query = await QuestionsModel.getAll(req.user.uid, condition);
+    if (query.error) {
+      res.status(500).json({ msg: `獲取資料失敗(${query.error})` });
+    }
   } else {
     //default
   }
@@ -466,6 +469,8 @@ router.put(
 
       //console.log(qResult);
       //get token to send user direct link
+      // send mail with defined transport object
+      let maileSentResult;
       if (validator.isEmail(email)) {
         let msg;
         if (is_in_game === "1") {
@@ -532,8 +537,6 @@ router.put(
             html: html_template // html body
           };
 
-          // send mail with defined transport object
-          let maileSentResult;
           try {
             maileSentResult = await transporter.sendMail(mailOptions);
             //console.log("Message sent: %s", maileSentResult);
@@ -681,6 +684,42 @@ router.put(
         });
       } else {
         res.status(500).json({ msg: `取消預約失敗(${result.error})` });
+      }
+    } else {
+      return res.status(404).json({ msg: `沒有這個提問單` });
+    }
+  }
+);
+
+router.put(
+  "/restored_question",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "modify");
+  },
+  async (req, res) => {
+    const { question_id } = req.body;
+    const question = await QuestionsModel.findOne(question_id);
+
+    if (question.id) {
+      const updateFiled = {
+        status: "2",
+        close_admin_uid: null,
+        system_closed_start: null
+      };
+      const result = await QuestionsModel.findByIdAndUpdate(
+        question_id,
+        updateFiled
+      );
+
+      //console.log(result);
+      if (result.affectedRows === 1) {
+        res.json({
+          msg: "調整案件狀態為已回覆。",
+          id: question_id,
+          updatedField: { ...updateFiled, close_admin_name: null }
+        });
+      } else {
+        res.status(500).json({ msg: `調整狀態失敗(${result.error})` });
       }
     } else {
       return res.status(404).json({ msg: `沒有這個提問單` });

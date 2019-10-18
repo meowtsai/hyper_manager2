@@ -180,6 +180,14 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
             ? { ...item, type: action.payload.type }
             : item
         ),
+        current: {
+          ...state.current,
+          question: {
+            ...state.current.question,
+            type: action.payload.type
+          }
+        },
+        updateOKMessage: action.payload.msg,
         loading: false,
         error: null
       };
@@ -191,6 +199,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
             ? { ...item, status: action.payload.status }
             : item
         ),
+        updateOKMessage: action.payload.msg,
         loading: false,
         error: null
       };
