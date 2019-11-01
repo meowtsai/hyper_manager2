@@ -162,7 +162,8 @@ const QuestionListPage = ({
       formatter: (cellContent, row) => {
         return (
           <p className="text-dark">
-            {row.character_name}{" "}
+            {row.character_name.replace("&gt;", ">").replace("&lt;", "<")}
+
             <span className="text-muted">({row.server_name})</span>
             {row.is_in_game === "0" ? (
               <Badge color="success-lighten">自填</Badge>

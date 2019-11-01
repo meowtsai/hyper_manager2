@@ -20,8 +20,8 @@ const GovLetterHome = ({ getOfflineCsData, records, loading, error }) => {
     const [errors, setErrors] = useState({});
     const [gameOptions, setGameOptions] = useState([{ game_id: '', game_name: '' }]);
     const filterStatus = type => {
-        console.log('filter selGame', selGame);
-        console.log('filter status', selStatus);
+        //console.log('filter selGame', selGame);
+        //console.log('filter status', selStatus);
         const gameFilter = (game_id, record) => {
             if (game_id !== '') {
                 return record.game_id === game_id;

@@ -268,7 +268,11 @@ router.post(
 
     res.json({
       msg: "案件轉派成功",
-      record: { ...record, allocation_id },
+      record: {
+        ...record,
+        allocation_id,
+        assignee_name: assigneeUser.name
+      },
       log
     });
   }

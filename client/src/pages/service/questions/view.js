@@ -129,6 +129,7 @@ const QuestionInfo = ({
   updateQuestionType
 }) => {
   const [errors, setErrors] = useState({});
+
   let allocateMark;
   if (question.allocate_status.toString() === "1") {
     allocateMark = (
@@ -174,7 +175,7 @@ const QuestionInfo = ({
   }
 
   const onTypeChange = (id, newType) => {
-    console.log("call onTypeChange", id, newType);
+    //console.log("call onTypeChange", id, newType);
     updateQuestionType(id, newType);
   };
 
@@ -279,7 +280,9 @@ const QuestionInfo = ({
               <span className="font-weight-bold ">角色名稱：</span>
             </th>
             <td>
-              {question.character_name}
+              {question.character_name
+                .replace("&gt;", ">")
+                .replace("&lt;", "<")}
               {question.is_in_game === "0" && (
                 <Badge color="success-lighten" className="mr-1">
                   玩家填寫

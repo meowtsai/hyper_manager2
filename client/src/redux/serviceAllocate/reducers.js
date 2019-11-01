@@ -130,6 +130,18 @@ const ServiceAllocate = (
     case REASSIGN_ALLOCATION_TASK_SUCCESS:
       return {
         ...state,
+        list: state.list.map(item => {
+          if (item.id !== action.payload.record.allocation_id) {
+            return item;
+          } else {
+            return {
+              ...item,
+              assignee: action.payload.record.assignee,
+              assignee_name: action.payload.record.assignee_name,
+              lastestNote: action.payload.log.allocate_note
+            };
+          }
+        }),
         updateOKMessage: action.payload.msg,
         loading: false,
         error: null

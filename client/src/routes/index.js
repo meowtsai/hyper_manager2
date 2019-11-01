@@ -751,7 +751,7 @@ const authProtectedRoutes =
               serviceRoutes,
               vipRoutes
           ]
-        : [dashboardRoutes, offlineRoutes,serviceRoutes];
+        : [dashboardRoutes, offlineRoutes,serviceRoutes,vipRoutes];
 
 const allFlattenRoutes = flattenRoutes(allRoutes);
 

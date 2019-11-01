@@ -143,7 +143,8 @@ const AllocateListPage = ({
       formatter: (cellContent, row) => {
         return (
           <p className="text-dark">
-            {row.character_name}{" "}
+            {row.character_name.replace("&gt;", ">").replace("&lt;", "<")}
+
             <span className="text-muted">({row.server_name})</span>
             <span className="d-block">UID:{row.partner_uid}</span>
           </p>
@@ -246,7 +247,7 @@ const AllocateListPage = ({
             </DropdownToggle>
             <DropdownMenu>
               {cs_members.map(cs => (
-                <DropdownItem onClick={e => reassignClick(row.id, cs.uid)}>
+                <DropdownItem key onClick={e => reassignClick(row.id, cs.uid)}>
                   {cs.name}
                 </DropdownItem>
               ))}
