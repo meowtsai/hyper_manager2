@@ -12,6 +12,7 @@ import Servers from "./servers/reducers";
 import AdminUsers from "./adminUsers/reducers";
 import ServiceAllocate from "./serviceAllocate/reducers";
 import VIP from "./vip/reducers";
+import VipOffers from "./vipoffers/reducers";
 import Service from "./service/reducers";
 export default combineReducers({
   Auth,
@@ -25,5 +26,6 @@ export default combineReducers({
   AdminUsers,
   ServiceAllocate,
   Service,
-  VIP
+  VIP,
+  VipOffers
 });

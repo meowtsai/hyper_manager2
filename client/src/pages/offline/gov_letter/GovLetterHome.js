@@ -19,6 +19,8 @@ const GovLetterHome = ({ getOfflineCsData, records, loading, error }) => {
     const [selStatus, setSelStatus] = useState('');
     const [errors, setErrors] = useState({});
     const [gameOptions, setGameOptions] = useState([{ game_id: '', game_name: '' }]);
+
+
     const filterStatus = type => {
         //console.log('filter selGame', selGame);
         //console.log('filter status', selStatus);
@@ -47,11 +49,13 @@ const GovLetterHome = ({ getOfflineCsData, records, loading, error }) => {
         setFilter('keyword');
         setArrangedData(newData);
     };
-
+    
+    const mainTitle = "公函";
     useEffect(() => {
         //console.log('startDate', startDate);
         //console.log('endDate', endDate);
         getOfflineCsData('govletter');
+        document.title = mainTitle;
         // eslint-disable-next-line
     }, []);
     useEffect(() => {
@@ -274,9 +278,9 @@ const GovLetterHome = ({ getOfflineCsData, records, loading, error }) => {
             <PageTitle
                 breadCrumbItems={[
                     { label: '線下客服', path: '/offline/gov_letter', active: false },
-                    { label: '公函', path: '/offline/gov_letter', active: true },
+                    { label: mainTitle, path: '/offline/gov_letter', active: true },
                 ]}
-                title={'公函'}
+                title={mainTitle }
             />
             <Row className="mb-2">
                 <Col sm={4}>

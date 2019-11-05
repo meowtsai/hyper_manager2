@@ -12,6 +12,7 @@ import adminUsersSaga from "./adminUsers/saga";
 import serviceAllocateSaga from "./serviceAllocate/saga";
 import serviceSaga from "./service/saga";
 import vipSaga from "./vip/saga";
+import vipOfferSaga from "./vipoffers/saga";
 export default function* rootSaga(getState: any): any {
   yield all([
     authSaga(),
@@ -25,6 +26,7 @@ export default function* rootSaga(getState: any): any {
     adminUsersSaga(),
     serviceAllocateSaga(),
     serviceSaga(),
-    vipSaga()
+    vipSaga(),
+    vipOfferSaga()
   ]);
 }

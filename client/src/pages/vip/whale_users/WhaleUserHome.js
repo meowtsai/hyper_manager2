@@ -55,6 +55,7 @@ const WhaleUserHome = ({
   loading,
   error,
   errors,
+  not_allowed,
   vip_list,
   updateOKMessage,
   clearVIPMessage,
@@ -119,7 +120,7 @@ const WhaleUserHome = ({
     }
     if (
       (updateOKMessage !== undefined && updateOKMessage !== null) ||
-      (error !== undefined && error !== null)
+      (error !== undefined && error !== null && !not_allowed)
     ) {
       //console.log("error effect", error);
       timeOutId = setTimeout(() => {
@@ -639,6 +640,7 @@ const mapStateToProps = state => ({
   loading: state.VIP.loading,
   error: state.VIP.error,
   errors: state.VIP.errors,
+  not_allowed: state.VIP.not_allowed,
   updateOKMessage: state.VIP.updateOKMessage
 });
 

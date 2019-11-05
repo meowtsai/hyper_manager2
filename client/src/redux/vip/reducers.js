@@ -25,7 +25,8 @@ const INIT_STATE = {
   loading: true,
   error: null,
   errors: {},
-  updateOKMessage: null
+  updateOKMessage: null,
+  not_allowed: false
 };
 
 type VipAction = { type: string, payload: {} | string };
@@ -100,11 +101,18 @@ const VIP = (state: State = INIT_STATE, action: VipAction) => {
         loading: false,
         error: null
       };
+    case GET_VIP_GAMES_FAILED:
+      return {
+        ...state,
+        error: action.payload,
+        not_allowed: true,
+        loading: false
+      };
     case ADD_VIP_REQUEST_VALIDATION_FAILED:
       return { ...state, errors: action.payload, loading: false };
     case ADD_VIP_REQUEST_FAILED:
     case UPDATE_VIP_STATUS_FAILED:
-    case GET_VIP_GAMES_FAILED:
+
     case GET_VIP_FAILED:
     case DELETE_VIP_REQUEST_FAILED:
       return { ...state, error: action.payload, loading: false };

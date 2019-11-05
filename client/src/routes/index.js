@@ -100,6 +100,8 @@ const TestPage = React.lazy(() => import('../pages/service/questions/TestPage'))
 
 //vip
 const WhaleUserHome = React.lazy(() => import('../pages/vip/whale_users/WhaleUserHome'));
+const VipOfferHome = React.lazy(() => import('../pages/vip/offers/index'));
+const VipOfferForm = React.lazy(() => import('../pages/vip/offers/form'));
 
 // handle auth and authorization
 
@@ -697,7 +699,26 @@ const vipRoutes = {
             name: '鯨魚用戶',
             component: WhaleUserHome,
             route: PrivateRoute,
-        }
+        },
+        {
+            path: '/vip/offers',
+            name: 'VIP方案',
+            children: [
+                {
+                    path: '/vip/offers/offer_list',
+                    name: '方案列表',
+                    component: VipOfferHome,
+                    route: PrivateRoute,
+                },
+                {
+                    path: '/vip/offers/add_offer',
+                    name: '方案明細',
+                    component: VipOfferForm,
+                    route: PrivateRoute,
+                },
+            ],
+        },
+        
     ],
 };
 

@@ -36,6 +36,7 @@ function* getGames() {
   } catch (error) {
     let message;
     message = error.response.data.msg;
+    //return res.status(403).json({ msg: "你目前沒有瀏覽這個頁面的相關權限" });
     yield put(getVipGamesFailed(message));
   }
 }

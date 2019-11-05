@@ -194,7 +194,10 @@ const QuestionInfo = ({
               {isReadMark}
               {allocateMark}
               <div>{allocateResultMark}</div>
-              <div className="text-info font-12">請至原站台處理後送</div>
+
+              {question.allocate_status.toString() === "1" && (
+                <div className="text-info font-12">請至原站台處理後送</div>
+              )}
 
               {/* {(question.allocate_status.toString() === "1" ||
                 question.allocate_status.toString() === "3") && (
@@ -580,15 +583,17 @@ const SingleQuestionPage = ({
             <Col sm={6}>
               <Card>
                 <CardBody>
-                  <AllocationList
-                    q_id={current.question.id}
-                    q_status={current.question.status}
-                    allocation={allocation}
-                    allocation_logs={allocation_logs}
-                    postAllocation={postAllocation}
-                    putAllocation={putAllocation}
-                    user={user}
-                  />
+                  {current.question.allocate_status.toString() !== "1" && (
+                    <AllocationList
+                      q_id={current.question.id}
+                      q_status={current.question.status}
+                      allocation={allocation}
+                      allocation_logs={allocation_logs}
+                      postAllocation={postAllocation}
+                      putAllocation={putAllocation}
+                      user={user}
+                    />
+                  )}
                 </CardBody>
               </Card>
             </Col>

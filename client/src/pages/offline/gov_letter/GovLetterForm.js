@@ -114,17 +114,17 @@ import {
     
     if (file01 !=="") {
       //record.close_date=close_date;
-      console.log("file01",file01[0])
+      //console.log("file01",file01[0])
       formData.append(`attachment01`, file01[0] );
     }
     if (file02 !=="") {
       //record.close_date=close_date;
-      console.log("file02",file02[0])
+      //console.log("file02",file02[0])
       formData.append(`attachment02`, file02[0] );
     }
     if (file03 !=="") {
       //record.close_date=close_date;
-      console.log("file03",file03[0])
+      //console.log("file03",file03[0])
       formData.append(`attachment03`, file03[0] );
     }
    
@@ -134,7 +134,7 @@ import {
       formData.append("id",record_id);
     }
 
-    console.log("formData", formData);
+    //console.log("formData", formData);
     editRecord("govletter", formData);
   };
 
