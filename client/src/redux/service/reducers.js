@@ -22,6 +22,9 @@ import {
   GET_OVERVIEW,
   GET_OVERVIEW_SUCCESS,
   GET_OVERVIEW_FAILED,
+  GET_SERVICE_STATISTICS,
+  GET_SERVICE_STATISTICS_SUCCESS,
+  GET_SERVICE_STATISTICS_FAILED,
   CLEAR_MESSAGE
 } from "./constants";
 
@@ -57,6 +60,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case ALLOCATE_QUESTION:
     case REPLY_QUESTION:
     case CLOSE_QUESTION:
+    case GET_SERVICE_STATISTICS:
       return {
         ...state,
         loading: true,
@@ -131,6 +135,28 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         loading: false,
         error: null
       };
+    case GET_SERVICE_STATISTICS_SUCCESS:
+      const { antsHandleData, qCountData } = action.payload;
+      var tmpGameIds = [];
+      return {
+        ...state,
+        allgames: qCountData.reduce(function(prev, curr) {
+          if (tmpGameIds.indexOf(curr.game_id) < 0) {
+            tmpGameIds.push(curr.game_id);
+            return [
+              ...prev,
+              { game_id: curr.game_id, game_name: curr.game_name }
+            ];
+          } else {
+            return prev;
+          }
+        }, []),
+        antsHandleData,
+        qCountData,
+        loading: false,
+        error: null
+      };
+
     case GET_OVERVIEW_SUCCESS:
       const { ovToday, ovTotal, ovAllocate, ovAllocateNew } = action.payload;
       return {
@@ -164,6 +190,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         error: null
       };
     case ALLOCATE_QUESTION_FAILED:
+    case GET_SERVICE_STATISTICS_FAILED:
     case GET_QUESTIONS_FAILED:
     case UPDATE_QUESTION_TYPE_FAILED:
     case UPDATE_QUESTION_STATUS_FAILED:

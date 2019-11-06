@@ -7,6 +7,7 @@ import {
   UPDATE_QUESTION_TYPE,
   GET_TEST_DATA,
   GET_OVERVIEW,
+  GET_SERVICE_STATISTICS,
   GET_CURRENT_QUESTION,
   ALLOCATE_QUESTION,
   REPLY_QUESTION,
@@ -24,6 +25,8 @@ import {
   getTestDataFailed,
   getOverviewSuccess,
   getOverviewFailed,
+  getServiceStatisticsSuccess,
+  getServiceStatisticsFailed,
   getCurrentQuestionFailed,
   getCurrentQuestionSuccess,
   allocateQuestionSuccess,
@@ -154,6 +157,33 @@ function* getOverview() {
   }
 }
 
+function* getServiceStat({ payload: { yyyymm } }) {
+  const options = {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/questions/statistics?yyyymm=${yyyymm}`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(getServiceStatisticsSuccess(response.data));
+  } catch (error) {
+    // console.log(' login error ', error);
+    // console.log(' error.status ', error.response.status);
+    let message;
+    switch (error.response.status) {
+      case 500:
+        message = "內部伺服器發生錯誤";
+        break;
+      case 401:
+        message = "沒有權限";
+        break;
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(getServiceStatisticsFailed(message));
+  }
+}
 /**
  * edit question type
  */
@@ -336,6 +366,10 @@ export function* watchGetTestData(): any {
 export function* watchOverviewData(): any {
   yield takeEvery(GET_OVERVIEW, getOverview);
 }
+export function* watchStatData(): any {
+  yield takeEvery(GET_SERVICE_STATISTICS, getServiceStat);
+}
+
 export function* watchUpdateType(): any {
   yield takeEvery(UPDATE_QUESTION_TYPE, updateType);
 }
@@ -364,7 +398,8 @@ function* serviceSaga(): any {
     fork(watchOverviewData),
     fork(watchallocateQuestion),
     fork(watchReplyQuestion),
-    fork(watchCloseQuestion)
+    fork(watchCloseQuestion),
+    fork(watchStatData)
   ]);
 }
 

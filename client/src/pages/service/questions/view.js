@@ -55,16 +55,16 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
     setModal(!modal);
   };
   return (
-    <Card
-      className={classNames("text-dark", [
-        `bg-${reply.is_official === "1" ? "success" : "light"}`
-      ])}
-    >
+    <Card>
       {pic_plus.length > 0 &&
         pic_plus.map(pic => (
           <CardImg key={`repic-${pic_plus.id}`} src={pic.pic_path} />
         ))}
-      <CardBody>
+      <CardBody
+        className={classNames("text-dark", [
+          `bg-${reply.is_official === "1" ? "official" : "light"}`
+        ])}
+      >
         <CardTitle tag="h5">
           NO {num}.
           {reply.is_official === "1" ? `${reply.admin_uname}回覆` : "再次提問"}
@@ -181,7 +181,7 @@ const QuestionInfo = ({
 
   return (
     <React.Fragment>
-      <Table hover responsive bordered className="mb-0 mt-2">
+      <Table hover responsive bordered className="mb-2 mt-2">
         <tbody>
           <tr>
             <th>

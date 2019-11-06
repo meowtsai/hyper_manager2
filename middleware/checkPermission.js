@@ -23,6 +23,21 @@ module.exports = async function(req, res, next, resource, operation) {
         : await Admin_user.checkPermission(resource, operation, role);
 
     if (is_permitted) {
+      //console.log("user.role", user.role);
+
+      const chkAllGamePermission = await Admin_user.checkPermission(
+        "all_game",
+        "all",
+        user.role
+      );
+
+      //console.log("chkAllGamePermission", chkAllGamePermission);
+
+      const allow_games =
+        user.role === "admin" || chkAllGamePermission
+          ? "all_game"
+          : await Admin_user.getAllowedGames(user.role);
+      req.user.allow_games = allow_games;
       next();
     } else {
       return res.status(403).json({ msg: "你目前沒有瀏覽這個頁面的相關權限" });

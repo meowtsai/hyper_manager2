@@ -15,8 +15,10 @@ import {
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import filterFactory, {
+  Comparator,
   textFilter,
-  selectFilter
+  selectFilter,
+  dateFilter
 } from "react-bootstrap-table2-filter";
 import PageTitle from "../../../components/PageTitle";
 import {
@@ -358,6 +360,18 @@ const QuestionListPage = ({
       dataField: "create_time",
       text: "日期",
       sort: true,
+      filter: dateFilter({
+        delay: 400,
+        placeholder: "custom placeholder",
+        withoutEmptyComparatorOption: true,
+        comparators: [Comparator.EQ, Comparator.GT, Comparator.LT],
+        style: { display: "inline-grid" },
+        className: "custom-datefilter-class",
+        comparatorStyle: { backgroundColor: "antiquewhite" },
+        comparatorClassName: "custom-comparator-class",
+        dateStyle: { width: "118px", margin: "0px" },
+        dateClassName: "custom-date-class"
+      }),
       formatter: (cellContent, row) => {
         return <Moment format="YYYY-MM-DD HH:mm:ss">{row.create_time}</Moment>;
       }

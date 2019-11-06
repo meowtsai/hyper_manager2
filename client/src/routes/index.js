@@ -92,6 +92,8 @@ const GovLetterForm = React.lazy(() => import('../pages/offline/gov_letter/GovLe
 //service
 
 const ServiceOverview = React.lazy(() => import('../pages/service/questions/overview'));
+const ServiceStatistics = React.lazy(() => import('../pages/service/statistics'));
+
 const AllocateListPage = React.lazy(() => import('../pages/service/allocate'));
 const QuesionsListPage = React.lazy(() => import('../pages/service/questions'));
 const SingleQuestionPage = React.lazy(() => import('../pages/service/questions/view'));
@@ -620,6 +622,13 @@ const serviceRoutes = {
             component: AllocateListPage,
                     route: PrivateRoute,
             
+        },
+        {
+            exact: true,
+            path:'/service/statistics',
+            name:'件數統計',
+            component:ServiceStatistics,
+            route: PrivateRoute,
         },
 
     ],

@@ -1,12 +1,20 @@
 const { db1, db2 } = require("../config/db");
 
 const QuestionsModel = {
-  getAll: async (uid, { status = 1 }) => {
+  getAll: async (allow_games, uid, { status = 1 }) => {
     //console.log("QuestionsModel getall", uid, status);
     let limitedCondition = "";
     if (status.toString() === "4") {
       limitedCondition = "or q.status='7' order by id desc limit 1000";
     }
+
+    //console.log("QuestionsModel getAll", allow_games);
+
+    const where_allow_games =
+      allow_games === "all_game"
+        ? ""
+        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+
     return await db2
       .promise()
       .query(
@@ -17,7 +25,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where q.status=?   ${limitedCondition}
+        where q.status=?   ${limitedCondition} ${where_allow_games}
       `,
         [uid, status]
       )
@@ -215,6 +223,54 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         WHERE question_id=  ?
         ORDER BY id asc `,
         [question_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getStatisticsQrCount: async (yyyymm, role) => {
+    return await db2
+      .promise()
+      .query(
+        `select g.game_id, g.name as game_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間',count(*) as 'cnt'
+        from questions q
+        left join question_replies qr on q.id=qr.question_id
+        LEFT JOIN servers gi
+        ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        left join admin_users au on au.uid=qr.admin_uid
+        where DATE_FORMAT(qr.create_time,'%Y-%m') = ?
+        and au.role=?
+        group by game_id, game_name, DATE_FORMAT(qr.create_time,'%Y-%m-%d') `,
+        [yyyymm, role]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getStatisticsQCount: async yyyymm => {
+    return await db2
+      .promise()
+      .query(
+        `select g.game_id, g.name as game_name,DATE_FORMAT(q.create_time, '%Y-%m-%d') as '時間',count(*) as 'cnt'
+        from questions q
+        LEFT JOIN servers gi
+        ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        where  
+         DATE_FORMAT(q.create_time,'%Y-%m') = ?
+        group by game_id, game_name, DATE_FORMAT(q.create_time,'%Y-%m-%d')`,
+        [yyyymm]
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {

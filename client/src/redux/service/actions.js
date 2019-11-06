@@ -27,6 +27,9 @@ import {
   GET_OVERVIEW,
   GET_OVERVIEW_SUCCESS,
   GET_OVERVIEW_FAILED,
+  GET_SERVICE_STATISTICS,
+  GET_SERVICE_STATISTICS_SUCCESS,
+  GET_SERVICE_STATISTICS_FAILED,
   CLEAR_MESSAGE
 } from "./constants";
 
@@ -174,6 +177,21 @@ export const getOverviewSuccess = (data: []): ServiceAction => ({
 
 export const getOverviewFailed = (error: string): ServiceAction => ({
   type: GET_OVERVIEW_FAILED,
+  payload: error
+});
+
+export const getServiceStatistics = (yyyymm: string): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS,
+  payload: { yyyymm }
+});
+
+export const getServiceStatisticsSuccess = (data: []): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS_SUCCESS,
+  payload: data
+});
+
+export const getServiceStatisticsFailed = (error: string): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS_FAILED,
   payload: error
 });
 

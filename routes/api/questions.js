@@ -36,17 +36,19 @@ router.get(
     return checkPermission(req, res, next, "service", "read");
   },
   async (req, res) => {
-    const allow_games =
-      req.user.role === "admin" ||
-      Admin_user.checkPermission(req.user.role, "all_game", "all")
-        ? "all_game"
-        : Admin_user.getAllowedGames(req.user.role);
+    // const allow_games =
+    //   req.user.role === "admin" ||
+    //   Admin_user.checkPermission(req.user.role, "all_game", "all")
+    //     ? "all_game"
+    //     : Admin_user.getAllowedGames(req.user.role);
 
     //const allow_games = await Admin_user.getAllowedGames("ants");
 
-    const dataToday = QuestionsModel.getOverviewData(allow_games, 1);
-    const dataTotal = QuestionsModel.getOverviewData(allow_games, 2);
-    const dataAllocate = QuestionsModel.getAllocateOverview(allow_games);
+    const dataToday = QuestionsModel.getOverviewData(req.user.allow_games, 1);
+    const dataTotal = QuestionsModel.getOverviewData(req.user.allow_games, 2);
+    const dataAllocate = QuestionsModel.getAllocateOverview(
+      req.user.allow_games
+    );
     const dataAllocateNew = AllocationModel.getAllocateOverview();
 
     Promise.all([dataToday, dataTotal, dataAllocate, dataAllocateNew]).then(
@@ -74,7 +76,7 @@ router.get(
 //@access: private
 
 router.get("/", auth, async (req, res) => {
-  const questionsList = await QuestionsModel.getAll(0, 25);
+  const questionsList = await QuestionsModel.getAll("", 0, 25);
   res.json(questionsList);
 });
 
@@ -162,47 +164,57 @@ router.get("/allocated", auth, async (req, res) => {
 //@desc: get allocated questions list
 //@access: private
 //$allocate_count = $this->DB1->from("questions q")->where("q.allocate_admin_uid", $_SESSION['admin_uid'])->where("q.allocate_status", "1")->count_all_results();
-router.post("/getList", auth, async (req, res) => {
-  //const admin_uid = req.user.uid;
-  const question_type = SERVICE_CONFIG.question_type;
-  const question_status = SERVICE_CONFIG.question_status;
-  const allocation_status = SERVICE_CONFIG.allocationStatus;
-  //console.log("server get list", req.body);
-  const condition = req.body;
-  //const action = req.query.action; //查詢
-  const action = "查詢";
-  let query = [];
-  if (action) {
-    query = await QuestionsModel.getAll(req.user.uid, condition);
-    if (query.error) {
-      res.status(500).json({ msg: `獲取資料失敗(${query.error})` });
+router.post(
+  "/getList",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "read");
+  },
+  async (req, res) => {
+    //const admin_uid = req.user.uid;
+    const question_type = SERVICE_CONFIG.question_type;
+    const question_status = SERVICE_CONFIG.question_status;
+    const allocation_status = SERVICE_CONFIG.allocationStatus;
+    //console.log("server get list", req.body);
+    const condition = req.body;
+    //const action = req.query.action; //查詢
+    const action = "查詢";
+    let query = [];
+    if (action) {
+      query = await QuestionsModel.getAll(
+        req.user.allow_games,
+        req.user.uid,
+        condition
+      );
+      if (query.error) {
+        res.status(500).json({ msg: `獲取資料失敗(${query.error})` });
+      }
+    } else {
+      //default
     }
-  } else {
-    //default
-  }
-  const q_ids = query.length > 0 ? query.map(q => q.id).join(",") : [];
-  const pReply = RepliesModel.getRepliesByQid(q_ids);
-  const pAllocation = AllocationModel.getRecordsByQid(q_ids);
-  Promise.all([pReply, pAllocation]).then(
-    ([reply_query, newAllocationStatus]) => {
-      res.json({
-        query,
-        reply_query,
-        newAllocationStatus,
-        question_type,
-        question_status,
-        allocation_status
-      });
-    },
-    reason => {
-      //console.log(reason);
-      res.json({ reason });
-    }
-  );
+    const q_ids = query.length > 0 ? query.map(q => q.id).join(",") : [];
+    const pReply = RepliesModel.getRepliesByQid(q_ids);
+    const pAllocation = AllocationModel.getRecordsByQid(q_ids);
+    Promise.all([pReply, pAllocation]).then(
+      ([reply_query, newAllocationStatus]) => {
+        res.json({
+          query,
+          reply_query,
+          newAllocationStatus,
+          question_type,
+          question_status,
+          allocation_status
+        });
+      },
+      reason => {
+        //console.log(reason);
+        res.json({ reason });
+      }
+    );
 
-  //const admin_uid = 86;
-  //const questionsList = await QuestionsModel.getAllocateList(admin_uid, 1);
-});
+    //const admin_uid = 86;
+    //const questionsList = await QuestionsModel.getAllocateList(admin_uid, 1);
+  }
+);
 
 router.put(
   "/updateQuestionType",
@@ -726,5 +738,23 @@ router.put(
     }
   }
 );
+
+router.get("/statistics", auth, async (req, res) => {
+  const sYYYYMM = req.query.yyyymm;
+  //console.log(req.query);
+  const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "ants");
+  const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
+
+  Promise.all([antsHandleP, qCountP])
+    .then(
+      ([antsHandleData, qCountData]) => {
+        res.json({ antsHandleData, qCountData });
+      },
+      reason => {
+        res.json({ reason });
+      }
+    )
+    .catch(err => console.log("get statistics data error: ", err));
+});
 
 module.exports = router;

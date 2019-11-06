@@ -240,20 +240,29 @@ const AllocateListPage = ({
       isDummyField: true,
       text: "操作",
       formatter: (cell, row) => {
-        return (
-          <UncontrolledButtonDropdown addonType="append">
-            <DropdownToggle caret color="dark">
-              手動指派
-            </DropdownToggle>
-            <DropdownMenu>
-              {cs_members.map(cs => (
-                <DropdownItem key onClick={e => reassignClick(row.id, cs.uid)}>
-                  {cs.name}
-                </DropdownItem>
-              ))}
-            </DropdownMenu>
-          </UncontrolledButtonDropdown>
-        );
+        if (
+          user.role === "cs_master" ||
+          user.role === "admin" ||
+          user.role === "pm"
+        ) {
+          return (
+            <UncontrolledButtonDropdown addonType="append">
+              <DropdownToggle caret color="dark">
+                手動指派
+              </DropdownToggle>
+              <DropdownMenu>
+                {cs_members.map(cs => (
+                  <DropdownItem
+                    key
+                    onClick={e => reassignClick(row.id, cs.uid)}
+                  >
+                    {cs.name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </UncontrolledButtonDropdown>
+          );
+        } else return null;
       }
     }
   ];
