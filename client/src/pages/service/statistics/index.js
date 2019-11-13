@@ -20,6 +20,7 @@ import Spinner from "../../../components/Spinner";
 const ServiceStatistics = ({
   getServiceStatistics,
   antsHandleData,
+  csHandleData,
   qCountData,
   loading,
   allgames,
@@ -233,6 +234,7 @@ const ServiceStatistics = ({
                     <tr>
                       <th>日期</th>
                       <th>數量</th>
+                      <th>測試</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -242,6 +244,7 @@ const ServiceStatistics = ({
                         <tr key={`q_${index}`}>
                           <th>{item.時間}</th>
                           <td>{item.cnt}</td>
+                          <td>{item.test_cnt}</td>
                         </tr>
                       ))}
 
@@ -250,7 +253,74 @@ const ServiceStatistics = ({
                       <td>
                         {antsHandleData
                           .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + b.cnt, 0)}
+                          .reduce((a, b) => a + Number.parseInt(b.cnt), 0)}
+                      </td>
+                      <td>
+                        {antsHandleData
+                          .filter(item => item.game_id === gameId)
+                          .reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </CardBody>
+            </Card>
+          )}
+        </Col>
+        <Col lg={3}>
+          {antsHandleData.length > 0 && (
+            <CSVLink
+              data={antsHandleData.filter(item => item.game_id === gameId)}
+              headers={[
+                { label: "日期", key: "時間" },
+                { label: "數量", key: "cnt" }
+              ]}
+              filename={
+                gameName +
+                yyyymm +
+                "蟻力提問單處理量" +
+                new Date().getTime() +
+                ".csv"
+              }
+            >
+              下載 csv檔案
+            </CSVLink>
+          )}
+          {csHandleData && (
+            <Card>
+              <CardBody>
+                <h4 className="header-title">{gameName}-客服提問單處理量</h4>
+
+                <Table className="mb-0" bordered size="sm">
+                  <thead>
+                    <tr>
+                      <th>日期</th>
+                      <th>數量</th>
+                      <th>測試</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {csHandleData
+                      .filter(item => item.game_id === gameId)
+                      .map((item, index) => (
+                        <tr key={`q_${index}`}>
+                          <th>{item.時間}</th>
+                          <td>{item.cnt}</td>
+                          <td>{item.test_cnt}</td>
+                        </tr>
+                      ))}
+
+                    <tr>
+                      <th>總計</th>
+                      <td>
+                        {csHandleData
+                          .filter(item => item.game_id === gameId)
+                          .reduce((a, b) => a + Number.parseInt(b.cnt), 0)}
+                      </td>
+                      <td>
+                        {csHandleData
+                          .filter(item => item.game_id === gameId)
+                          .reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
                       </td>
                     </tr>
                   </tbody>
@@ -270,6 +340,7 @@ ServiceStatistics.propTypes = {
 
 const mapStateToProps = state => ({
   antsHandleData: state.Service.antsHandleData,
+  csHandleData: state.Service.csHandleData,
   qCountData: state.Service.qCountData,
   allgames: state.Service.allgames,
   loading: state.Service.loading,

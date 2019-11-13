@@ -105,6 +105,12 @@ const WhaleUserHome = React.lazy(() => import('../pages/vip/whale_users/WhaleUse
 const VipOfferHome = React.lazy(() => import('../pages/vip/offers/index'));
 const VipOfferForm = React.lazy(() => import('../pages/vip/offers/form'));
 
+
+//Games
+const GamesHome = React.lazy(() => import('../pages/games'));
+const GamesEditForm = React.lazy(() => import('../pages/games/form'));
+const ServerHome = React.lazy(() => import('../pages/games/ServerHome'));
+
 // handle auth and authorization
 
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
@@ -730,6 +736,51 @@ const vipRoutes = {
         
     ],
 };
+//games
+
+
+const gamesRoutes = {
+    path: '/games',
+    name: '遊戲管理',
+    icon: 'dripicons-archive', 
+    children: [
+        {
+            path: '/games/home',
+            name: '遊戲設定',
+            component: GamesHome,
+            route: PrivateRoute,
+            exact: true,
+        },
+        {
+            path: '/games/create',
+            name: '新增遊戲',
+            component: GamesEditForm,
+            route: PrivateRoute,
+        },
+        {
+            path: '/games/servers',
+            name: '伺服器設定',
+            component: ServerHome,
+            route: PrivateRoute,
+            exact: true,
+        },
+    ],
+};
+
+// online cs
+
+const gameRoutesSub = {
+    path: '/games',
+    name: 'games',
+    children: [
+        {
+            path: '/games/edit/:game_id',
+            name: '編輯遊戲',
+            component: GamesEditForm,
+            route: PrivateRoute,
+        },
+    ],
+}
 
 // flatten the list of all nested routes
 const flattenRoutes = routes => {
@@ -762,7 +813,9 @@ const allRoutes = [
     myDashboardRoutes,
     serviceRoutes,
     serviceRoutesSub,
-    vipRoutes
+    vipRoutes,
+    gamesRoutes,
+    gameRoutesSub
 ];
 
 //所有要在leftSideBar顯示的路徑
@@ -779,9 +832,10 @@ const authProtectedRoutes =
               offlineRoutes,
               myDashboardRoutes,
               serviceRoutes,
-              vipRoutes
+              vipRoutes,
+              gamesRoutes
           ]
-        : [dashboardRoutes, offlineRoutes,serviceRoutes,vipRoutes];
+        : [dashboardRoutes, offlineRoutes,serviceRoutes,vipRoutes,gamesRoutes];
 
 const allFlattenRoutes = flattenRoutes(allRoutes);
 

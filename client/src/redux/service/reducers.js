@@ -32,7 +32,11 @@ const INIT_STATE = {
   list: [],
   current: {},
   loading: true,
-  error: ""
+  error: "",
+  allgames: [],
+  antsHandleData: [],
+  qCountData: [],
+  csHandleData: []
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -136,7 +140,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         error: null
       };
     case GET_SERVICE_STATISTICS_SUCCESS:
-      const { antsHandleData, qCountData } = action.payload;
+      const { antsHandleData, qCountData, csHandleData } = action.payload;
       var tmpGameIds = [];
       return {
         ...state,
@@ -153,6 +157,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         }, []),
         antsHandleData,
         qCountData,
+        csHandleData,
         loading: false,
         error: null
       };

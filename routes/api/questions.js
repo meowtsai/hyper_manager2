@@ -743,12 +743,13 @@ router.get("/statistics", auth, async (req, res) => {
   const sYYYYMM = req.query.yyyymm;
   //console.log(req.query);
   const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "ants");
+  const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "cs_master");
   const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
 
-  Promise.all([antsHandleP, qCountP])
+  Promise.all([antsHandleP, csHandleP, qCountP])
     .then(
-      ([antsHandleData, qCountData]) => {
-        res.json({ antsHandleData, qCountData });
+      ([antsHandleData, csHandleData, qCountData]) => {
+        res.json({ antsHandleData, csHandleData, qCountData });
       },
       reason => {
         res.json({ reason });

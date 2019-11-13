@@ -1,22 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  Row,
-  Col,
-  Button,
-  Card,
-  CardBody,
-  Label,
-  Table,
-  Input,
-  Form,
-  FormGroup,
-  Alert
-} from "reactstrap";
+import { Row, Col, Card, CardBody, Form, Alert } from "reactstrap";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import BootstrapTable from "react-bootstrap-table-next";
-import classNames from "classnames";
 import PageTitle from "../../../components/PageTitle";
 import { getVipOffers } from "../../../redux/actions";
 import Moment from "react-moment";

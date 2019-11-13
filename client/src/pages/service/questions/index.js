@@ -134,6 +134,37 @@ const QuestionListPage = ({
   });
   //console.log("selTypeOptions", selTypeOptions);
 
+  const filterByMultiUserCol = (filterVal, data) => {
+    //console.log("filterVal", filterVal);
+    if (filterVal) {
+      return data.filter(
+        item =>
+          (item.character_name &&
+            item.character_name.indexOf(filterVal) > -1) ||
+          (item.partner_uid && item.partner_uid.indexOf(filterVal) > -1) ||
+          (item.email && item.email.indexOf(filterVal) > -1) ||
+          (item.phone && item.phone.indexOf(filterVal) > -1)
+      );
+    }
+    return data;
+  };
+
+  const filterByContentOrReply = (filterVal, data) => {
+    //console.log("filterVal", filterVal);
+    if (filterVal) {
+      return data.filter(
+        item =>
+          (item.content && item.content.indexOf(filterVal) > -1) ||
+          reply_query
+            .filter(reply => reply.question_id === item.id)
+            .filter(
+              reply => reply.content && reply.content.indexOf(filterVal) > -1
+            ).length > 0
+      );
+    }
+    return data;
+  };
+
   const columns = [
     {
       dataField: "id",
@@ -156,11 +187,14 @@ const QuestionListPage = ({
     },
     {
       dataField: "character_name",
-      text: "角色名稱",
+      text: "角色(可搜尋角色名/uid/Email/手機)",
       headerStyle: (column, colIndex) => {
-        return { width: "138px" };
+        return { width: "158px" };
       },
-      filter: textFilter(),
+      filter: textFilter({
+        placeholder: "角色/uid/Email/手機",
+        onFilter: filterByMultiUserCol
+      }),
       formatter: (cellContent, row) => {
         return (
           <p className="text-dark">
@@ -206,12 +240,16 @@ const QuestionListPage = ({
 
     {
       dataField: "content",
-      text: "描述",
+      text: "描述(可搜尋玩家提問或回覆內容)",
       headerStyle: (column, colIndex) => {
         return { width: "318px" };
       },
       attrs: (cell, row) => ({ title: `${row.content}` }),
       filter: textFilter(),
+      filter: textFilter({
+        placeholder: "提問或回覆",
+        onFilter: filterByContentOrReply
+      }),
       formatter: (cellContent, row) => {
         return (
           <Fragment>
@@ -527,7 +565,7 @@ const QuestionListPage = ({
                 ]}
                 filter={filterFactory()}
                 pagination={paginationFactory({
-                  sizePerPage: 10,
+                  sizePerPage: 100,
                   showTotal: true,
                   paginationTotalRenderer: customTotal
                 })}
@@ -557,7 +595,9 @@ const mapStateToProps = state => ({
   allocation_status: state.Service.allocation_status
 });
 
-export default connect(
-  mapStateToProps,
-  { getQuestions, getGames, updateQuestionType, updateQuestionStatus }
-)(QuestionListPage);
+export default connect(mapStateToProps, {
+  getQuestions,
+  getGames,
+  updateQuestionType,
+  updateQuestionStatus
+})(QuestionListPage);

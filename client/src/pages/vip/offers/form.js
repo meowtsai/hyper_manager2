@@ -1,23 +1,8 @@
-import React, { Fragment, useState, useEffect } from "react";
-import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-  FormFeedback,
-  Button,
-  Alert
-} from "reactstrap";
+import React, { Fragment, useEffect } from "react";
+import { Row, Col } from "reactstrap";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import moment from "moment";
 import PropTypes from "prop-types";
 import PageTitle from "../../../components/PageTitle";
-import Spinner from "../../../components/Spinner";
 import { getGames } from "../../../redux/actions";
 
 // editVipOfferRecord,

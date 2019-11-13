@@ -6,7 +6,7 @@ const GamesModel = {
     return await db2
       .promise()
       .query(
-        "select game_id,name as game_name,logo_path,is_active from games order by is_active desc, game_id"
+        "select game_id,name as game_name,logo_path,is_active,fanpage,site from games order by is_active desc, game_id"
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {
@@ -47,7 +47,7 @@ const GamesModel = {
   findByIdAndUpdate: async (game_id, game) => {
     return await db1
       .promise()
-      .query("Update games set ? where id=?", [game, game_id])
+      .query("Update games set ? where game_id=?", [game, game_id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;

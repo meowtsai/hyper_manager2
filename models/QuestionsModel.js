@@ -237,7 +237,9 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
     return await db2
       .promise()
       .query(
-        `select g.game_id, g.name as game_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間',count(*) as 'cnt'
+        `select g.game_id, g.name as game_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間',
+        SUM(case when type='t' then 1 else 0 end) as 'test_cnt',
+        SUM(case when type<>'t' then 1 else 0 end) as 'cnt'
         from questions q
         left join question_replies qr on q.id=qr.question_id
         LEFT JOIN servers gi

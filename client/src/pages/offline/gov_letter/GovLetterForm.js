@@ -1,25 +1,58 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Row, Col, Card, CardBody, Form,FormGroup,Input, Label,FormFeedback ,Button,Alert} from 'reactstrap';
+import React, { Fragment, useState, useEffect } from "react";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  FormFeedback,
+  Button,
+  Alert
+} from "reactstrap";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import PropTypes from "prop-types";
-import PageTitle from '../../../components/PageTitle';
-import Spinner from '../../../components/Spinner';
+import PageTitle from "../../../components/PageTitle";
+import Spinner from "../../../components/Spinner";
 import {
-    getGames,getServersByGameId,editRecord,getCurrentRecord
-  } from "../../../redux/actions";
-  const GovLetterForm = ({ match ,getGames, games,getServersByGameId,servers,editRecord,error, affectedId,history,loading, getCurrentRecord, currentRecord}) => {
-
+  getGames,
+  getServersByGameId,
+  editRecord,
+  getCurrentRecord
+} from "../../../redux/actions";
+const GovLetterForm = ({
+  match,
+  getGames,
+  games,
+  getServersByGameId,
+  servers,
+  editRecord,
+  error,
+  affectedId,
+  history,
+  loading,
+  getCurrentRecord,
+  currentRecord
+}) => {
   //console.log("server", servers)
   const record_id = match.params.record_id ? match.params.record_id : null;
-  const act_title = record_id ? '編輯' : '新增';
-  const [o_letter_id, setOLetterId] = useState('')
-  const [contact, setContact] = useState('')
-  const [o_letter_date, setOLetterDate] = useState(moment().format("YYYY-MM-DD"))
-  const [deadline, setDeadline] = useState(moment().add(15, "days").format("YYYY-MM-DD"))
-  const [status, setStatus] = useState(1)
-  const [close_date, setCloseDate] = useState('')
+  const act_title = record_id ? "編輯" : "新增";
+  const [o_letter_id, setOLetterId] = useState("");
+  const [contact, setContact] = useState("");
+  const [o_letter_date, setOLetterDate] = useState(
+    moment().format("YYYY-MM-DD")
+  );
+  const [deadline, setDeadline] = useState(
+    moment()
+      .add(15, "days")
+      .format("YYYY-MM-DD")
+  );
+  const [status, setStatus] = useState(1);
+  const [close_date, setCloseDate] = useState("");
   const [gameId, setGameId] = useState("");
   const [serverId, setServerId] = useState("");
   const [roleName, setRoleName] = useState("");
@@ -31,9 +64,8 @@ import {
   const [file_path, setFile_path] = useState("");
   const [file_path2, setFile_path2] = useState("");
   const [file_path3, setFile_path3] = useState("");
-  
+
   useEffect(() => {
-    console.log("record_id", record_id);
     if (record_id) {
       getCurrentRecord("govletter", record_id, history);
     }
@@ -59,7 +91,6 @@ import {
       setFile_path(currentRecord.file_path);
       setFile_path2(currentRecord.file_path2);
       setFile_path3(currentRecord.file_path3);
-      
     }
   }, [currentRecord]);
 
@@ -75,14 +106,13 @@ import {
     //console.log("affectedId effect", affectedId);
     let timeOutId;
     if (affectedId > 0) {
-       timeOutId = setTimeout(() => {
+      timeOutId = setTimeout(() => {
         history.push(`/offline/gov_letter/home?affectedId=${affectedId}`);
       }, 2000);
     }
     return () => {
-      clearTimeout(timeOutId)
-    }
-    
+      clearTimeout(timeOutId);
+    };
   }, [affectedId]);
   const onGameChange = val => {
     //console.log("onGameChange", val)
@@ -95,95 +125,93 @@ import {
     //let record;
 
     let formData = new FormData();
-    
-    formData.append("o_letter_id",o_letter_id);
-    formData.append("o_letter_date",o_letter_date);
-    formData.append("contact",contact);
-    formData.append("note",note);
-    formData.append("deadline",deadline);
-    formData.append("status",status);
-    formData.append("game_id",gameId);
-    formData.append("server_id",serverId);
-    formData.append("role_name",roleName);
-    
-    
-    if (close_date !=="") {
+
+    formData.append("o_letter_id", o_letter_id);
+    formData.append("o_letter_date", o_letter_date);
+    formData.append("contact", contact);
+    formData.append("note", note);
+    formData.append("deadline", deadline);
+    formData.append("status", status);
+    formData.append("game_id", gameId);
+    formData.append("server_id", serverId);
+    formData.append("role_name", roleName);
+
+    if (close_date !== "") {
       //record.close_date=close_date;
-      formData.append("close_date",close_date);
+      formData.append("close_date", close_date);
     }
-    
-    if (file01 !=="") {
+
+    if (file01 !== "") {
       //record.close_date=close_date;
       //console.log("file01",file01[0])
-      formData.append(`attachment01`, file01[0] );
+      formData.append(`attachment01`, file01[0]);
     }
-    if (file02 !=="") {
+    if (file02 !== "") {
       //record.close_date=close_date;
       //console.log("file02",file02[0])
-      formData.append(`attachment02`, file02[0] );
+      formData.append(`attachment02`, file02[0]);
     }
-    if (file03 !=="") {
+    if (file03 !== "") {
       //record.close_date=close_date;
       //console.log("file03",file03[0])
-      formData.append(`attachment03`, file03[0] );
+      formData.append(`attachment03`, file03[0]);
     }
-   
-   
+
     if (record_id) {
       //record.id = record_id;
-      formData.append("id",record_id);
+      formData.append("id", record_id);
     }
 
     //console.log("formData", formData);
     editRecord("govletter", formData);
   };
 
-
-  if (affectedId>0 ) {
-    return <Alert color="success" isOpen={affectedId>0 ? true : false}>
-    <div>{`公函 # ${affectedId} ${act_title} 成功!`} </div>
-  </Alert>
-  }
-
-  if(loading) {
-    return <Spinner  className="m-2" color="secondary" />;
-  }
-  
-
+  if (affectedId > 0) {
     return (
-        <Fragment>
-            <PageTitle
-                breadCrumbItems={[
-                    {
-                        label: '線下客服',
-                        path: '/offline/gov_letter/home',
-                        active: false,
-                    },
-                    {
-                        label: '公函',
-                        path: '/offline/gov_letter/home',
-                        active: false,
-                    },
-                    {
-                        label: act_title,
-                        path: '/offline/gov_letter/create',
-                        active: true,
-                    },
-                ]}
-                title={`${act_title}公函`}
-            />
-            <Row className="mb-2">
-              <Col lg={6}>
+      <Alert color="success" isOpen={affectedId > 0 ? true : false}>
+        <div>{`公函 # ${affectedId} ${act_title} 成功!`} </div>
+      </Alert>
+    );
+  }
+
+  if (loading) {
+    return <Spinner className="m-2" color="secondary" />;
+  }
+
+  return (
+    <Fragment>
+      <PageTitle
+        breadCrumbItems={[
+          {
+            label: "線下客服",
+            path: "/offline/gov_letter/home",
+            active: false
+          },
+          {
+            label: "公函",
+            path: "/offline/gov_letter/home",
+            active: false
+          },
+          {
+            label: act_title,
+            path: "/offline/gov_letter/create",
+            active: true
+          }
+        ]}
+        title={`${act_title}公函`}
+      />
+      <Row className="mb-2">
+        <Col lg={6}>
           <Card>
             <CardBody>
               <h4 className="mb-3 header-title">請填寫公函紀錄</h4>
               {errors.msg && (
-                    <Alert color="danger" isOpen={errors.msg ? true : false}>
-                      <div>{errors.msg}</div>
-                    </Alert>
-                  )}
+                <Alert color="danger" isOpen={errors.msg ? true : false}>
+                  <div>{errors.msg}</div>
+                </Alert>
+              )}
               <Form onSubmit={formSubmit}>
-              <Row form>
+                <Row form>
                   <Col md={6}>
                     <FormGroup>
                       <Label for="o_letter_id">發文字號</Label>
@@ -255,16 +283,17 @@ import {
                     <FormGroup>
                       <Label for="status">狀態</Label>
                       <Input
-                                type="select"
-                                name="status"
-                                id="status"
-                                className="custom-select"
-                                value={status}
-                                onChange={e => setStatus(e.target.value)}>
-                                <option value="">狀態...</option>
-                                <option value="1">1-處理中</option>
-                                <option value="4">4-已結案</option>
-                            </Input>
+                        type="select"
+                        name="status"
+                        id="status"
+                        className="custom-select"
+                        value={status}
+                        onChange={e => setStatus(e.target.value)}
+                      >
+                        <option value="">狀態...</option>
+                        <option value="1">1-處理中</option>
+                        <option value="4">4-已結案</option>
+                      </Input>
 
                       <FormFeedback>{errors.status}</FormFeedback>
                     </FormGroup>
@@ -298,16 +327,16 @@ import {
                         invalid={errors.gameId ? true : false}
                       >
                         <option>請選擇遊戲</option>
-                        {games
-                          .map(game => (
-                            <option
-                              key={"g-" + game.game_id}
-                              value={game.game_id}
-                            >
-                              {" "}
-                              {game.game_id} - {game.game_name}  {game.is_active===1?"":"(停)" } 
-                            </option>
-                          ))}
+                        {games.map(game => (
+                          <option
+                            key={"g-" + game.game_id}
+                            value={game.game_id}
+                          >
+                            {" "}
+                            {game.game_id} - {game.game_name}{" "}
+                            {game.is_active === 1 ? "" : "(停)"}
+                          </option>
+                        ))}
                       </Input>
                       <FormFeedback>{errors.serverId}</FormFeedback>
                     </FormGroup>
@@ -335,7 +364,6 @@ import {
                               {server.server_id} - {server.server_name}
                             </option>
                           ))}
-                        
                       </Input>
                     </FormGroup>
                   </Col>
@@ -358,11 +386,9 @@ import {
                       <FormFeedback>{errors.roleName}</FormFeedback>
                     </FormGroup>
                   </Col>
-                  <Col md={6}>
-                   
-                  </Col>
+                  <Col md={6}></Col>
                 </Row>
-                
+
                 <FormGroup>
                   <Label for="txtNote">備註記事</Label>
 
@@ -383,33 +409,81 @@ import {
                   <Col md={6}>
                     <FormGroup>
                       <Label for="file01">相關檔案1</Label>
-                      
-                      {file_path && (<div><a target="blank" href={file_path}>公函檔案1</a></div>)}
 
-                      <Input type="file" name="file01" id="file01"  onChange={e => 
-                      {
-                        console.log("e.target.files",e.target.files);
-                        setFile01(e.target.files);
-                      }} />
-                      { file_path && file01.length>0 && <span> 原本公函檔案1會被覆蓋喔!</span> }
+                      {file_path && (
+                        <div>
+                          <a
+                            target="blank"
+                            rel="noopener noreferrer"
+                            href={file_path}
+                          >
+                            公函檔案1
+                          </a>
+                        </div>
+                      )}
+
+                      <Input
+                        type="file"
+                        name="file01"
+                        id="file01"
+                        onChange={e => {
+                          console.log("e.target.files", e.target.files);
+                          setFile01(e.target.files);
+                        }}
+                      />
+                      {file_path && file01.length > 0 && (
+                        <span> 原本公函檔案1會被覆蓋喔!</span>
+                      )}
                     </FormGroup>
                     <FormGroup>
                       <Label for="file02">相關檔案2</Label>
-                      {file_path2 && (<div><a target="blank" href={file_path2}>公函檔案2</a></div>)}
-                      <Input type="file" name="file02" id="file02"  onChange={e => 
-                      {
-                        setFile02(e.target.files);
-                      }} />
-                      { file_path2 && file02.length>0 && <span> 原本公函檔案2會被覆蓋喔!</span> }
+                      {file_path2 && (
+                        <div>
+                          <a
+                            target="blank"
+                            rel="noopener noreferrer"
+                            href={file_path2}
+                          >
+                            公函檔案2
+                          </a>
+                        </div>
+                      )}
+                      <Input
+                        type="file"
+                        name="file02"
+                        id="file02"
+                        onChange={e => {
+                          setFile02(e.target.files);
+                        }}
+                      />
+                      {file_path2 && file02.length > 0 && (
+                        <span> 原本公函檔案2會被覆蓋喔!</span>
+                      )}
                     </FormGroup>
                     <FormGroup>
                       <Label for="file03">相關檔案3</Label>
-                      {file_path3 && (<div><a target="blank" href={file_path3}>公函檔案3</a></div>)}
-                      <Input type="file" name="file03" id="file03"  onChange={e => 
-                      {
-                        setFile03(e.target.files);
-                      }} />
-                      { file_path3 && file03.length>0 && <span> 原本公函檔案3會被覆蓋喔!</span> }
+                      {file_path3 && (
+                        <div>
+                          <a
+                            target="blank"
+                            rel="noopener noreferrer"
+                            href={file_path3}
+                          >
+                            公函檔案3
+                          </a>
+                        </div>
+                      )}
+                      <Input
+                        type="file"
+                        name="file03"
+                        id="file03"
+                        onChange={e => {
+                          setFile03(e.target.files);
+                        }}
+                      />
+                      {file_path3 && file03.length > 0 && (
+                        <span> 原本公函檔案3會被覆蓋喔!</span>
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>
@@ -429,35 +503,28 @@ import {
           </Card>
         </Col>
       </Row>
-        </Fragment>
-    );
+    </Fragment>
+  );
 };
 
-
-
 GovLetterForm.propTypes = {
-    games: PropTypes.array,
-    servers: PropTypes.array,
-    editRecord:PropTypes.func.isRequired,
-    affectedId:PropTypes.number
-  };
-  
-  const mapStateToProps = state => ({
-    games: state.Games.list,
-    servers: state.Servers.list,
-    error:state.OfflineCs.error,
-    affectedId:state.OfflineCs.affectedId,
-    loading:state.OfflineCs.loading,
-    currentRecord:state.OfflineCs.currentRecord,
-  });
-  export default connect(
-    mapStateToProps,
-    {
-      getGames,
-      getServersByGameId,
-      editRecord,
-      getCurrentRecord
-    
-    }
-  )(GovLetterForm);
-  
+  games: PropTypes.array,
+  servers: PropTypes.array,
+  editRecord: PropTypes.func.isRequired,
+  affectedId: PropTypes.number
+};
+
+const mapStateToProps = state => ({
+  games: state.Games.list,
+  servers: state.Servers.list,
+  error: state.OfflineCs.error,
+  affectedId: state.OfflineCs.affectedId,
+  loading: state.OfflineCs.loading,
+  currentRecord: state.OfflineCs.currentRecord
+});
+export default connect(mapStateToProps, {
+  getGames,
+  getServersByGameId,
+  editRecord,
+  getCurrentRecord
+})(GovLetterForm);
