@@ -155,7 +155,7 @@ const GameForm = ({
           }
           <Card>
             <CardBody>
-              {errors.msg && (
+              {errors && errors.msg && (
                 <Alert color="danger" isOpen={errors.msg ? true : false}>
                   <div>{errors.msg}</div>
                 </Alert>

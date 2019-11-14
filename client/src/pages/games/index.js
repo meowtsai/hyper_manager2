@@ -71,7 +71,7 @@ const GamesHome = ({ games, getGames, loading, errors }) => {
   if (loading) {
     return <Spinner className="m-2" color="secondary" />;
   }
-  if (errors.msg) {
+  if (errors && errors.msg) {
     return (
       <Alert color="danger" isOpen={errors.msg ? true : false}>
         <div>{errors.msg}</div>

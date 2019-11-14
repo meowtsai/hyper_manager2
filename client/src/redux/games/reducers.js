@@ -25,6 +25,7 @@ type State = {
   loading?: boolean,
   +value?: boolean,
   error?: string,
+  errors?: {},
   updateOKMessage?: string
 };
 const Games = (state: State = INIT_STATE, action: GamesAction) => {
@@ -35,7 +36,7 @@ const Games = (state: State = INIT_STATE, action: GamesAction) => {
         updateOKMessage: null,
         list: action.payload,
         loading: false,
-        errors: null
+        errors: {}
       };
     case GET_GAMES_DATA_FAILED:
       return { ...state, errors: action.payload, loading: false };

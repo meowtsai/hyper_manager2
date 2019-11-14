@@ -230,6 +230,22 @@ const WhaleUserHome = ({
         return { width: "100px" };
       }
     },
+
+    {
+      dataField: "vip_ranking_updated",
+      text: "升階",
+      sort: true,
+      headerSortingStyle,
+      formatter: (cellContent, row) => {
+        return cellContent ? (
+          <Moment className="text-muted small" format="YYYY-MM-DD HH:mm:ss">
+            {cellContent}
+          </Moment>
+        ) : (
+          ""
+        );
+      }
+    },
     {
       dataField: "latest_topup_date",
       text: "最後儲值",
@@ -644,14 +660,11 @@ const mapStateToProps = state => ({
   updateOKMessage: state.VIP.updateOKMessage
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    getVipGames,
-    getVip,
-    putVip,
-    clearVIPMessage,
-    deleteVipServiceRequest,
-    addVipServiceRequest
-  }
-)(WhaleUserHome);
+export default connect(mapStateToProps, {
+  getVipGames,
+  getVip,
+  putVip,
+  clearVIPMessage,
+  deleteVipServiceRequest,
+  addVipServiceRequest
+})(WhaleUserHome);
