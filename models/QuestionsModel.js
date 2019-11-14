@@ -237,7 +237,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
     return await db2
       .promise()
       .query(
-        `select g.game_id, g.name as game_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間',
+        `select g.game_id, g.name as game_name, au.name as admin_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間',
         SUM(case when type='t' then 1 else 0 end) as 'test_cnt',
         SUM(case when type<>'t' then 1 else 0 end) as 'cnt'
         from questions q
@@ -248,7 +248,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         left join admin_users au on au.uid=qr.admin_uid
         where DATE_FORMAT(qr.create_time,'%Y-%m') = ?
         and au.role=?
-        group by game_id, game_name, DATE_FORMAT(qr.create_time,'%Y-%m-%d') `,
+        group by game_id, game_name,au.name, DATE_FORMAT(qr.create_time,'%Y-%m-%d') order by DATE_FORMAT(qr.create_time,'%Y-%m-%d') `,
         [yyyymm, role]
       )
       .then(([rows, fields]) => {

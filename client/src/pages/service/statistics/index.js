@@ -12,7 +12,8 @@ import {
   Label,
   FormGroup,
   Input,
-  Button
+  Button,
+  ButtonGroup
 } from "reactstrap";
 import { getServiceStatistics } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
@@ -36,6 +37,8 @@ const ServiceStatistics = ({
       .toString()
       .padStart(2, "0")}`
   );
+
+  const [rptCondition, setRptCondition] = useState("user");
 
   useEffect(() => {
     getServiceStatistics(yyyymm);
@@ -113,6 +116,21 @@ const ServiceStatistics = ({
                   ))}
                 </Input>
               </FormGroup>
+
+              <ButtonGroup className="btn-group mb-2 ml-3">
+                <Button
+                  onClick={e => setRptCondition("date")}
+                  color={rptCondition === "date" ? "danger" : "light"}
+                >
+                  by 日期
+                </Button>
+                <Button
+                  onClick={e => setRptCondition("user")}
+                  color={rptCondition === "user" ? "danger" : "light"}
+                >
+                  by 人員
+                </Button>
+              </ButtonGroup>
             </Form>
           )}
         </Col>
@@ -206,127 +224,21 @@ const ServiceStatistics = ({
           )}
         </Col>
         <Col lg={3}>
-          {antsHandleData.length > 0 && (
-            <CSVLink
-              data={antsHandleData.filter(item => item.game_id === gameId)}
-              headers={[
-                { label: "日期", key: "時間" },
-                { label: "數量", key: "cnt" }
-              ]}
-              filename={
-                gameName +
-                yyyymm +
-                "蟻力提問單處理量" +
-                new Date().getTime() +
-                ".csv"
-              }
-            >
-              下載 csv檔案
-            </CSVLink>
-          )}
-          {antsHandleData && (
-            <Card>
-              <CardBody>
-                <h4 className="header-title">{gameName}-蟻力提問單處理量</h4>
-
-                <Table className="mb-0" bordered size="sm">
-                  <thead>
-                    <tr>
-                      <th>日期</th>
-                      <th>數量</th>
-                      <th>測試</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {antsHandleData
-                      .filter(item => item.game_id === gameId)
-                      .map((item, index) => (
-                        <tr key={`q_${index}`}>
-                          <th>{item.時間}</th>
-                          <td>{item.cnt}</td>
-                          <td>{item.test_cnt}</td>
-                        </tr>
-                      ))}
-
-                    <tr>
-                      <th>總計</th>
-                      <td>
-                        {antsHandleData
-                          .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + Number.parseInt(b.cnt), 0)}
-                      </td>
-                      <td>
-                        {antsHandleData
-                          .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
+          {statTable(
+            antsHandleData,
+            `${gameName}-蟻力提問單處理量`,
+            gameId,
+            yyyymm,
+            rptCondition
           )}
         </Col>
         <Col lg={3}>
-          {antsHandleData.length > 0 && (
-            <CSVLink
-              data={antsHandleData.filter(item => item.game_id === gameId)}
-              headers={[
-                { label: "日期", key: "時間" },
-                { label: "數量", key: "cnt" }
-              ]}
-              filename={
-                gameName +
-                yyyymm +
-                "蟻力提問單處理量" +
-                new Date().getTime() +
-                ".csv"
-              }
-            >
-              下載 csv檔案
-            </CSVLink>
-          )}
-          {csHandleData && (
-            <Card>
-              <CardBody>
-                <h4 className="header-title">{gameName}-客服提問單處理量</h4>
-
-                <Table className="mb-0" bordered size="sm">
-                  <thead>
-                    <tr>
-                      <th>日期</th>
-                      <th>數量</th>
-                      <th>測試</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {csHandleData
-                      .filter(item => item.game_id === gameId)
-                      .map((item, index) => (
-                        <tr key={`q_${index}`}>
-                          <th>{item.時間}</th>
-                          <td>{item.cnt}</td>
-                          <td>{item.test_cnt}</td>
-                        </tr>
-                      ))}
-
-                    <tr>
-                      <th>總計</th>
-                      <td>
-                        {csHandleData
-                          .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + Number.parseInt(b.cnt), 0)}
-                      </td>
-                      <td>
-                        {csHandleData
-                          .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
+          {statTable(
+            csHandleData,
+            `${gameName}-客服提問單處理量`,
+            gameId,
+            yyyymm,
+            rptCondition
           )}
         </Col>
       </Row>
@@ -347,7 +259,89 @@ const mapStateToProps = state => ({
   error: state.Service.error
 });
 
-export default connect(
-  mapStateToProps,
-  { getServiceStatistics }
-)(ServiceStatistics);
+export default connect(mapStateToProps, { getServiceStatistics })(
+  ServiceStatistics
+);
+
+const statTable = (statData, label, gameId, yyyymm, condition) => {
+  const dataRaw = statData
+    .filter(d => d.game_id === gameId)
+    .map(d => ({
+      dt: d.時間,
+      admin_name: d.admin_name,
+      test_cnt: d.test_cnt,
+      cnt: d.cnt
+    }));
+
+  let itemSet = [];
+  let cond = condition === "date" ? "dt" : "admin_name";
+  const condLabel = condition === "date" ? "日期" : "人員";
+  const data = dataRaw.reduce(function(prev, curr) {
+    if (itemSet.indexOf(curr[cond]) < 0) {
+      itemSet.push(curr[cond]);
+      return [...prev, { ...curr }];
+    } else {
+      prev = prev.map(user => {
+        if (user[cond] === curr[cond]) {
+          return {
+            [cond]: user[cond],
+            test_cnt:
+              Number.parseInt(user.test_cnt) + Number.parseInt(curr.test_cnt),
+            cnt: Number.parseInt(user.cnt) + Number.parseInt(curr.cnt)
+          };
+        } else {
+          return user;
+        }
+      });
+      return prev;
+    }
+  }, []);
+
+  return (
+    <Fragment>
+      <CSVLink
+        data={dataRaw}
+        headers={[
+          { label: "日期", key: "dt" },
+          { label: "人員", key: "admin_name" },
+          { label: "數量", key: "cnt" }
+        ]}
+        filename={label + yyyymm + new Date().getTime() + ".csv"}
+      >
+        下載 csv檔案
+      </CSVLink>
+
+      <Card>
+        <CardBody>
+          <h4 className="header-title">{label} </h4>
+          <Table className="mb-0" bordered size="sm">
+            <thead>
+              <tr>
+                <th>{condLabel}</th>
+                <th>數量</th>
+                <th>測試</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={`q_${index}`}>
+                  <td>{item[cond]}</td>
+                  <td>{item.cnt}</td>
+                  <td>{item.test_cnt}</td>
+                </tr>
+              ))}
+
+              <tr>
+                <th>總計</th>
+                <td>{data.reduce((a, b) => a + Number.parseInt(b.cnt), 0)}</td>
+                <td>
+                  {data.reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </CardBody>
+      </Card>
+    </Fragment>
+  );
+};
