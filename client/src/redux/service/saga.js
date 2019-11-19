@@ -257,6 +257,7 @@ function* allocateQuestion({ payload }) {
 }
 //reply question
 function* replyQuestion({ payload }) {
+  //console.log("replyQuestion", payload);
   const options = {
     data: payload,
     method: "PUT",

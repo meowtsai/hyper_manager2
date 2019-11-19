@@ -245,7 +245,6 @@ const QuestionListPage = ({
         return { width: "318px" };
       },
       attrs: (cell, row) => ({ title: `${row.content}` }),
-      filter: textFilter(),
       filter: textFilter({
         placeholder: "提問或回覆",
         onFilter: filterByContentOrReply
@@ -492,19 +491,24 @@ const QuestionListPage = ({
             reply => reply.question_id === row.id
           );
           let userFirstReplyTime;
-          for (let index = replies.length - 1; index > 0; index--) {
-            const reply = replies[index];
-            if (reply.is_official === "1") {
-              userFirstReplyTime = replies[index + 1]
-                ? replies[index + 1].create_time
-                : reply.create_time;
-              break;
-            } else {
-              userFirstReplyTime = replies[index].create_time;
-            }
-          }
 
-          minutes = moment().diff(moment(userFirstReplyTime), "minutes");
+          if (replies.filter(r => r.is_official === "1").length === 0) {
+            minutes = moment().diff(moment(row.create_time), "minutes");
+          } else {
+            for (let index = replies.length - 1; index > 0; index--) {
+              const reply = replies[index];
+              if (reply.is_official === "1") {
+                userFirstReplyTime = replies[index + 1]
+                  ? replies[index + 1].create_time
+                  : reply.create_time;
+                break;
+              } else {
+                userFirstReplyTime = replies[index].create_time;
+              }
+            }
+
+            minutes = moment().diff(moment(userFirstReplyTime), "minutes");
+          }
         }
 
         const tColor =

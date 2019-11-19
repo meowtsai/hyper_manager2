@@ -103,7 +103,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
             ...state.current.replies.filter(
               reply => reply.id !== action.payload.id
             ),
-            action.payload.updatedField
+            { id: action.payload.id, ...action.payload.updatedField }
           ]
         },
         updateOKMessage: action.payload.msg,

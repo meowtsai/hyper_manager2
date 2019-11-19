@@ -49,9 +49,9 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
     reply.content.replace(/<br \/>/g, "")
   );
 
-  const confirmUpdate = e => {
+  const confirmUpdate = reply_id => {
     //console.log("confirmUpdate", reply.id);
-    modifyReply(reply.id, replyContent);
+    modifyReply(reply_id, replyContent);
     setModal(!modal);
   };
   return (
@@ -99,7 +99,7 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={confirmUpdate}>
+            <Button color="primary" onClick={e => confirmUpdate(reply.id)}>
               確認修改
             </Button>{" "}
             <Button color="secondary" onClick={e => setModal(!modal)}>
@@ -695,18 +695,15 @@ const mapStateToProps = state => ({
   allocateUpdateOKMessage: state.ServiceAllocate.updateOKMessage
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    getCurrentQuestion,
-    allocateQuestion,
-    clearMessage,
-    clearAllocationMessage,
-    replyQuestion,
-    closeQuestion,
-    getAllocateById,
-    putAllocation,
-    postAllocation,
-    updateQuestionType
-  }
-)(SingleQuestionPage);
+export default connect(mapStateToProps, {
+  getCurrentQuestion,
+  allocateQuestion,
+  clearMessage,
+  clearAllocationMessage,
+  replyQuestion,
+  closeQuestion,
+  getAllocateById,
+  putAllocation,
+  postAllocation,
+  updateQuestionType
+})(SingleQuestionPage);
