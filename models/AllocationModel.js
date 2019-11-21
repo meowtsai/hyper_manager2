@@ -88,7 +88,7 @@ const AllocationModel = {
     return await db1
       .promise()
       .query(
-        "select id as allocation_id from question_allocation WHERE allocate_status=0 ORDER BY priority DESC, ID ASC limit 3"
+        "select question_allocation.id as allocation_id from question_allocation  join questions q on question_id=q.id where question_allocation.allocate_status=0 ORDER BY FIELD(q.type,'1','2') desc, question_allocation.priority DESC, question_allocation.ID ASC limit 3"
       )
       .then(([rows, fields]) => {
         return rows;

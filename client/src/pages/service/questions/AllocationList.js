@@ -67,7 +67,11 @@ const AllocationList = ({
   }
 
   if (allocation) {
-    if (allocation.allocate_status === 0 && allocation.assignor !== user.uid) {
+    if (
+      allocation.allocate_status === 0 &&
+      allocation.assignor !== user.uid &&
+      user.role !== "ants"
+    ) {
       displayAllocationFeedbackArea = false;
     }
     if (allocation.allocate_status === 1 && allocation.assignee !== user.uid) {
@@ -76,7 +80,7 @@ const AllocationList = ({
 
     if (
       (allocation.allocate_status === 3 || allocation.allocate_status === 4) &&
-      (user.role !== "admin" && user.role !== "ants")
+      user.role !== "admin" && user.role !== "ants"
     ) {
       displayAllocationFeedbackArea = false;
     }
