@@ -95,12 +95,8 @@ router.put(
     return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
-    console.log("req.body", req.body);
     const record = req.body;
-
     const report = await VipOffersModel.findOne(record.report_id);
-
-    console.log("report", report);
     if (report.id) {
       record.admin_uid = req.user.uid;
       record.update_time = new Date();
@@ -121,16 +117,6 @@ router.put(
       } else {
         res.status(500).json({ msg: `更新失敗(${updateMsg.error})` });
       }
-
-      // if (result.affectedRows === 1) {
-      //   res.json({
-      //     msg: "已將問題設定為預約結案狀態。",
-      //     id: question_id,
-      //     updatedField: { ...updateFiled, close_admin_name: req.user.name }
-      //   });
-      // } else {
-      //   res.status(500).json({ msg: `結案失敗(${result.error})` });
-      // }
     } else {
       return res.status(404).json({ msg: `沒有這個紀錄` });
     }

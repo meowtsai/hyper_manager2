@@ -43,7 +43,7 @@ const VipOffersModel = {
         from vip_wire_report a left join games g on a.game_id =g.game_id
         left join servers si on a.server_id =si.server_id
         left join vip_products vp on vp.product_id=a.product_id
-        join admin_users b on a.admin_uid =b.uid
+        left join admin_users b on a.admin_uid =b.uid
 
         ;`
       )

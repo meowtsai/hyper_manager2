@@ -25,7 +25,7 @@ import {
   getGames,
   editVipWireReport
 } from "../../../redux/actions";
-
+import { reportStatusOptions, invoiceOptions } from "./vipOptions";
 const VipOrdersForm = ({
   getCurrentVipReport,
   match,
@@ -60,13 +60,11 @@ const VipOrdersForm = ({
   const [note, setNote] = useState("");
 
   const [report_status, setReportStatus] = useState("");
-  const [invoice_id, setInvoiceId] = useState("");
 
-  const reportStatusOptions = {
-    "1": "初始",
-    "2": "已核對",
-    "4": "派寶完成"
-  };
+  const [invoice_option, setInvoiceOption] = useState("");
+  const [address, setAddress] = useState("");
+  const [invoice_id, setInvoiceId] = useState("");
+  const [invoice_date, setInvoiceDate] = useState("");
 
   useEffect(() => {
     if (report_id) {
@@ -96,6 +94,14 @@ const VipOrdersForm = ({
       setNote(currentReport.note ? currentReport.note : "");
       setReportStatus(currentReport.report_status);
       setInvoiceId(currentReport.invoice_id ? currentReport.invoice_id : "");
+      setInvoiceDate(
+        currentReport.invoice_date ? currentReport.invoice_date : ""
+      );
+
+      setInvoiceOption(
+        currentReport.invoice_option ? currentReport.invoice_option : ""
+      );
+      setAddress(currentReport.address ? currentReport.address : "");
     }
   }, [currentReport]);
 
@@ -105,6 +111,10 @@ const VipOrdersForm = ({
   const formSubmit = e => {
     e.preventDefault();
 
+    let formatedInvoiceDate = moment(invoice_date).format("YYYY-MM-DD");
+    if (formatedInvoiceDate === "Invalid date") {
+      formatedInvoiceDate = null;
+    }
     const reportField = {
       report_id,
       server_id,
@@ -117,11 +127,14 @@ const VipOrdersForm = ({
       bank_name,
       wire_name,
       wire_code,
-      wire_time,
+      wire_time: moment(wire_time).format("YYYY-MM-DD HH:mm:ss"),
       wire_amount,
       note,
       report_status,
-      invoice_id
+      invoice_id,
+      invoice_date: formatedInvoiceDate,
+      invoice_option,
+      address
     };
     console.log("reportField", reportField);
     editVipWireReport(reportField);
@@ -351,19 +364,6 @@ const VipOrdersForm = ({
 
                       <FormFeedback>{errors.bank_name}</FormFeedback>
                     </FormGroup>
-                    <FormGroup>
-                      <Label htmlFor="wire_code">匯款帳號後五碼</Label>
-                      <Input
-                        type="text"
-                        name="wire_code"
-                        id="wire_code"
-                        value={wire_code}
-                        onChange={e => setWireCode(e.target.value)}
-                        invalid={errors.wire_code ? true : false}
-                      />
-
-                      <FormFeedback>{errors.wire_code}</FormFeedback>
-                    </FormGroup>
                   </Col>
                   <Col md={6}>
                     <FormGroup>
@@ -384,6 +384,21 @@ const VipOrdersForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
+                      <Label htmlFor="wire_code">匯款帳號後五碼</Label>
+                      <Input
+                        type="text"
+                        name="wire_code"
+                        id="wire_code"
+                        value={wire_code}
+                        onChange={e => setWireCode(e.target.value)}
+                        invalid={errors.wire_code ? true : false}
+                      />
+
+                      <FormFeedback>{errors.wire_code}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
                       <Label htmlFor="wire_time">匯款時間</Label>
 
                       <Input
@@ -398,6 +413,8 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.wire_time}</FormFeedback>
                     </FormGroup>
                   </Col>
+                </Row>
+                <Row form>
                   <Col md={6}>
                     <FormGroup>
                       <Label htmlFor="wire_amount">匯款總金額</Label>
@@ -413,8 +430,6 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.wire_amount}</FormFeedback>
                     </FormGroup>
                   </Col>
-                </Row>
-                <Row form>
                   <Col md={6}>
                     <FormGroup>
                       <Label htmlFor="report_status">狀態</Label>
@@ -437,7 +452,46 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.report_status}</FormFeedback>
                     </FormGroup>
                   </Col>
-                  <Col md={6}>
+                </Row>
+                <Row form>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label htmlFor="report_status">發票選項</Label>
+                      <Input
+                        type="select"
+                        name="invoice_option"
+                        id="invoice_option"
+                        value={invoice_option}
+                        onChange={e => setInvoiceOption(e.target.value)}
+                        invalid={errors.invoice_option ? true : false}
+                      >
+                        <option>請選擇</option>
+                        {invoiceOptions &&
+                          Object.keys(invoiceOptions).map(optKey => (
+                            <option key={"rso-" + optKey} value={optKey}>
+                              {invoiceOptions[optKey]}
+                            </option>
+                          ))}
+                      </Input>
+                      <FormFeedback>{errors.invoice_option}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={4}>
+                    <FormGroup>
+                      <Label htmlFor="invoice_date">發票日期</Label>
+                      <Input
+                        type="date"
+                        name="invoice_date"
+                        id="invoice_date"
+                        value={moment(invoice_date).format("YYYY-MM-DD")}
+                        onChange={e => setInvoiceDate(e.target.value)}
+                        invalid={errors.invoice_date ? true : false}
+                      />
+
+                      <FormFeedback>{errors.invoice_date}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={4}>
                     <FormGroup>
                       <Label htmlFor="invoice_id">發票號碼</Label>
                       <Input
@@ -453,6 +507,21 @@ const VipOrdersForm = ({
                     </FormGroup>
                   </Col>
                 </Row>
+                <FormGroup>
+                  <Label for="txtAddress">寄送地址</Label>
+
+                  <Input
+                    type="text"
+                    name="txtAddress"
+                    id="txtAddress"
+                    value={address}
+                    onChange={e => setAddress(e.target.value)}
+                    placeholder="玩家備註"
+                    invalid={errors.address ? true : false}
+                  />
+
+                  <FormFeedback>{errors.address}</FormFeedback>
+                </FormGroup>
                 <FormGroup>
                   <Label for="txtNote">玩家備註</Label>
 
