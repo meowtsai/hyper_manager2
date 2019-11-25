@@ -136,7 +136,7 @@ const VipOrdersForm = ({
       invoice_option,
       address
     };
-    console.log("reportField", reportField);
+    //console.log("reportField", reportField);
     editVipWireReport(reportField);
   };
 

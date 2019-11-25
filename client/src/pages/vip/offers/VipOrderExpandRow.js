@@ -1,6 +1,7 @@
 import React from "react";
 import { Row, Col, Table } from "reactstrap";
 import Moment from "react-moment";
+import moment from "moment";
 import { reportStatusOptions, invoiceOptions } from "./vipOptions";
 const VipOrderExpandRow = {
   onlyOneExpanding: true,
@@ -26,9 +27,15 @@ const VipOrderExpandRow = {
               </td>
               <th>上次更新：</th>
               <td>
-                {<Moment format="YYYY-MM-DD HH:mm">{row.update_time}</Moment>}{" "}
+                {moment(row.update_time).format("YYYY-MM-DD") ===
+                "Invalid date" ? (
+                  ""
+                ) : (
+                  <Moment format="YYYY-MM-DD">{row.update_time}</Moment>
+                )}
               </td>
             </tr>
+
             <tr>
               <th>遊戲：</th>
               <td>{row.game_name}</td>
@@ -83,7 +90,12 @@ const VipOrderExpandRow = {
             <tr>
               <th>發票日期</th>
               <td>
-                {<Moment format="YYYY-MM-DD">{row.invoice_date}</Moment>}{" "}
+                {moment(row.invoice_date).format("YYYY-MM-DD") ===
+                "Invalid date" ? (
+                  ""
+                ) : (
+                  <Moment format="YYYY-MM-DD">{row.invoice_date}</Moment>
+                )}
               </td>
               <th>發票號碼</th>
               <td>{row.invoice_id}</td>
@@ -92,9 +104,10 @@ const VipOrderExpandRow = {
             <tr>
               <th className="text-nowrap">備註記事：</th>
               <td colSpan="3">
-                {row.note.split("\n").map((item, i) => {
-                  return <p key={i}>{item}</p>;
-                })}
+                {row.note &&
+                  row.note.split("\n").map((item, i) => {
+                    return <p key={i}>{item}</p>;
+                  })}
               </td>
             </tr>
             <tr>

@@ -175,7 +175,11 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
       text: "發票日期",
       filter: textFilter(),
       formatter: (cellContent, row) => {
-        return <Moment format="YYYY-MM-DD">{row.cellContent}</Moment>;
+        return moment(cellContent).format("YYYY-MM-DD") === "Invalid date" ? (
+          ""
+        ) : (
+          <Moment format="YYYY-MM-DD">{cellContent}</Moment>
+        );
       }
     },
     {
