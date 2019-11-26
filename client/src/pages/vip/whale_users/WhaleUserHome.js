@@ -554,7 +554,9 @@ const WhaleUserHome = ({
                   latest_topup_date:
                     vip.latest_topup_date === null
                       ? ""
-                      : moment(vip.latest_topup_date).format("YYYY-MM-DD"),
+                      : moment(vip.latest_topup_date).format(
+                          "YYYY-MM-DD HH:mm"
+                        ),
                   last_login:
                     vip.last_login === null
                       ? ""

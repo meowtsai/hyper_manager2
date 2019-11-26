@@ -64,7 +64,7 @@ const WhaleUserModel = {
       .catch(err => ({ error: err.message }));
   },
   saveServiceRequest: async record => {
-    return await db1
+    return await db2
       .promise()
       .query("insert into vip_requests set ?", record)
       .then(([rows, fields]) => {

@@ -47,7 +47,7 @@ const VipOrdersForm = ({
   const [email, setEmail] = useState("");
   const [product_id, setProductId] = useState("");
   const [qty, setQty] = useState("");
-  const [credits, setCredits] = useState("");
+  const [orderids, setOrderids] = useState("");
   const [role_id, setRoleId] = useState("");
   const [char_name, setCharName] = useState("");
   const [bank_name, setBankName] = useState("");
@@ -93,6 +93,7 @@ const VipOrdersForm = ({
       setWireAmount(currentReport.wire_amount);
       setNote(currentReport.note ? currentReport.note : "");
       setReportStatus(currentReport.report_status);
+      setOrderids(currentReport.orderids);
       setInvoiceId(currentReport.invoice_id ? currentReport.invoice_id : "");
       setInvoiceDate(
         currentReport.invoice_date ? currentReport.invoice_date : ""
@@ -131,6 +132,7 @@ const VipOrdersForm = ({
       wire_amount,
       note,
       report_status,
+      orderids,
       invoice_id,
       invoice_date: formatedInvoiceDate,
       invoice_option,
@@ -144,11 +146,11 @@ const VipOrdersForm = ({
     <Fragment>
       <PageTitle
         breadCrumbItems={[
-          { label: "VIP", path: "/vip/offers", active: false },
-          { label: mainTitle, path: "/vip/offers/order_list", active: true },
+          { label: "VIP", path: "/vip/wire_report/list", active: false },
+          { label: mainTitle, path: "/vip/wire_report/list", active: true },
           {
             label: act_title,
-            path: "/vip/offers/edit_order",
+            path: "/vip/wire_report/list",
             active: true
           }
         ]}
@@ -157,14 +159,6 @@ const VipOrdersForm = ({
 
       <Row className="mb-2">
         <Col lg={6}>
-          {
-            <Alert
-              color="success"
-              isOpen={updateOKMessage !== null ? true : false}
-            >
-              <div>{` # ${report_id} ${act_title} 成功!`} </div>
-            </Alert>
-          }
           <Card>
             <CardBody>
               {errors && errors.msg && (
@@ -382,7 +376,7 @@ const VipOrdersForm = ({
                   </Col>
                 </Row>
                 <Row form>
-                  <Col md={6}>
+                  <Col md={4}>
                     <FormGroup>
                       <Label htmlFor="wire_code">匯款帳號後五碼</Label>
                       <Input
@@ -397,7 +391,7 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.wire_code}</FormFeedback>
                     </FormGroup>
                   </Col>
-                  <Col md={6}>
+                  <Col md={4}>
                     <FormGroup>
                       <Label htmlFor="wire_time">匯款時間</Label>
 
@@ -405,7 +399,7 @@ const VipOrdersForm = ({
                         type="datetime-local"
                         name="wire_time"
                         id="wire_time"
-                        value={moment(wire_time).format("YYYY-MM-DDThh:mm")}
+                        value={moment(wire_time).format("YYYY-MM-DDTHH:mm")}
                         onChange={e => setWireTime(e.target.value)}
                         invalid={errors.wire_time ? true : false}
                       />
@@ -413,9 +407,7 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.wire_time}</FormFeedback>
                     </FormGroup>
                   </Col>
-                </Row>
-                <Row form>
-                  <Col md={6}>
+                  <Col md={4}>
                     <FormGroup>
                       <Label htmlFor="wire_amount">匯款總金額</Label>
                       <Input
@@ -430,6 +422,8 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.wire_amount}</FormFeedback>
                     </FormGroup>
                   </Col>
+                </Row>
+                <Row form>
                   <Col md={6}>
                     <FormGroup>
                       <Label htmlFor="report_status">狀態</Label>
@@ -450,6 +444,21 @@ const VipOrdersForm = ({
                           ))}
                       </Input>
                       <FormFeedback>{errors.report_status}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label htmlFor="orderids">網易訂單號</Label>
+                      <Input
+                        type="text"
+                        name="orderids"
+                        id="orderids"
+                        value={orderids}
+                        onChange={e => setOrderids(e.target.value)}
+                        invalid={errors.orderids ? true : false}
+                      />
+
+                      <FormFeedback>{errors.orderids}</FormFeedback>
                     </FormGroup>
                   </Col>
                 </Row>
@@ -539,15 +548,20 @@ const VipOrdersForm = ({
                   <FormFeedback>{errors.note}</FormFeedback>
                 </FormGroup>
 
-                {/* 聯繫電話	EMAIL	方案ID	方案數量 */}
-
-                {/* 信用點	備註	獎勵發放	發票號碼 */}
+                {
+                  <Alert
+                    color="success"
+                    isOpen={updateOKMessage !== null ? true : false}
+                  >
+                    <div>{` # ${report_id} ${act_title} 成功!`} </div>
+                  </Alert>
+                }
 
                 <Link
                   className="btn btn-secondary mr-2"
                   to="/vip/wire_report/list"
                 >
-                  取消
+                  回列表
                 </Link>
 
                 <Button color="primary" type="submit">

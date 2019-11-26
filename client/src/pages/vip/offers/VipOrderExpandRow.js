@@ -4,6 +4,8 @@ import Moment from "react-moment";
 import moment from "moment";
 import { reportStatusOptions, invoiceOptions } from "./vipOptions";
 const VipOrderExpandRow = {
+  showExpandColumn: true,
+  expandByColumnOnly: true,
   onlyOneExpanding: true,
   renderer: row => (
     <Row>
@@ -109,6 +111,10 @@ const VipOrderExpandRow = {
                     return <p key={i}>{item}</p>;
                   })}
               </td>
+            </tr>
+            <tr>
+              <th className="text-nowrap">網易訂單號：</th>
+              <td colSpan="3">{row.orderids}</td>
             </tr>
             <tr>
               <th>IP</th>

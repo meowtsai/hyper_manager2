@@ -4,6 +4,7 @@ const VipOffersModel = require("../../models/VipOffersModel");
 const checkPermission = require("../../middleware/checkPermission");
 const validator = require("validator");
 const auth = require("../../middleware/auth");
+const { isEmpty } = require("../../utils/helper");
 
 //@route: GET /api/vip_offers/test
 //@desc: get test res
@@ -98,6 +99,11 @@ router.put(
     const record = req.body;
     const report = await VipOffersModel.findOne(record.report_id);
     if (report.id) {
+      const validateResult = validateVipOrderUpdate(record);
+      if (!validateResult.isValid) {
+        return res.status(400).json(validateResult.errors);
+      }
+
       record.admin_uid = req.user.uid;
       record.update_time = new Date();
 
@@ -124,3 +130,19 @@ router.put(
 );
 
 module.exports = router;
+
+const validateVipOrderUpdate = data => {
+  let errors = {};
+
+  data.report_status = !isEmpty(data.report_status) ? data.report_status : "";
+  data.orderids = !isEmpty(data.orderids) ? data.orderids : "";
+
+  if (data.report_status === "2" && validator.isEmpty(data.orderids)) {
+    errors.orderids = "請輸入單號";
+  }
+
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0
+  };
+};

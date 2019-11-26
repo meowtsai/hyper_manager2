@@ -129,7 +129,7 @@ function* editRecord({ payload }) {
     let message;
     switch (error.response.status) {
       default:
-        message = error.response.data.msg;
+        message = error.response.data;
     }
     yield put(editVipWireReportFailed(message));
   }

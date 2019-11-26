@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Row, Col, Form, Alert } from "reactstrap";
-
+import { Row, Col, Form, Alert, Input, FormGroup } from "reactstrap";
+import classNames from "classnames";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory, {
   PaginationProvider,
@@ -23,8 +23,15 @@ import filterFactory, {
   textFilter,
   selectFilter
 } from "react-bootstrap-table2-filter";
+
 const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
   const [arrangedData, setArrangedData] = useState([]);
+
+  const [beginTime, setBeginTime] = useState(
+    moment().format("YYYY-MM-DDT00:00")
+  );
+  const [endTime, setEndTime] = useState(moment().format("YYYY-MM-DDT23:59"));
+  const [searchActivated, setSearchActivated] = useState(false);
 
   const mainTitle = "VIP 訂單列表";
   useEffect(() => {
@@ -80,19 +87,19 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
       顯示 {size} 筆總數中的 {from} ~ {to} 紀錄
     </span>
   );
+  let inStockDateFilter;
 
   const columns = [
     {
-      dataField: "report_id",
+      dataField: "create_time",
       text: "填單時間",
       sort: true,
-      filter: textFilter(),
       formatter: (cellContent, row) => {
         return (
           <small>
             <Moment format="YYYY-MM-DD HH:mm">{row.create_time}</Moment>
             <br />
-            {cellContent}
+            {row.report_id}
           </small>
         );
       }
@@ -126,23 +133,33 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
     {
       dataField: "server_name",
       text: "伺服器",
-      filter: textFilter()
+      filter: textFilter(),
+      formatter: (cellContent, row) => {
+        return (
+          <div>
+            <strong>{cellContent} </strong>
+          </div>
+        );
+      }
     },
     {
       dataField: "char_name",
       text: "角色",
-      filter: textFilter()
+      filter: textFilter(),
+      formatter: (cellContent, row) => {
+        return (
+          <div>
+            <strong style={{ color: "blue" }}>{cellContent} </strong>
+            <br />
+            GID: {row.role_id}
+          </div>
+        );
+      }
     },
 
     {
-      dataField: "credits",
-      text: "點數",
-
-      formatter: (cellContent, row) => {
-        let credits;
-        credits = (row.gold + row.free_golds) * row.qty;
-        return credits;
-      }
+      dataField: "wire_amount",
+      text: "金額"
     },
     {
       dataField: "report_status",
@@ -151,7 +168,19 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
         options: reportStatusOptions
       }),
       formatter: (cellContent, row) => {
-        return reportStatusOptions[cellContent];
+        return (
+          <Fragment>
+            <span
+              className={classNames("badge", {
+                "badge-secondary": row.report_status === "1",
+                "badge-success": row.report_status === "4",
+                "badge-danger": row.report_status === "2"
+              })}
+            >
+              {reportStatusOptions[cellContent]}
+            </span>
+          </Fragment>
+        );
       }
     },
     {
@@ -207,19 +236,89 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
     }
   ];
 
+  const handleSearchClick = e => {
+    //console.log(inStockDateFilter);
+    e.preventDefault();
+    setSearchActivated(true);
+    setArrangedData(
+      records.filter(
+        row =>
+          moment(row.create_time).format("YYYY-MM-DDTHH:mm") >= beginTime &&
+          moment(row.create_time).format("YYYY-MM-DDTHH:mm") <= endTime
+      )
+    );
+  };
+  const clearSearch = e => {
+    //console.log(inStockDateFilter);
+    setSearchActivated(false);
+    e.preventDefault();
+    setArrangedData(records);
+  };
+
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
-          { label: "VIP", path: "/vip/offers", active: false },
-          { label: mainTitle, path: "/vip/offers/order_list", active: true }
+          { label: "VIP", path: "/wire_report/list", active: false },
+          { label: mainTitle, path: "/vip/wire_report/list", active: true }
         ]}
         title={mainTitle}
       />
       <Row className="mb-2">
-        <Col sm={4}></Col>
-        <Col md={8} sm={8}>
-          <Form inline className="mb-2 float-right">
+        <Col sm={8}>
+          <Form inline>
+            <FormGroup>
+              {" "}
+              建單時間:
+              <Input
+                bsSize="sm"
+                type="datetime-local"
+                name="create_time_begin"
+                id="create_time_begin"
+                value={moment(beginTime).format("YYYY-MM-DDTHH:mm")}
+                onChange={e => {
+                  if (
+                    moment(e.target.value).format("YYYY-MM-DDTHH:mm") !==
+                    "Invalid date"
+                  )
+                    return setBeginTime(e.target.value);
+                }}
+              />{" "}
+              ~
+              <Input
+                bsSize="sm"
+                type="datetime-local"
+                name="create_time_end"
+                id="create_time_end"
+                value={moment(endTime).format("YYYY-MM-DDTHH:mm")}
+                onChange={e => {
+                  if (
+                    moment(e.target.value).format("YYYY-MM-DDTHH:mm") !==
+                    "Invalid date"
+                  )
+                    return setEndTime(e.target.value);
+                }}
+              />
+              <button
+                className={`btn btn-sm ml-2 btn-${
+                  searchActivated ? "primary" : "secondary"
+                }`}
+                onClick={e => handleSearchClick(e)}
+              >
+                搜尋
+              </button>
+              <button
+                className={`btn btn-sm ml-2 btn-${
+                  searchActivated ? "secondary" : "primary"
+                }`}
+                onClick={e => clearSearch(e)}
+              >
+                清除條件
+              </button>
+            </FormGroup>
+          </Form>
+
+          <Form inline className="mb-2 mt-2">
             {arrangedData.length > 0 && (
               <CSVLink
                 data={arrangedData.map(item => ({
@@ -233,7 +332,11 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
                     "YYYY-MM-DD HH:mm:ss"
                   ),
                   invoice_option: invoiceOptions[item.invoice_option],
-                  invoice_date: moment(item.invoice_date).format("YYYY-MM-DD")
+                  invoice_date:
+                    moment(item.invoice_date).format("YYYY-MM-DD") !==
+                    "Invalid date"
+                      ? moment(item.invoice_date).format("YYYY-MM-DD")
+                      : ""
                 }))}
                 headers={csvHeaders}
                 filename={fileName + ".csv"}
@@ -243,6 +346,7 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             )}
           </Form>
         </Col>
+        <Col md={4} sm={4}></Col>
       </Row>
       <Row className="mb-2">
         <Col lg={12}>
@@ -258,6 +362,7 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
               <div>
                 <PaginationTotalStandalone {...paginationProps} />
                 <PaginationListStandalone {...paginationProps} />
+
                 <BootstrapTable
                   keyField="report_id"
                   data={arrangedData}

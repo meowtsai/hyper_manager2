@@ -48,7 +48,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
     case GET_CURRENT_VIP_REPORT:
     case GET_VIP_PRODS_BY_GAMEID:
     case EDIT_VIP_WIRE_REPORT:
-      return { ...state, loading: true, error: null };
+      return { ...state, loading: true, error: null, errors: {} };
     case GET_VIP_OFFERS_SUCCESS:
       return {
         ...state,
@@ -59,6 +59,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
     case GET_VIP_ORDERS_SUCCESS:
       return {
         ...state,
+        updateOKMessage: null,
         vip_orders_list: action.payload,
         loading: false,
         error: null
@@ -81,13 +82,26 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         affectedRecord: action.payload.updatedField,
         loading: false,
         error: null,
+        errors: {},
         updateOKMessage: "編輯成功!"
+      };
+    case EDIT_VIP_WIRE_REPORT_FAILED:
+      return {
+        ...state,
+        updateOKMessage: null,
+        errors: action.payload,
+        loading: false
       };
     case GET_VIP_OFFERS_FAILED:
     case GET_VIP_ORDERS_FAILED:
     case GET_CURRENT_VIP_REPORT_FAILED:
     case GET_VIP_PRODS_BY_GAMEID_FAILED:
-      return { ...state, error: action.payload, loading: false };
+      return {
+        ...state,
+        error: action.payload,
+        loading: false,
+        updateOKMessage: null
+      };
     case CLEAR_VIP_OFFERS_MESSAGE:
       return { ...state, error: null, loading: false };
     default:
