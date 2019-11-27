@@ -5,7 +5,7 @@ const QuestionsModel = {
     //console.log("QuestionsModel getall", uid, status);
     let limitedCondition = "";
     if (status.toString() === "4") {
-      limitedCondition = "or q.status='7' order by id desc limit 1000";
+      limitedCondition = "or q.status='7' ";
     }
 
     //console.log("QuestionsModel getAll", allow_games);
@@ -15,6 +15,8 @@ const QuestionsModel = {
         ? ""
         : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
 
+    // console.log("limitedCondition", limitedCondition);
+    // console.log("where_allow_games", where_allow_games);
     return await db2
       .promise()
       .query(
@@ -25,7 +27,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where q.status=?   ${limitedCondition} ${where_allow_games}
+        where (q.status=?  ${limitedCondition} )  ${where_allow_games}  order by id desc limit 1000
       `,
         [uid, status]
       )

@@ -187,15 +187,30 @@ const AllocationList = ({
                           {allocation_logs.map((log, i) => {
                             return (
                               <TimelineItem key={`log-${i}`}>
-                                <i className="mdi mdi-upload bg-info-lighten text-info timeline-icon"></i>
+                                <i
+                                  className={`${
+                                    log.admin_uid === 113
+                                      ? "mdi mdi-robot bg-info-lighten text-info"
+                                      : log.allocate_status === 99
+                                      ? "mdi mdi-comment-plus bg-secondary-lighten text-secondary"
+                                      : "mdi mdi-upload bg-primary-lighten text-primary"
+                                  } timeline-icon`}
+                                ></i>
                                 <div className="timeline-item-info">
                                   <span
                                     style={{ whiteSpace: "pre-line" }}
-                                    className="text-info font-weight-bold mb-1 d-block"
+                                    className="text-primary font-weight-bold mb-1 "
                                   >
-                                    {log.admin_uname} : {log.allocate_note}
+                                    {log.admin_uname}:
                                   </span>
-                                  <small>
+                                  <span
+                                    style={{ whiteSpace: "pre-line" }}
+                                    className="text-dark font-weight-bold mb-1 ml-1"
+                                  >
+                                    {log.allocate_note}
+                                  </span>
+
+                                  <small className="text-muted d-block">
                                     {log.allocate_status === 99
                                       ? "補充說明"
                                       : `後送狀態變更為 “${
