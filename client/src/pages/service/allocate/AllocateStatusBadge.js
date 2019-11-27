@@ -27,6 +27,11 @@ const AllocateStatusBadge = ({ status_code }) => {
       name: "Success",
       color: "success",
       text: "後送處理完成"
+    },
+    99: {
+      name: "Secondary",
+      color: "Secondary",
+      text: "補充說明"
     }
   };
 

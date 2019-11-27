@@ -60,6 +60,17 @@ const AllocateListPage = ({
   useEffect(() => {
     setArrangedData(records);
 
+    let timeOutId;
+
+    timeOutId = setTimeout(() => {
+      getAllocateData();
+      //console.log("getQuestions effect timeOutId", timeOutId);
+    }, 30000);
+    return () => {
+      //console.log("getQuestions effect  clearTimeout timeOutId", timeOutId);
+      clearTimeout(timeOutId);
+    };
+
     const selAssigneeOptionsArray = new Set(records.map(q => q.assignee_name));
     let tmpS = {};
     selAssigneeOptionsArray.forEach((g, index) => {
@@ -215,7 +226,8 @@ const AllocateListPage = ({
         );
       },
       filter: selectFilter({
-        options: selStatusOptions
+        options: selStatusOptions,
+        defaultValue: 1
       })
     },
 
@@ -368,12 +380,9 @@ const mapStateToProps = state => ({
   user: state.Auth.user
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    getAllocateData,
-    takeAllocationTasks,
-    clearAllocationMessage,
-    reassignAllocationTask
-  }
-)(AllocateListPage);
+export default connect(mapStateToProps, {
+  getAllocateData,
+  takeAllocationTasks,
+  clearAllocationMessage,
+  reassignAllocationTask
+})(AllocateListPage);

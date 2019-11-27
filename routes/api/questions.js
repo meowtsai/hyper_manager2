@@ -451,7 +451,6 @@ router.put(
           id: id,
           updatedField: {
             ...data,
-            create_time: new Date(),
             admin_uname: req.user.name
           }
         });

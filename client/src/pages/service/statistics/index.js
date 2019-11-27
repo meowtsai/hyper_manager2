@@ -38,7 +38,7 @@ const ServiceStatistics = ({
       .padStart(2, "0")}`
   );
 
-  const [rptCondition, setRptCondition] = useState("user");
+  const [rptCondition, setRptCondition] = useState("all");
 
   useEffect(() => {
     getServiceStatistics(yyyymm);
@@ -119,6 +119,12 @@ const ServiceStatistics = ({
 
               <ButtonGroup className="btn-group mb-2 ml-3">
                 <Button
+                  onClick={e => setRptCondition("all")}
+                  color={rptCondition === "all" ? "danger" : "light"}
+                >
+                  by 日期 + 人員
+                </Button>
+                <Button
                   onClick={e => setRptCondition("date")}
                   color={rptCondition === "date" ? "danger" : "light"}
                 >
@@ -168,7 +174,7 @@ const ServiceStatistics = ({
       </Row>
       <Row></Row>
       <Row className="mb-2">
-        <Col lg={3}>
+        <Col lg={4}>
           {qCountData.length > 0 && (
             <CSVLink
               data={qCountData.filter(item => item.game_id === gameId)}
@@ -223,7 +229,7 @@ const ServiceStatistics = ({
             </Card>
           )}
         </Col>
-        <Col lg={3}>
+        <Col lg={4}>
           {statTable(
             antsHandleData,
             `${gameName}-蟻力提問單處理量`,
@@ -232,7 +238,7 @@ const ServiceStatistics = ({
             rptCondition
           )}
         </Col>
-        <Col lg={3}>
+        <Col lg={4}>
           {statTable(
             csHandleData,
             `${gameName}-客服提問單處理量`,
@@ -274,28 +280,35 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
     }));
 
   let itemSet = [];
-  let cond = condition === "date" ? "dt" : "admin_name";
-  const condLabel = condition === "date" ? "日期" : "人員";
-  const data = dataRaw.reduce(function(prev, curr) {
-    if (itemSet.indexOf(curr[cond]) < 0) {
-      itemSet.push(curr[cond]);
-      return [...prev, { ...curr }];
-    } else {
-      prev = prev.map(user => {
-        if (user[cond] === curr[cond]) {
-          return {
-            [cond]: user[cond],
-            test_cnt:
-              Number.parseInt(user.test_cnt) + Number.parseInt(curr.test_cnt),
-            cnt: Number.parseInt(user.cnt) + Number.parseInt(curr.cnt)
-          };
-        } else {
-          return user;
-        }
-      });
-      return prev;
-    }
-  }, []);
+  let cond =
+    condition === "all" ? "all" : condition === "date" ? "dt" : "admin_name";
+  //let cond = condition ======"date" ? "dt" : "admin_name";
+  const condLabel = condition === "all" ? "日期" : "人員";
+
+  const data =
+    cond === "all"
+      ? dataRaw
+      : dataRaw.reduce(function(prev, curr) {
+          if (itemSet.indexOf(curr[cond]) < 0) {
+            itemSet.push(curr[cond]);
+            return [...prev, { ...curr }];
+          } else {
+            prev = prev.map(user => {
+              if (user[cond] === curr[cond]) {
+                return {
+                  [cond]: user[cond],
+                  test_cnt:
+                    Number.parseInt(user.test_cnt) +
+                    Number.parseInt(curr.test_cnt),
+                  cnt: Number.parseInt(user.cnt) + Number.parseInt(curr.cnt)
+                };
+              } else {
+                return user;
+              }
+            });
+            return prev;
+          }
+        }, []);
 
   return (
     <Fragment>
@@ -304,7 +317,8 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
         headers={[
           { label: "日期", key: "dt" },
           { label: "人員", key: "admin_name" },
-          { label: "數量", key: "cnt" }
+          { label: "數量", key: "cnt" },
+          { label: "測試", key: "test_cnt" }
         ]}
         filename={label + yyyymm + new Date().getTime() + ".csv"}
       >
@@ -317,7 +331,14 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
           <Table className="mb-0" bordered size="sm">
             <thead>
               <tr>
-                <th>{condLabel}</th>
+                {condition === "all" ? (
+                  <Fragment>
+                    <th>日期</th> <th>人員</th>
+                  </Fragment>
+                ) : (
+                  <th>{condLabel}</th>
+                )}
+
                 <th>數量</th>
                 <th>測試</th>
               </tr>
@@ -325,7 +346,13 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
             <tbody>
               {data.map((item, index) => (
                 <tr key={`q_${index}`}>
-                  <td>{item[cond]}</td>
+                  {condition === "all" ? (
+                    <Fragment>
+                      <th>{item.dt}</th> <th>{item.admin_name}</th>
+                    </Fragment>
+                  ) : (
+                    <th>{item[cond]}</th>
+                  )}
                   <td>{item.cnt}</td>
                   <td>{item.test_cnt}</td>
                 </tr>
@@ -333,6 +360,7 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
 
               <tr>
                 <th>總計</th>
+
                 <td>{data.reduce((a, b) => a + Number.parseInt(b.cnt), 0)}</td>
                 <td>
                   {data.reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}

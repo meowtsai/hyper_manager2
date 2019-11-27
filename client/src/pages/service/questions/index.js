@@ -10,10 +10,13 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  UncontrolledButtonDropdown
+  UncontrolledButtonDropdown,
+  Form,
+  FormGroup
 } from "reactstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
+import { CSVLink } from "react-csv";
 import filterFactory, {
   Comparator,
   textFilter,
@@ -77,6 +80,11 @@ const QuestionListPage = ({
 
   // console.log("query", rest);
   const [arrangedData, setArrangedData] = useState([]);
+  const [beginTime, setBeginTime] = useState(
+    moment().format("YYYY-MM-DDT00:00")
+  );
+  const [endTime, setEndTime] = useState(moment().format("YYYY-MM-DDT23:59"));
+  const [searchActivated, setSearchActivated] = useState(false);
 
   moment.locale("zh-tw");
   //console.log("games", games);
@@ -527,6 +535,22 @@ const QuestionListPage = ({
     }
   ];
 
+  //編號	遊戲	角色名稱	提問類型	描述	原廠uid	狀態	處理人	日期
+  const fileName = `提問單_${moment().format("YYYY-MM-DD")}${Date.now()}`;
+  const csvHeaders = [
+    { label: "編號", key: "id" },
+    { label: "遊戲", key: "game_name" },
+    { label: "伺服器", key: "server_name" },
+    { label: "UID", key: "partner_uid" },
+    { label: "角色名稱", key: "character_name" },
+
+    { label: "提問類型", key: "type" },
+    { label: "描述", key: "content" },
+    { label: "狀態", key: "status" },
+    { label: "匯款時間", key: "create_time" },
+    { label: "處理人員", key: "admin_name" }
+  ];
+
   const customTotal = (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total ml-2">
       顯示 {size} 筆總數中的 {from} ~ {to} 紀錄
@@ -536,6 +560,26 @@ const QuestionListPage = ({
   if (loading) {
     return <Spinner className="m-2" color="secondary" />;
   }
+
+  const handleSearchClick = e => {
+    //console.log(inStockDateFilter);
+    e.preventDefault();
+    setSearchActivated(true);
+    setArrangedData(
+      records.filter(
+        row =>
+          moment(row.create_time).format("YYYY-MM-DDTHH:mm") >= beginTime &&
+          moment(row.create_time).format("YYYY-MM-DDTHH:mm") <= endTime
+      )
+    );
+  };
+  const clearSearch = e => {
+    //console.log(inStockDateFilter);
+    setSearchActivated(false);
+    e.preventDefault();
+    setArrangedData(records);
+  };
+
   return (
     <Fragment>
       <PageTitle
@@ -545,6 +589,81 @@ const QuestionListPage = ({
         ]}
         title={mainTitle}
       />
+      <Row>
+        <Col>
+          <Form inline>
+            <FormGroup>
+              {" "}
+              提問時間:
+              <Input
+                bsSize="sm"
+                type="datetime-local"
+                name="create_time_begin"
+                id="create_time_begin"
+                value={moment(beginTime).format("YYYY-MM-DDTHH:mm")}
+                onChange={e => {
+                  if (
+                    moment(e.target.value).format("YYYY-MM-DDTHH:mm") !==
+                    "Invalid date"
+                  )
+                    return setBeginTime(e.target.value);
+                }}
+              />{" "}
+              ~
+              <Input
+                bsSize="sm"
+                type="datetime-local"
+                name="create_time_end"
+                id="create_time_end"
+                value={moment(endTime).format("YYYY-MM-DDTHH:mm")}
+                onChange={e => {
+                  if (
+                    moment(e.target.value).format("YYYY-MM-DDTHH:mm") !==
+                    "Invalid date"
+                  )
+                    return setEndTime(e.target.value);
+                }}
+              />
+              <button
+                className={`btn btn-sm ml-2 btn-${
+                  searchActivated ? "primary" : "secondary"
+                }`}
+                onClick={e => handleSearchClick(e)}
+              >
+                搜尋
+              </button>
+              <button
+                className={`btn btn-sm ml-2 btn-${
+                  searchActivated ? "secondary" : "primary"
+                }`}
+                onClick={e => clearSearch(e)}
+              >
+                清除條件
+              </button>
+            </FormGroup>
+          </Form>
+
+          <Form inline className="mb-2 mt-2">
+            {arrangedData.length > 0 && (
+              <CSVLink
+                data={arrangedData.map(item => ({
+                  ...item,
+                  create_time: moment(item.create_time).format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  ),
+                  status: question_status[item.status],
+                  type: question_type[item.type]
+                }))}
+                headers={csvHeaders}
+                filename={fileName + ".csv"}
+              >
+                下載 csv檔案
+              </CSVLink>
+            )}
+          </Form>
+        </Col>
+      </Row>
+
       <Row className="mb-2">
         <Col lg={12}>總筆數: {records.length} </Col>
       </Row>

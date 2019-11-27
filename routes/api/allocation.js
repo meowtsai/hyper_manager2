@@ -323,6 +323,11 @@ router.put(
       record.assignee = null;
     }
 
+    //99是補充說明 不改變狀態
+    if (allocate_status === 99) {
+      record.allocate_status = allocation.allocate_status;
+    }
+
     const updResult = await AllocationModel.findByIdAndUpdate(
       allocation_id,
       record
@@ -346,8 +351,7 @@ router.put(
         msg: "修改後送工作狀態成功。",
         id: allocation_id,
         updatedField: {
-          ...record,
-          admin_uname: req.user.name
+          ...record
         },
         newLog: {
           ...log,

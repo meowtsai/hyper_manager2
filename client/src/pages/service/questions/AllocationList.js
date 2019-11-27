@@ -58,7 +58,8 @@ const AllocationList = ({
     1: "專員處理中",
     2: "原廠查詢中",
     3: "後送條件不足",
-    4: "後送處理完成"
+    4: "後送處理完成",
+    99: "補充說明"
   };
 
   let displayAllocationFeedbackArea = true;
@@ -74,15 +75,26 @@ const AllocationList = ({
     ) {
       displayAllocationFeedbackArea = false;
     }
-    if (allocation.allocate_status === 1 && allocation.assignee !== user.uid) {
+
+    //原廠查詢中
+    if (allocation.allocate_status === 2 && user.role === "ants") {
       displayAllocationFeedbackArea = false;
     }
 
     if (
       (allocation.allocate_status === 3 || allocation.allocate_status === 4) &&
-      user.role !== "admin" && user.role !== "ants"
+      user.role !== "admin" &&
+      user.role !== "ants"
     ) {
       displayAllocationFeedbackArea = false;
+    }
+
+    if (allocation.allocate_status === 1 && allocation.assignee !== user.uid) {
+      displayAllocationFeedbackArea = false;
+    }
+
+    if (allocation.assignee === user.uid) {
+      displayAllocationFeedbackArea = true;
     }
   }
 
@@ -184,8 +196,11 @@ const AllocationList = ({
                                     {log.admin_uname} : {log.allocate_note}
                                   </span>
                                   <small>
-                                    後送狀態變更為 “
-                                    {statusText[log.allocate_status]}”
+                                    {log.allocate_status === 99
+                                      ? "補充說明"
+                                      : `後送狀態變更為 “${
+                                          statusText[log.allocate_status]
+                                        }”`}
                                   </small>
                                   <p className="mb-0 pb-2">
                                     <small className="text-muted">
@@ -219,15 +234,16 @@ const AllocationList = ({
 
                     <div className="text-right">
                       <div className="btn-group mb-2 ml-2">
-                        {allocation.allocate_status === 4 && (
-                          <button
-                            type="button"
-                            className="btn btn-danger btn-sm mt-2"
-                            onClick={e => submitPutAllocate(0)}
-                          >
-                            再次發起後送
-                          </button>
-                        )}
+                        {allocation.allocate_status === 4 &&
+                          user.role === "ants" && (
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm mt-2"
+                              onClick={e => submitPutAllocate(0)}
+                            >
+                              再次發起後送
+                            </button>
+                          )}
 
                         {allocation.allocate_status === 0 && (
                           <button
@@ -239,45 +255,58 @@ const AllocationList = ({
                           </button>
                         )}
 
-                        {allocation.allocate_status === 1 && (
-                          <Fragment>
+                        {allocation.allocate_status === 1 &&
+                          allocation.assignee === user.uid && (
+                            <Fragment>
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-sm mt-2"
+                                onClick={e => submitPutAllocate(2)}
+                              >
+                                後送原廠
+                              </button>
+                            </Fragment>
+                          )}
+                        {(allocation.allocate_status === 2 ||
+                          allocation.allocate_status === 1) &&
+                          allocation.assignee === user.uid && (
+                            <Fragment>
+                              <button
+                                type="button"
+                                className="btn btn-danger btn-sm mt-2"
+                                onClick={e => submitPutAllocate(3)}
+                              >
+                                條件不足
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-success btn-sm mt-2"
+                                onClick={e => submitPutAllocate(4)}
+                              >
+                                處理完畢
+                              </button>
+                            </Fragment>
+                          )}
+                        {allocation.allocate_status === 3 &&
+                          (user.role === "admin" || user.role === "ants") && (
                             <button
                               type="button"
-                              className="btn btn-primary btn-sm mt-2"
-                              onClick={e => submitPutAllocate(2)}
+                              className="btn btn-warning btn-sm mt-2"
+                              onClick={e => submitPutAllocate(0)}
                             >
-                              後送原廠
+                              補足條件
                             </button>
-                          </Fragment>
-                        )}
-                        {(allocation.allocate_status === 2 ||
-                          allocation.allocate_status === 1) && (
-                          <Fragment>
+                          )}
+                        {allocation.assignee === user.uid &&
+                          allocation.allocate_status !== 1 && (
                             <button
                               type="button"
                               className="btn btn-secondary btn-sm mt-2"
-                              onClick={e => submitPutAllocate(3)}
+                              onClick={e => submitPutAllocate(99)}
                             >
-                              條件不足
+                              補充說明
                             </button>
-                            <button
-                              type="button"
-                              className="btn btn-success btn-sm mt-2"
-                              onClick={e => submitPutAllocate(4)}
-                            >
-                              處理完畢
-                            </button>
-                          </Fragment>
-                        )}
-                        {allocation.allocate_status === 3 && (
-                          <button
-                            type="button"
-                            className="btn btn-warning btn-sm mt-2"
-                            onClick={e => submitPutAllocate(0)}
-                          >
-                            補足條件
-                          </button>
-                        )}
+                          )}
                       </div>
                     </div>
                   </Fragment>

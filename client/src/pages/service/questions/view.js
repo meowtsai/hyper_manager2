@@ -3,7 +3,6 @@ import {
   Row,
   Col,
   Card,
-  CardImg,
   CardTitle,
   CardSubtitle,
   CardText,
@@ -23,6 +22,7 @@ import { connect } from "react-redux";
 import SimpleMDEReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import "moment/locale/zh-tw";
+import * as showdown from "showdown";
 
 import {
   getCurrentQuestion,
@@ -56,10 +56,6 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
   };
   return (
     <Card>
-      {pic_plus.length > 0 &&
-        pic_plus.map(pic => (
-          <CardImg key={`repic-${pic_plus.id}`} src={pic.pic_path} />
-        ))}
       <CardBody
         className={classNames("text-dark", [
           `bg-${reply.is_official === "1" ? "official" : "light"}`
@@ -67,19 +63,33 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
       >
         <CardTitle tag="h5">
           NO {num}.
-          {reply.is_official === "1" ? `${reply.admin_uname}回覆` : "再次提問"}
+          {reply.is_official === "1" ? `${reply.admin_uname} 回覆` : "再次提問"}
         </CardTitle>
         <CardSubtitle tag="h6">
           <Moment format="YYYY-MM-DD HH:mm:ss">{reply.create_time}</Moment>
         </CardSubtitle>
         <hr />
         <CardText>
-          <span
+          <p
+            className="card-text"
             dangerouslySetInnerHTML={{
-              __html: reply.content
+              __html: new showdown.Converter().makeHtml(reply.content)
             }}
-          ></span>
+          />
         </CardText>
+
+        {pic_plus.length > 0 &&
+          pic_plus.map(pic => (
+            <a href={pic.pic_path} target="_blank" rel="noopener noreferrer">
+              <img
+                alt="玩家圖片"
+                key={`repic-${pic_plus.id}`}
+                src={pic.pic_path}
+                style={{ maxWidth: "200px" }}
+              />
+            </a>
+          ))}
+
         <CardText className="mt-4">
           {reply.is_official.toString() === "1" && (
             <Button color="dark" onClick={e => setModal(!modal)}>
@@ -116,7 +126,7 @@ const PicInfo = ({ pic_path }) => {
   if (!pic_path) return null;
   return (
     <a href={pic_path} target="_blank" rel="noopener noreferrer">
-      <img src={pic_path} style={{ maxWidth: "400px" }} alt="玩家圖檔" />
+      <img src={pic_path} style={{ maxWidth: "200px" }} alt="玩家圖檔" />
     </a>
   );
 };
