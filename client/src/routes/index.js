@@ -119,6 +119,10 @@ const ServiceStatistics = React.lazy(() =>
   import("../pages/service/statistics")
 );
 
+const QuestionsQueryHome = React.lazy(() =>
+  import("../pages/service/questions/query/QueryHome")
+);
+
 const AllocateListPage = React.lazy(() => import("../pages/service/allocate"));
 const QuesionsListPage = React.lazy(() => import("../pages/service/questions"));
 const SingleQuestionPage = React.lazy(() =>
@@ -669,6 +673,14 @@ const serviceRoutes = {
       path: "/service/statistics",
       name: "件數統計",
       component: ServiceStatistics,
+      route: PrivateRoute
+    },
+    {
+      exact: true,
+      path: "/service/questions/query",
+      name: "案件查詢",
+      icon: "dripicons-search",
+      component: QuestionsQueryHome,
       route: PrivateRoute
     }
   ]

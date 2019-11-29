@@ -141,6 +141,9 @@ const AllocateListPage = ({
     {
       dataField: "question_id",
       text: "提問單",
+      headerStyle: (column, colIndex) => {
+        return { width: "100px" };
+      },
       filter: textFilter(),
       sort: true
     },

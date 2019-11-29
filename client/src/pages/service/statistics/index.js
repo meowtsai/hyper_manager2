@@ -359,7 +359,14 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
               ))}
 
               <tr>
-                <th>總計</th>
+              {condition === "all" ? (
+                    <Fragment>
+                      <th colSpan="2">總計</th>
+                    </Fragment>
+                  ) : (
+                    <th>總計</th>
+                  )}
+                
 
                 <td>{data.reduce((a, b) => a + Number.parseInt(b.cnt), 0)}</td>
                 <td>

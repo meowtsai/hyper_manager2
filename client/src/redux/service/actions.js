@@ -30,7 +30,9 @@ import {
   GET_SERVICE_STATISTICS,
   GET_SERVICE_STATISTICS_SUCCESS,
   GET_SERVICE_STATISTICS_FAILED,
-  CLEAR_MESSAGE
+  CLEAR_MESSAGE,
+  GET_SERVICE_CONFIG,
+  GET_SERVICE_CONFIG_SUCCESS
 } from "./constants";
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -197,4 +199,13 @@ export const getServiceStatisticsFailed = (error: string): ServiceAction => ({
 
 export const clearMessage = (): ServiceAction => ({
   type: CLEAR_MESSAGE
+});
+
+export const getServiceConfig = (): ServiceAction => ({
+  type: GET_SERVICE_CONFIG
+});
+
+export const getServiceConfigSuccess = (data: []): ServiceAction => ({
+  type: GET_SERVICE_CONFIG_SUCCESS,
+  payload: data
 });

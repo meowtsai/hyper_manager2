@@ -11,7 +11,8 @@ import {
   GET_CURRENT_QUESTION,
   ALLOCATE_QUESTION,
   REPLY_QUESTION,
-  CLOSE_QUESTION
+  CLOSE_QUESTION,
+  GET_SERVICE_CONFIG
 } from "./constants";
 
 import {
@@ -34,7 +35,8 @@ import {
   replyQuestionSuccess,
   replyQuestionFailed,
   closeQuestionSuccess,
-  closeQuestionFailed
+  closeQuestionFailed,
+  getServiceConfigSuccess
 } from "./actions";
 
 /**
@@ -354,6 +356,28 @@ function* updateStatus({ payload }) {
   }
 }
 
+function* getServiceConfig() {
+  const options = {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/questions/config`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(getServiceConfigSuccess(response.data));
+  } catch (error) {
+    // console.log(' login error ', error);
+    // console.log(' error.status ', error.response.status);
+    let message;
+    switch (error.response.status) {
+      default:
+        message = error.response.data;
+    }
+    yield put(getOverviewFailed(message));
+  }
+}
+
 export function* watchGetData(): any {
   yield takeEvery(GET_QUESTIONS, getQuestionsData);
 }
@@ -389,6 +413,9 @@ export function* watchCloseQuestion(): any {
 export function* watchUpdateStatus(): any {
   yield takeEvery(UPDATE_QUESTION_STATUS, updateStatus);
 }
+export function* watchGetServiceConfig(): any {
+  yield takeEvery(GET_SERVICE_CONFIG, getServiceConfig);
+}
 function* serviceSaga(): any {
   yield all([
     fork(watchGetData),
@@ -400,8 +427,8 @@ function* serviceSaga(): any {
     fork(watchallocateQuestion),
     fork(watchReplyQuestion),
     fork(watchCloseQuestion),
-    fork(watchStatData)
+    fork(watchStatData),
+    fork(watchGetServiceConfig)
   ]);
 }
-
 export default serviceSaga;

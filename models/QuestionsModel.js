@@ -1,12 +1,69 @@
 const { db1, db2 } = require("../config/db");
 
 const QuestionsModel = {
-  getAll: async (allow_games, uid, { status = 1 }) => {
+  getAll: async (allow_games, uid, condition) => {
+    const {
+      status,
+      gameId,
+      beginTime,
+      endTime,
+      type,
+      email,
+      phone,
+      partner_uid,
+      character_name,
+      check_id
+    } = condition;
+    //console.log("getAll condition", condition);
     //console.log("QuestionsModel getall", uid, status);
-    let limitedCondition = "";
-    if (status.toString() === "4") {
-      limitedCondition = "or q.status='7' ";
+    //gameId,
+    //beginTime,
+    //endTime
+    let limitedStatusCondition = "";
+    if (status) {
+      limitedStatusCondition = `q.status=${status}`;
+      if (status.toString() === "4") {
+        limitedStatusCondition += " or q.status='7' ";
+      }
+      limitedStatusCondition = `(${limitedStatusCondition})`;
     }
+    let limitedCondition = "";
+    if (gameId) {
+      if (limitedStatusCondition !== "") {
+        limitedCondition += " and ";
+      }
+      limitedCondition = `g.game_id='${gameId}'`;
+    }
+
+    if (beginTime && endTime) {
+      if (limitedStatusCondition !== "" || limitedCondition !== "") {
+        limitedCondition += " and ";
+      }
+      limitedCondition += `q.create_time between '${beginTime}' and '${endTime}'`;
+    }
+
+    // if (type) {
+    //   if (limitedStatusCondition !== "" || limitedCondition !== "") {
+    //     limitedCondition += " and ";
+    //   }
+    //   limitedCondition += `q.type ='${type}'`;
+    // }
+
+    Object.keys({
+      type,
+      email,
+      phone,
+      partner_uid,
+      character_name,
+      check_id
+    }).forEach(itemKey => {
+      if (condition[itemKey]) {
+        if (limitedStatusCondition !== "" || limitedCondition !== "") {
+          limitedCondition += " and ";
+        }
+        limitedCondition += `q.${itemKey} ='${condition[itemKey]}'`;
+      }
+    });
 
     //console.log("QuestionsModel getAll", allow_games);
 
@@ -27,9 +84,9 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where (q.status=?  ${limitedCondition} )  ${where_allow_games}  order by id desc limit 1000
+        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit 1000
       `,
-        [uid, status]
+        [uid]
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {

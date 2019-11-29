@@ -25,7 +25,9 @@ import {
   GET_SERVICE_STATISTICS,
   GET_SERVICE_STATISTICS_SUCCESS,
   GET_SERVICE_STATISTICS_FAILED,
-  CLEAR_MESSAGE
+  CLEAR_MESSAGE,
+  GET_SERVICE_CONFIG,
+  GET_SERVICE_CONFIG_SUCCESS
 } from "./constants";
 
 const INIT_STATE = {
@@ -36,7 +38,8 @@ const INIT_STATE = {
   allgames: [],
   antsHandleData: [],
   qCountData: [],
-  csHandleData: []
+  csHandleData: [],
+  games_list: []
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -49,6 +52,7 @@ type State = {
   error?: string,
   question_type?: {} | null,
   question_status?: {} | null,
+  games_list?: [] | null,
   reply_query?: [] | null,
   ovToday?: {} | null,
   ovTotal?: {} | null,
@@ -73,6 +77,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case GET_QUESTIONS:
       return {
         ...state,
+        loading: true,
         error: null
       };
     case ALLOCATE_QUESTION_SUCCESS:
@@ -100,10 +105,11 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           },
 
           replies: [
-            ...state.current.replies.filter(
-              reply => reply.id !== action.payload.id
-            ),
-            { id: action.payload.id, ...action.payload.updatedField }
+            ...state.current.replies.map(reply =>
+              reply.id !== action.payload.id
+                ? reply
+                : { ...reply, ...action.payload.updatedField }
+            )
           ]
         },
         updateOKMessage: action.payload.msg,
@@ -128,12 +134,23 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case CLEAR_MESSAGE:
       return {
         ...state,
+        loading: false,
+        error: null,
         updateOKMessage: null
       };
     case GET_CURRENT_QUESTION_SUCCESS:
       return {
         ...state,
         current: action.payload.stat,
+        question_type: action.payload.question_type,
+        question_status: action.payload.question_status,
+        loading: false,
+        error: null
+      };
+    case GET_SERVICE_CONFIG_SUCCESS:
+      return {
+        ...state,
+        games_list: action.payload.games_list,
         question_type: action.payload.question_type,
         question_status: action.payload.question_status,
         loading: false,

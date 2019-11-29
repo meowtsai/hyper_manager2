@@ -159,7 +159,7 @@ const VipOrdersForm = ({
 
       <Row className="mb-2">
         <Col lg={6}>
-          <Card>
+          <Card className="border p-1 mb-1 rounded font-13 bg-light">
             <CardBody>
               {errors && errors.msg && (
                 <Alert color="danger" isOpen={errors.msg ? true : false}>
@@ -426,7 +426,9 @@ const VipOrdersForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label htmlFor="report_status">狀態</Label>
+                      <Label htmlFor="report_status" className="text-primary">
+                        🔔狀態
+                      </Label>
                       <Input
                         type="select"
                         name="report_status"
@@ -448,7 +450,9 @@ const VipOrdersForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label htmlFor="orderids">網易訂單號</Label>
+                      <Label htmlFor="orderids" className="text-primary">
+                        🔔網易訂單號
+                      </Label>
                       <Input
                         type="text"
                         name="orderids"

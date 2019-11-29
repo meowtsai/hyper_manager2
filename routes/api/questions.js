@@ -8,6 +8,7 @@ const Admin_user = require("../../models/Admin_user");
 const RepliesModel = require("../../models/RepliesModel");
 const BatchTasksModel = require("../../models/BatchTasksModel");
 const LogAdminActionsModel = require("../../models/LogAdminActionsModel");
+const GamesModel = require("../../models/GamesModel");
 const AllocationModel = require("../../models/AllocationModel");
 
 const SERVICE_CONFIG = require("../../config/service");
@@ -160,6 +161,21 @@ router.get("/allocated", auth, async (req, res) => {
   res.json(questionsList);
 });
 
+router.get(
+  "/config",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "read");
+  },
+  async (req, res) => {
+    const question_type = SERVICE_CONFIG.question_type;
+    const question_status = SERVICE_CONFIG.question_status;
+
+    const games_list = await GamesModel.getListByCodition(req.user.allow_games);
+
+    res.json({ question_type, question_status, games_list });
+  }
+);
+
 //@route: GET /api/questions/getList
 //@desc: get allocated questions list
 //@access: private
@@ -192,8 +208,9 @@ router.post(
       //default
     }
     const q_ids = query.length > 0 ? query.map(q => q.id).join(",") : [];
-    const pReply = RepliesModel.getRepliesByQid(q_ids);
-    const pAllocation = AllocationModel.getRecordsByQid(q_ids);
+    const pReply = q_ids.length > 0 ? RepliesModel.getRepliesByQid(q_ids) : [];
+    const pAllocation =
+      q_ids.length > 0 ? AllocationModel.getRecordsByQid(q_ids) : [];
     Promise.all([pReply, pAllocation]).then(
       ([reply_query, newAllocationStatus]) => {
         res.json({
