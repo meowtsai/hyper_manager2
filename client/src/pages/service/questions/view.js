@@ -69,18 +69,21 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
           <Moment format="YYYY-MM-DD HH:mm:ss">{reply.create_time}</Moment>
         </CardSubtitle>
         <hr />
-        <CardText>
-          <p
-            className="card-text"
-            dangerouslySetInnerHTML={{
-              __html: new showdown.Converter().makeHtml(reply.content)
-            }}
-          />
-        </CardText>
+        <CardText
+          className="card-text"
+          dangerouslySetInnerHTML={{
+            __html: new showdown.Converter().makeHtml(reply.content)
+          }}
+        ></CardText>
 
         {pic_plus.length > 0 &&
           pic_plus.map(pic => (
-            <a href={pic.pic_path} target="_blank" rel="noopener noreferrer">
+            <a
+              href={pic.pic_path}
+              target="_blank"
+              rel="noopener noreferrer"
+              key={`pic_${pic.id}`}
+            >
               <img
                 alt="玩家圖片"
                 key={`repic-${pic_plus.id}`}
@@ -184,6 +187,28 @@ const QuestionInfo = ({
       );
   }
 
+  let statusColor;
+  let statusText;
+  if (question.status === "1") {
+    statusColor = "danger-lighten";
+    statusText = question_status[question.status];
+  } else if (question.status === "2") {
+    statusColor = "info-lighten";
+    statusText = question_status[question.status];
+  } else if (question.status === "4") {
+    statusColor = "success-lighten";
+    statusText = `${
+      question.system_closed === "1"
+        ? "系統"
+        : question.close_admin_uid
+        ? ""
+        : "玩家"
+    } ${question_status[question.status]}`;
+  } else if (question.status === "7") {
+    statusColor = "secondary-lighten";
+    statusText = question_status[question.status];
+  }
+
   const onTypeChange = (id, newType) => {
     //console.log("call onTypeChange", id, newType);
     updateQuestionType(id, newType);
@@ -199,7 +224,9 @@ const QuestionInfo = ({
             </th>
 
             <td colSpan="3">
-              {question_status[question.status]}
+              <Badge color={statusColor} className="mr-1">
+                {statusText}
+              </Badge>
 
               {isReadMark}
               {allocateMark}
@@ -416,6 +443,7 @@ const SingleQuestionPage = ({
   user,
   allocation,
   allocation_logs,
+  allocation_quick_msg,
   updateQuestionType
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
@@ -562,7 +590,7 @@ const SingleQuestionPage = ({
               )}
               <Card>
                 <CardBody>
-                  <h5>案件編號 #{current.question.id}</h5>
+                  <h3>案件編號 #{current.question.id}</h3>
                   <hr />
                   <QuestionInfo
                     pic_plus={current.pic_plus}
@@ -599,6 +627,7 @@ const SingleQuestionPage = ({
                       q_status={current.question.status}
                       allocation={allocation}
                       allocation_logs={allocation_logs}
+                      allocation_quick_msg={allocation_quick_msg}
                       postAllocation={postAllocation}
                       putAllocation={putAllocation}
                       user={user}
@@ -666,7 +695,7 @@ const SingleQuestionPage = ({
                         <Badge color="warning" className="float-right mr-1">
                           將在
                           {moment(current.question.system_closed_start)
-                            .add(2, "days")
+                            .add(5, "days")
                             .fromNow()}
                           自動結案
                         </Badge>
@@ -700,6 +729,7 @@ const mapStateToProps = state => ({
   user: state.Auth.user,
   allocation: state.ServiceAllocate.allocation,
   allocation_logs: state.ServiceAllocate.allocation_logs,
+  allocation_quick_msg: state.ServiceAllocate.allocation_quick_msg,
   allocate_loading: state.ServiceAllocate.loading,
   allocate_error: state.ServiceAllocate.error,
   allocateUpdateOKMessage: state.ServiceAllocate.updateOKMessage

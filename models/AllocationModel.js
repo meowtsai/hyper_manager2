@@ -206,6 +206,24 @@ const AllocationModel = {
       })
       .catch(err => ({ error: err.message }));
   },
+  getLogsByUid: async uid => {
+    //console.log("q_ids", q_ids);
+    return await db2
+      .promise()
+      .query(
+        `select distinct allocate_note from (select allocate_note from question_allocation_records where admin_uid=? and (allocate_status in(2,3,4))  and length(allocate_note)<50 order by id desc limit 20 ) a
+      `,
+        [uid]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
   saveLog: async newRecord => {
     return await db1
       .promise()

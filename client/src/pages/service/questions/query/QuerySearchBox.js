@@ -36,6 +36,9 @@ const QuerySearchBox = ({
   const [character_name, setCharName] = useState("");
   const [check_id, setCheckCode] = useState("");
 
+  const [question_no, setQuestionNo] = useState("");
+  const [content, setContent] = useState("");
+
   console.log("email", email);
   const searchClick = e => {
     e.preventDefault();
@@ -51,7 +54,9 @@ const QuerySearchBox = ({
       phone,
       partner_uid,
       character_name,
-      check_id
+      check_id,
+      content,
+      id: question_no
     };
 
     handleSearchClick(conditions);
@@ -179,6 +184,20 @@ const QuerySearchBox = ({
                     </Input>
                   </FormGroup>
                 </Col>
+                <Col md={2}>
+                  <div className="form-group">
+                    <label>單號</label>
+                    <Input
+                      bsSize="sm"
+                      type="number"
+                      name="question_no"
+                      id="question_no"
+                      placeholder="提問單號"
+                      value={question_no}
+                      onChange={e => setQuestionNo(e.target.value)}
+                    />
+                  </div>
+                </Col>
               </Row>
               <Row>
                 <Col md={2}>
@@ -252,6 +271,18 @@ const QuerySearchBox = ({
                   </div>
                 </Col>
                 <Col md={2}>
+                  <div className="form-group">
+                    <label>提問描述</label>
+                    <Input
+                      bsSize="sm"
+                      type="text"
+                      name="content"
+                      id="content"
+                      placeholder="提問描述"
+                      value={content}
+                      onChange={e => setContent(e.target.value)}
+                    />
+                  </div>
                   <button
                     className={`btn btn-sm ml-2 mb-0 btn-${
                       searchActivated ? "primary" : "secondary"

@@ -211,8 +211,9 @@ router.post(
     const pReply = q_ids.length > 0 ? RepliesModel.getRepliesByQid(q_ids) : [];
     const pAllocation =
       q_ids.length > 0 ? AllocationModel.getRecordsByQid(q_ids) : [];
-    Promise.all([pReply, pAllocation]).then(
-      ([reply_query, newAllocationStatus]) => {
+
+    Promise.all([pReply, pAllocation])
+      .then(([reply_query, newAllocationStatus]) => {
         res.json({
           query,
           reply_query,
@@ -221,12 +222,10 @@ router.post(
           question_status,
           allocation_status
         });
-      },
-      reason => {
-        //console.log(reason);
-        res.json({ reason });
-      }
-    );
+      })
+      .catch(reason => {
+        console.log(reason);
+      });
 
     //const admin_uid = 86;
     //const questionsList = await QuestionsModel.getAllocateList(admin_uid, 1);

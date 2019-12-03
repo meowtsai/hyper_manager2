@@ -12,7 +12,9 @@ const QuestionsModel = {
       phone,
       partner_uid,
       character_name,
-      check_id
+      check_id,
+      content,
+      id
     } = condition;
     //console.log("getAll condition", condition);
     //console.log("QuestionsModel getall", uid, status);
@@ -42,12 +44,12 @@ const QuestionsModel = {
       limitedCondition += `q.create_time between '${beginTime}' and '${endTime}'`;
     }
 
-    // if (type) {
-    //   if (limitedStatusCondition !== "" || limitedCondition !== "") {
-    //     limitedCondition += " and ";
-    //   }
-    //   limitedCondition += `q.type ='${type}'`;
-    // }
+    if (content) {
+      if (limitedStatusCondition !== "" || limitedCondition !== "") {
+        limitedCondition += " and ";
+      }
+      limitedCondition += `q.content like '%${content}%'`;
+    }
 
     Object.keys({
       type,
@@ -55,7 +57,8 @@ const QuestionsModel = {
       phone,
       partner_uid,
       character_name,
-      check_id
+      check_id,
+      id
     }).forEach(itemKey => {
       if (condition[itemKey]) {
         if (limitedStatusCondition !== "" || limitedCondition !== "") {
@@ -72,7 +75,7 @@ const QuestionsModel = {
         ? ""
         : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
 
-    // console.log("limitedCondition", limitedCondition);
+    //console.log("limitedCondition", limitedCondition);
     // console.log("where_allow_games", where_allow_games);
     return await db2
       .promise()
@@ -84,7 +87,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit 1000
+        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc 
       `,
         [uid]
       )

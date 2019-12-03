@@ -31,6 +31,8 @@ import {
 } from "../../../../redux/actions";
 import AllocateStatusBadge from "../../allocate/AllocateStatusBadge";
 import PropTypes from "prop-types";
+import { CSVLink } from "react-csv";
+import { csvHeaders } from "../csv/settings";
 import QuestionExpandRow from "./QuestionExpandRow";
 import QuerySearchBox from "./QuerySearchBox";
 const QuestionsQueryHome = ({
@@ -50,6 +52,7 @@ const QuestionsQueryHome = ({
   const [arrangedData, setArrangedData] = useState([]);
 
   let mainTitle = "案件查詢";
+  const fileName = `案件查詢_${moment().format("YYYY-MM-DD")}${Date.now()}`;
 
   useEffect(() => {
     getServiceConfig();
@@ -158,7 +161,7 @@ const QuestionsQueryHome = ({
               href={`/service/view/${row.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary mb-1 d-block"
+              className="text-info mb-1 d-block"
             >
               <p
                 dangerouslySetInnerHTML={{
@@ -294,6 +297,30 @@ const QuestionsQueryHome = ({
         question_status={question_status}
         games={games}
       />
+
+      <Row>
+        <Col>
+          <Form inline className="mb-2 mt-2">
+            {arrangedData.length > 0 && (
+              <CSVLink
+                data={arrangedData.map(item => ({
+                  ...item,
+                  create_time: moment(item.create_time).format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  ),
+                  status: question_status[item.status],
+                  type: question_type[item.type]
+                }))}
+                headers={csvHeaders}
+                filename={fileName + ".csv"}
+              >
+                下載 csv檔案
+              </CSVLink>
+            )}
+          </Form>
+        </Col>
+      </Row>
+
       <Row className="mb-2">
         <Col lg={12}>
           {loading ? (

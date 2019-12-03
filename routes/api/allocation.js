@@ -39,7 +39,18 @@ router.get("/:question_id", auth, async (req, res) => {
   const allocation_logs = allocation
     ? await AllocationModel.getLogsByAllocationId(allocation.id)
     : [];
-  res.json({ allocation, allocation_logs, allocationStatus });
+
+  const allocation_quick_msg = allocation_logs
+    ? await AllocationModel.getLogsByUid(req.user.uid)
+    : [];
+
+  //console.log("allocation_quick_msg", allocation_quick_msg);
+  res.json({
+    allocation,
+    allocation_logs,
+    allocationStatus,
+    allocation_quick_msg
+  });
 });
 
 //@route: POST /api/allocation

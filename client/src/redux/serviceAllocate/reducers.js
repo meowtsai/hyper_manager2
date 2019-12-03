@@ -24,6 +24,7 @@ const INIT_STATE = {
   error: "",
   allocation: null,
   allocation_logs: null,
+  allocation_quick_msg: null,
   allocationStatus: null,
   updateOKMessage: null,
   cs_members: []
@@ -37,6 +38,7 @@ type State = {
   error?: string,
   allocation?: {} | null,
   allocation_logs?: [] | null,
+  allocation_quick_msg?: [] | null,
   allocationStatus: {} | null,
   updateOKMessage?: string | null
 };
@@ -97,6 +99,7 @@ const ServiceAllocate = (
         ...state,
         allocation: action.payload.allocation,
         allocation_logs: action.payload.allocation_logs,
+        allocation_quick_msg: action.payload.allocation_quick_msg,
         allocationStatus: action.payload.allocationStatus,
         error: null,
         loading: false

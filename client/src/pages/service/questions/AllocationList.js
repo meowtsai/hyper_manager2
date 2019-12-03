@@ -1,5 +1,16 @@
 import React, { useState, Fragment } from "react";
-import { Row, Col, Card, CardBody, Input, FormFeedback } from "reactstrap";
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Input,
+  FormFeedback,
+  UncontrolledButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+} from "reactstrap";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import Moment from "react-moment";
 
@@ -15,6 +26,7 @@ const AllocationList = ({
   putAllocation,
   allocation,
   allocation_logs,
+  allocation_quick_msg,
   user
 }) => {
   //console.log("AllocationList allocation_logs", allocation_logs);
@@ -199,7 +211,9 @@ const AllocationList = ({
                                 <div className="timeline-item-info">
                                   <span
                                     style={{ whiteSpace: "pre-line" }}
-                                    className="text-primary font-weight-bold mb-1 "
+                                    className={`text-${
+                                      log.admin_uid === 113 ? "info" : "primary"
+                                    } font-weight-bold mb-1 `}
                                   >
                                     {log.admin_uname}:
                                   </span>
@@ -236,6 +250,26 @@ const AllocationList = ({
                 <hr />
                 {displayAllocationFeedbackArea && (
                   <Fragment>
+                    <UncontrolledButtonDropdown size="sm">
+                      <DropdownToggle color="light" caret>
+                        快選回覆
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        {allocation_quick_msg &&
+                          allocation_quick_msg.map((msg, i) => (
+                            <DropdownItem
+                              className="text-info"
+                              key={`quickmsg-${i}`}
+                              onClick={e =>
+                                setFinishAllocateNote(`${msg.allocate_note}`)
+                              }
+                            >
+                              {msg.allocate_note}
+                            </DropdownItem>
+                          ))}
+                      </DropdownMenu>
+                    </UncontrolledButtonDropdown>
+
                     <Input
                       type="textarea"
                       className="form-control form-control-dark mb-2"

@@ -17,6 +17,7 @@ import {
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import { CSVLink } from "react-csv";
+import { csvHeaders } from "./csv/settings";
 import filterFactory, {
   Comparator,
   textFilter,
@@ -537,19 +538,6 @@ const QuestionListPage = ({
 
   //編號	遊戲	角色名稱	提問類型	描述	原廠uid	狀態	處理人	日期
   const fileName = `提問單_${moment().format("YYYY-MM-DD")}${Date.now()}`;
-  const csvHeaders = [
-    { label: "編號", key: "id" },
-    { label: "遊戲", key: "game_name" },
-    { label: "伺服器", key: "server_name" },
-    { label: "UID", key: "partner_uid" },
-    { label: "角色名稱", key: "character_name" },
-
-    { label: "提問類型", key: "type" },
-    { label: "描述", key: "content" },
-    { label: "狀態", key: "status" },
-    { label: "匯款時間", key: "create_time" },
-    { label: "處理人員", key: "admin_name" }
-  ];
 
   const customTotal = (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total ml-2">
