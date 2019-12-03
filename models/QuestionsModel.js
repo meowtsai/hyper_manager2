@@ -87,7 +87,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc 
+        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit 15000
       `,
         [uid]
       )
