@@ -62,6 +62,7 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
   //玩家建單日期時間	伺服器	角色ID	角色名稱	匯款銀行	玩家匯款資訊(帳號末五碼)	匯款戶名(本名或帳號都可)	匯款日期	匯款時間	訂單金額	發票日期	發票號碼	虛寶內容	後台建單訂單編號	派寶完成	備註	紀錄人員
   const fileName = `VIP訂單_${moment().format("YYYY-MM-DD")}${Date.now()}`;
   const csvHeaders = [
+    { label: "訂單號", key: "report_id" },
     { label: "玩家建單日期時間", key: "create_time" },
     { label: "伺服器", key: "server_name" },
     { label: "角色ID", key: "role_id" },
