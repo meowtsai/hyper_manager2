@@ -108,7 +108,8 @@ const QuestionListPage = ({
       let timeOutId;
 
       timeOutId = setTimeout(() => {
-        getQuestions();
+        const condition = { status: defaultStatus };
+        getQuestions(condition);
         //console.log("getQuestions effect timeOutId", timeOutId);
       }, 30000);
       return () => {

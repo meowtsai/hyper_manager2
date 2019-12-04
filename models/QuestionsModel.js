@@ -16,16 +16,23 @@ const QuestionsModel = {
       content,
       id
     } = condition;
+
+    
     //console.log("getAll condition", condition);
     //console.log("QuestionsModel getall", uid, status);
     //gameId,
     //beginTime,
     //endTime
     let limitedStatusCondition = "";
+    let limitRowCount =15000;
     if (status) {
       limitedStatusCondition = `q.status=${status}`;
       if (status.toString() === "4") {
         limitedStatusCondition += " or q.status='7' ";
+
+        if (Object.keys(condition).length ===1){
+          limitRowCount=1000;
+        }
       }
       limitedStatusCondition = `(${limitedStatusCondition})`;
     }
@@ -87,7 +94,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
-        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit 15000
+        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit ${limitRowCount}
       `,
         [uid]
       )

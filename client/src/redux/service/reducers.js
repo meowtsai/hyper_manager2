@@ -77,7 +77,11 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case GET_QUESTIONS:
       return {
         ...state,
-        loading: true,
+        loading:
+          Object.keys(action.payload).length === 1 &&
+          action.payload.status === "1"
+            ? false
+            : true,
         error: null
       };
     case ALLOCATE_QUESTION_SUCCESS:

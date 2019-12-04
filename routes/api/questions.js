@@ -190,19 +190,21 @@ router.post(
     const question_type = SERVICE_CONFIG.question_type;
     const question_status = SERVICE_CONFIG.question_status;
     const allocation_status = SERVICE_CONFIG.allocationStatus;
-    //console.log("server get list", req.body);
+
     const condition = req.body;
+    //console.log("server get list", req.body);
     //const action = req.query.action; //查詢
     const action = "查詢";
     let query = [];
     if (action) {
-      query = await QuestionsModel.getAll(
-        req.user.allow_games,
-        req.user.uid,
-        condition
-      );
-      if (query.error) {
-        res.status(500).json({ msg: `獲取資料失敗(${query.error})` });
+      try {
+        query = await QuestionsModel.getAll(
+          req.user.allow_games,
+          req.user.uid,
+          condition
+        );
+      } catch (error) {
+        return res.status(500).json({ msg: `獲取資料失敗(${error})` });
       }
     } else {
       //default
