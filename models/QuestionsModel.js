@@ -1,5 +1,5 @@
 const { db1, db2 } = require("../config/db");
-
+const { isEmpty } = require("../utils/helper");
 const QuestionsModel = {
   getAll: async (allow_games, uid, condition) => {
     const {
@@ -17,21 +17,20 @@ const QuestionsModel = {
       id
     } = condition;
 
-    
     //console.log("getAll condition", condition);
     //console.log("QuestionsModel getall", uid, status);
     //gameId,
     //beginTime,
     //endTime
     let limitedStatusCondition = "";
-    let limitRowCount =15000;
+    let limitRowCount = 15000;
     if (status) {
       limitedStatusCondition = `q.status=${status}`;
       if (status.toString() === "4") {
         limitedStatusCondition += " or q.status='7' ";
 
-        if (Object.keys(condition).length ===1){
-          limitRowCount=1000;
+        if (Object.keys(condition).length === 1) {
+          limitRowCount = 1000;
         }
       }
       limitedStatusCondition = `(${limitedStatusCondition})`;
@@ -342,6 +341,45 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
          DATE_FORMAT(q.create_time,'%Y-%m') = ?
         group by game_id, game_name, DATE_FORMAT(q.create_time,'%Y-%m-%d')`,
         [yyyymm]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getListByUserShort: async ({ partner_uid, phone, email }) => {
+    let condition = "";
+
+    if (!isEmpty(partner_uid)) {
+      condition = "  partner_uid='" + partner_uid + "'";
+    }
+    if (!isEmpty(phone)) {
+      if (!isEmpty(condition)) {
+        condition += " or ";
+      }
+      condition += " phone='" + phone + "'";
+    }
+    if (!isEmpty(email)) {
+      if (!isEmpty(condition)) {
+        condition += " or ";
+      }
+      condition += " email='" + email + "'";
+    }
+    //console.log("condition", condition);
+    if (isEmpty(condition)) {
+      return [];
+    }
+    return await db2
+      .promise()
+      .query(
+        `select id,content, create_time,g.name as game_name, g.game_id as game_id from questions q
+        LEFT JOIN servers gi ON gi.server_id=q.server_id
+        LEFT JOIN games g ON g.game_id=gi.game_id
+         where ${condition} order by id desc limit 20`
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {

@@ -20,9 +20,11 @@ import {
 import classNames from "classnames";
 import { connect } from "react-redux";
 import SimpleMDEReact from "react-simplemde-editor";
+import UserRelaventData from "./UserRelaventData";
 import "easymde/dist/easymde.min.css";
 import "moment/locale/zh-tw";
 import * as showdown from "showdown";
+import { vipRankingOptions } from "../../vip/whale_users/whaleOptConfig";
 
 import {
   getCurrentQuestion,
@@ -34,7 +36,8 @@ import {
   putAllocation,
   postAllocation,
   clearAllocationMessage,
-  updateQuestionType
+  updateQuestionType,
+  getQuestionsByUser
 } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Moment from "react-moment";
@@ -139,7 +142,8 @@ const QuestionInfo = ({
   question_status,
   question_type,
   pic_plus,
-  updateQuestionType
+  updateQuestionType,
+  vip
 }) => {
   const [errors, setErrors] = useState({});
 
@@ -313,7 +317,11 @@ const QuestionInfo = ({
               <span className="font-weight-bold ">原廠uid：</span>
             </th>
 
-            <td colSpan="3">{question.partner_uid}</td>
+            <td colSpan="3">
+              {question.partner_uid}{" "}
+                {vip && <span className={`mr-1 badge badge-${vipRankingOptions.filter(ranking => ranking.value === vip)[0].color}-lighten badge-pill`}>{vipRankingOptions.filter(ranking => ranking.value === vip)[0].label || ""}</span> }
+                
+            </td>
           </tr>
           <tr>
             <th>
@@ -424,6 +432,7 @@ const QuestionInfo = ({
 
 const SingleQuestionPage = ({
   getCurrentQuestion,
+  getQuestionsByUser,
   getAllocateById,
   allocateQuestion,
   postAllocation,
@@ -437,6 +446,7 @@ const SingleQuestionPage = ({
   question_status,
   question_type,
   current,
+  user_history,
   loading,
   error,
   match,
@@ -444,7 +454,8 @@ const SingleQuestionPage = ({
   allocation,
   allocation_logs,
   allocation_quick_msg,
-  updateQuestionType
+  updateQuestionType,
+  vip
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -466,6 +477,8 @@ const SingleQuestionPage = ({
   useEffect(() => {
     getCurrentQuestion(question_id);
     getAllocateById(question_id);
+    getQuestionsByUser(question_id);
+
     document.title = `提問單# ${question_id} `;
 
     // eslint-disable-next-line
@@ -601,7 +614,9 @@ const SingleQuestionPage = ({
                     finishAllocateNote={finishAllocateNote}
                     setFinishAllocateNote={setFinishAllocateNote}
                     updateQuestionType={updateQuestionType}
+                    vip={vip}
                   />
+                  <UserRelaventData data={user_history} />
                   {current.replies.length > 0 &&
                     current.replies.map((reply, index) => (
                       <ReplyInfo
@@ -732,11 +747,14 @@ const mapStateToProps = state => ({
   allocation_quick_msg: state.ServiceAllocate.allocation_quick_msg,
   allocate_loading: state.ServiceAllocate.loading,
   allocate_error: state.ServiceAllocate.error,
-  allocateUpdateOKMessage: state.ServiceAllocate.updateOKMessage
+  allocateUpdateOKMessage: state.ServiceAllocate.updateOKMessage,
+  user_history: state.Service.user_history,
+  vip: state.Service.vip
 });
 
 export default connect(mapStateToProps, {
   getCurrentQuestion,
+  getQuestionsByUser,
   allocateQuestion,
   clearMessage,
   clearAllocationMessage,

@@ -12,7 +12,8 @@ import {
   ALLOCATE_QUESTION,
   REPLY_QUESTION,
   CLOSE_QUESTION,
-  GET_SERVICE_CONFIG
+  GET_SERVICE_CONFIG,
+  GET_QUESTIONS_BY_USER
 } from "./constants";
 
 import {
@@ -36,7 +37,9 @@ import {
   replyQuestionFailed,
   closeQuestionSuccess,
   closeQuestionFailed,
-  getServiceConfigSuccess
+  getServiceConfigSuccess,
+  getQuestionsByUserSuccess,
+  getQuestionsByUserFailed
 } from "./actions";
 
 /**
@@ -74,7 +77,7 @@ function* getQuestionsData({ payload: condition }) {
 }
 
 function* getCurrentQuestionData({ payload: question_id }) {
-  console.log("getCurrentQuestionData question_id", question_id);
+  //console.log("getCurrentQuestionData question_id", question_id);
   const options = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -102,6 +105,33 @@ function* getCurrentQuestionData({ payload: question_id }) {
   }
 }
 
+function* getQuestionsByUserData({ payload: question_id }) {
+  const options = {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/questions/list_by_user/${question_id}`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(getQuestionsByUserSuccess(response.data));
+  } catch (error) {
+    // console.log(' login error ', error);
+    // console.log(' error.status ', error.response.status);
+    let message;
+    switch (error.response.status) {
+      case 500:
+        message = "內部伺服器發生錯誤";
+        break;
+      case 401:
+        message = "帳號或密碼錯誤";
+        break;
+      default:
+        message = error.response.msg;
+    }
+    yield put(getQuestionsByUserFailed(message));
+  }
+}
 function* getTestData({ payload: condition }) {
   //console.log("getQuestionsData condition", condition);
   const options = {
@@ -416,6 +446,11 @@ export function* watchUpdateStatus(): any {
 export function* watchGetServiceConfig(): any {
   yield takeEvery(GET_SERVICE_CONFIG, getServiceConfig);
 }
+
+export function* watchGetRelaventUserData(): any {
+  yield takeEvery(GET_QUESTIONS_BY_USER, getQuestionsByUserData);
+}
+
 function* serviceSaga(): any {
   yield all([
     fork(watchGetData),
@@ -428,7 +463,8 @@ function* serviceSaga(): any {
     fork(watchReplyQuestion),
     fork(watchCloseQuestion),
     fork(watchStatData),
-    fork(watchGetServiceConfig)
+    fork(watchGetServiceConfig),
+    fork(watchGetRelaventUserData)
   ]);
 }
 export default serviceSaga;

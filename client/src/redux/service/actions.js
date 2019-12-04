@@ -32,7 +32,10 @@ import {
   GET_SERVICE_STATISTICS_FAILED,
   CLEAR_MESSAGE,
   GET_SERVICE_CONFIG,
-  GET_SERVICE_CONFIG_SUCCESS
+  GET_SERVICE_CONFIG_SUCCESS,
+  GET_QUESTIONS_BY_USER,
+  GET_QUESTIONS_BY_USER_SUCCESS,
+  GET_QUESTIONS_BY_USER_FAILED
 } from "./constants";
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -49,6 +52,21 @@ export const getQuestionsSuccess = (data: []): ServiceAction => ({
 
 export const getQuestionsFailed = (error: string): ServiceAction => ({
   type: GET_QUESTIONS_FAILED,
+  payload: error
+});
+
+export const getQuestionsByUser = (question_id: string): ServiceAction => ({
+  type: GET_QUESTIONS_BY_USER,
+  payload: question_id
+});
+
+export const getQuestionsByUserSuccess = (data: []): ServiceAction => ({
+  type: GET_QUESTIONS_BY_USER_SUCCESS,
+  payload: data
+});
+
+export const getQuestionsByUserFailed = (error: string): ServiceAction => ({
+  type: GET_QUESTIONS_BY_USER_FAILED,
   payload: error
 });
 

@@ -27,7 +27,10 @@ import {
   GET_SERVICE_STATISTICS_FAILED,
   CLEAR_MESSAGE,
   GET_SERVICE_CONFIG,
-  GET_SERVICE_CONFIG_SUCCESS
+  GET_SERVICE_CONFIG_SUCCESS,
+  GET_QUESTIONS_BY_USER,
+  GET_QUESTIONS_BY_USER_SUCCESS,
+  GET_QUESTIONS_BY_USER_FAILED
 } from "./constants";
 
 const INIT_STATE = {
@@ -39,7 +42,9 @@ const INIT_STATE = {
   antsHandleData: [],
   qCountData: [],
   csHandleData: [],
-  games_list: []
+  games_list: [],
+  user_history: [],
+  vip: null
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -58,6 +63,7 @@ type State = {
   ovTotal?: {} | null,
   ovAllocate?: [] | null,
   ovAllocateNew?: [] | null,
+  user_history?: [] | null,
   updateOKMessage?: string
 };
 
@@ -119,6 +125,19 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         updateOKMessage: action.payload.msg,
         loading: false,
         error: null
+      };
+
+    case GET_QUESTIONS_BY_USER_SUCCESS:
+      return {
+        ...state,
+        user_history: action.payload.list,
+        vip: action.payload.vip
+      };
+    case GET_QUESTIONS_BY_USER_FAILED:
+    case GET_QUESTIONS_BY_USER:
+      return {
+        ...state,
+        user_history: []
       };
     case CLOSE_QUESTION_SUCCESS:
       return {

@@ -10,10 +10,10 @@ const BatchTasksModel = require("../../models/BatchTasksModel");
 const LogAdminActionsModel = require("../../models/LogAdminActionsModel");
 const GamesModel = require("../../models/GamesModel");
 const AllocationModel = require("../../models/AllocationModel");
-
+const WhaleUserModel = require("../../models/WhaleUserModel");
 const SERVICE_CONFIG = require("../../config/service");
 
-const helper = require("../../utils/helper");
+const { isEmpty } = require("../../utils/helper");
 
 const checkPermission = require("../../middleware/checkPermission");
 const auth = require("../../middleware/auth");
@@ -773,6 +773,50 @@ router.get("/statistics", auth, async (req, res) => {
       }
     )
     .catch(err => console.log("get statistics data error: ", err));
+});
+
+router.get("/list_by_user/:question_id", auth, async (req, res) => {
+  const question_id = req.params.question_id;
+  //console.log(" list_by_user question_id", question_id);
+
+  // $vip =null;
+  // 	if ($question->game_id =='g66naxx2tw' && $question->is_in_game=='1') {
+  // 		$vip = $this->DB2->select("vip_ranking, deposit_total")
+  // 			->from("whale_users")
+  // 			->where("uid", $question->partner_uid)
+  // 			->where("site", 'g66naxx2tw')
+  // 			->get()->row();
+  // 	}
+  const question = await QuestionsModel.findOne(question_id);
+  if (question) {
+    const { partner_uid, email, phone } = question;
+    //console.log(" list_by_user question_id", question);
+    const list = await QuestionsModel.getListByUserShort({
+      partner_uid,
+      email,
+      phone
+    });
+
+    // console.log(
+    //   " list_by_user question_id",
+    //   question.game_id,
+    //   question.partner_uid
+    // );
+    let vip;
+    if (!isEmpty(question.partner_uid)) {
+      vip = await WhaleUserModel.findOne(
+        question.game_id,
+        question.partner_uid
+      );
+    }
+
+    res.json({
+      list: list.filter(q => q.id.toString() !== question_id),
+      vip: vip ? vip.vip_ranking : null
+    });
+  } else {
+    return res.status(404).json({ msg: `沒有這個提問單` });
+  }
 });
 
 module.exports = router;
