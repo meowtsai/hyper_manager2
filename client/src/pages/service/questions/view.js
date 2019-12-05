@@ -679,7 +679,7 @@ const SingleQuestionPage = ({
                     {current.question.status === "2" &&
                       current.question.allocate_status !== "1" &&
                       (allocation
-                        ? allocation.allocate_status === 4
+                        ? (allocation.allocate_status === 4 || allocation.allocate_status === 3)
                         : true) && (
                         <Fragment>
                           <button
