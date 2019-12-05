@@ -114,13 +114,18 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
             ...action.payload.updateQuestionData
           },
 
-          replies: [
-            ...state.current.replies.map(reply =>
-              reply.id !== action.payload.id
-                ? reply
-                : { ...reply, ...action.payload.updatedField }
-            )
-          ]
+          replies: action.payload.updateQuestionData
+            ? [
+                ...state.current.replies,
+                { id: action.payload.id, ...action.payload.updatedField }
+              ]
+            : [
+                ...state.current.replies.map(reply =>
+                  reply.id !== action.payload.id
+                    ? reply
+                    : { ...reply, ...action.payload.updatedField }
+                )
+              ]
         },
         updateOKMessage: action.payload.msg,
         loading: false,
