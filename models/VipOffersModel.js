@@ -84,6 +84,22 @@ const VipOffersModel = {
         }
       })
       .catch(err => ({ error: err.message }));
+  },
+  findReportAndRemove: async report_id => {
+    return await db1
+      .promise()
+      .query(
+        "Delete from vip_wire_report where report_id=? and report_status=1",
+        [report_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "刪除失敗" };
+        }
+      })
+      .catch(err => ({ error: err.message }));
   }
 };
 

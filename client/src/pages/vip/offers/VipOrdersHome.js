@@ -10,7 +10,7 @@ import paginationFactory, {
   PaginationListStandalone
 } from "react-bootstrap-table2-paginator";
 import PageTitle from "../../../components/PageTitle";
-import { getVipOrders } from "../../../redux/actions";
+import { getVipOrders, deleteVipWireReport } from "../../../redux/actions";
 import Moment from "react-moment";
 import moment from "moment";
 import Spinner from "../../../components/Spinner";
@@ -24,7 +24,13 @@ import filterFactory, {
   selectFilter
 } from "react-bootstrap-table2-filter";
 
-const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
+const VipOrdersHome = ({
+  getVipOrders,
+  records,
+  loading,
+  error,
+  deleteVipWireReport
+}) => {
   const [arrangedData, setArrangedData] = useState([]);
 
   const [beginTime, setBeginTime] = useState(
@@ -45,6 +51,13 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
       setArrangedData(records);
     }
   }, [records]);
+
+  const deleteClick = (e, report_id) => {
+    const deleteConfirm = window.confirm(`您確定要刪除${report_id}這筆紀錄嗎?`);
+    if (deleteConfirm) {
+      deleteVipWireReport(report_id);
+    }
+  };
 
   if (loading) {
     return <Spinner className="m-2" color="secondary" />;
@@ -88,7 +101,6 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
       顯示 {size} 筆總數中的 {from} ~ {to} 紀錄
     </span>
   );
-  let inStockDateFilter;
 
   const columns = [
     {
@@ -103,19 +115,22 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             {row.report_id}
           </small>
         );
-      }
+      },
+      footer: ""
     },
     {
       dataField: "phone",
       text: "聯繫電話",
       filter: textFilter(),
-      sort: true
+      sort: true,
+      footer: ""
     },
     {
       dataField: "email",
       text: "EMAIL",
       filter: textFilter(),
-      sort: true
+      sort: true,
+      footer: ""
     },
     {
       dataField: "product_id",
@@ -128,7 +143,8 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             方案{cellContent} * {row.qty}{" "}
           </div>
         );
-      }
+      },
+      footer: ""
     },
 
     {
@@ -141,7 +157,8 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             <strong>{cellContent} </strong>
           </div>
         );
-      }
+      },
+      footer: ""
     },
     {
       dataField: "char_name",
@@ -155,12 +172,14 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             GID: {row.role_id}
           </div>
         );
-      }
+      },
+      footer: ""
     },
 
     {
       dataField: "wire_amount",
-      text: "金額"
+      text: "金額",
+      footer: columnData => columnData.reduce((acc, item) => acc + item, 0)
     },
     {
       dataField: "report_status",
@@ -182,35 +201,47 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
             </span>
           </Fragment>
         );
-      }
+      },
+      footer: ""
     },
     {
       dataField: "invoice_option",
       text: "發票選項",
+      headerStyle: (column, colIndex) => {
+        return { width: "100px" };
+      },
       filter: selectFilter({
         options: invoiceOptions
       }),
       formatter: (cellContent, row) => {
         return invoiceOptions[cellContent];
-      }
+      },
+      footer: ""
     },
 
     {
       dataField: "invoice_id",
-      filter: textFilter(),
-      text: "發票號碼"
-    },
-    {
-      dataField: "invoice_date",
-      text: "發票日期",
+      text: "發票號碼",
+      headerStyle: (column, colIndex) => {
+        return { width: "120px" };
+      },
       filter: textFilter(),
       formatter: (cellContent, row) => {
-        return moment(cellContent).format("YYYY-MM-DD") === "Invalid date" ? (
-          ""
-        ) : (
-          <Moment format="YYYY-MM-DD">{cellContent}</Moment>
+        return (
+          <Fragment>
+            {cellContent}
+            <span className="text-muted d-block">
+              {moment(row.invoice_date).format("YYYY-MM-DD") ===
+              "Invalid date" ? (
+                ""
+              ) : (
+                <Moment format="YYYY-MM-DD">{row.invoice_date}</Moment>
+              )}
+            </span>
+          </Fragment>
         );
-      }
+      },
+      footer: ""
     },
     {
       dataField: "admin_name",
@@ -220,6 +251,10 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
     {
       dataField: "action",
       isDummyField: true,
+      classes: "table-action",
+      headerStyle: (column, colIndex) => {
+        return { width: "120px" };
+      },
       text: "操作",
       formatter: (cell, row) => {
         return (
@@ -231,9 +266,18 @@ const VipOrdersHome = ({ getVipOrders, records, loading, error }) => {
               {" "}
               <i className="mdi mdi-square-edit-outline"></i>
             </Link>
+            {row.report_status === "1" && (
+              <a
+                className="action-icon text-danger"
+                onClick={e => deleteClick(e, row.report_id)}
+              >
+                <i className="mdi mdi-trash-can-outline"></i>
+              </a>
+            )}
           </React.Fragment>
         );
-      }
+      },
+      footer: ""
     }
   ];
 
@@ -404,4 +448,6 @@ const mapStateToProps = state => ({
   error: state.VipOffers.error
 });
 
-export default connect(mapStateToProps, { getVipOrders })(VipOrdersHome);
+export default connect(mapStateToProps, { getVipOrders, deleteVipWireReport })(
+  VipOrdersHome
+);

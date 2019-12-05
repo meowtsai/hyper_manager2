@@ -129,6 +129,30 @@ router.put(
   }
 );
 
+router.delete(
+  "/delete_wire_report/:id",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "whale_users_statistics", "read");
+  },
+  async (req, res) => {
+    const report_id = req.params.id;
+    const delResult = await VipOffersModel.findReportAndRemove(report_id);
+
+    if (delResult.error) {
+      return res.status(500).json({ msg: delResult.error });
+    }
+
+    if (delResult.affectedRows === 1) {
+      res.json({
+        msg: "紀錄已經刪除。",
+        updatedField: report_id
+      });
+    } else {
+      res.status(500).json({ msg: "紀錄刪除失敗" });
+    }
+  }
+);
+
 module.exports = router;
 
 const validateVipOrderUpdate = data => {

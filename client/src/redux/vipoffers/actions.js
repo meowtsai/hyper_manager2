@@ -13,7 +13,10 @@ import {
   GET_VIP_PRODS_BY_GAMEID_FAILED,
   EDIT_VIP_WIRE_REPORT,
   EDIT_VIP_WIRE_REPORT_SUCCESS,
-  EDIT_VIP_WIRE_REPORT_FAILED
+  EDIT_VIP_WIRE_REPORT_FAILED,
+  DELETE_VIP_WIRE_REPORT,
+  DELETE_VIP_WIRE_REPORT_SUCCESS,
+  DELETE_VIP_WIRE_REPORT_FAILED
 } from "./constants";
 
 type VipOfferAction = { type: string, payload: {} | string };
@@ -95,5 +98,22 @@ export const editVipWireReportFailed = (
   errors: {} | string
 ): VipOfferAction => ({
   type: EDIT_VIP_WIRE_REPORT_FAILED,
+  payload: errors
+});
+
+export const deleteVipWireReport = (record_id: string): VipOfferAction => ({
+  type: DELETE_VIP_WIRE_REPORT,
+  payload: record_id
+});
+
+export const deleteVipWireReportSuccess = (result: {}): VipOfferAction => ({
+  type: DELETE_VIP_WIRE_REPORT_SUCCESS,
+  payload: result
+});
+
+export const deleteVipWireReportFailed = (
+  errors: {} | string
+): VipOfferAction => ({
+  type: DELETE_VIP_WIRE_REPORT_FAILED,
   payload: errors
 });

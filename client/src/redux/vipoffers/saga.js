@@ -6,7 +6,8 @@ import {
   GET_VIP_ORDERS,
   GET_CURRENT_VIP_REPORT,
   GET_VIP_PRODS_BY_GAMEID,
-  EDIT_VIP_WIRE_REPORT
+  EDIT_VIP_WIRE_REPORT,
+  DELETE_VIP_WIRE_REPORT
 } from "./constants";
 
 import {
@@ -19,7 +20,9 @@ import {
   getVipProductsByGameIdSuccess,
   getVipProductsByGameIdFailed,
   editVipWireReportSuccess,
-  editVipWireReportFailed
+  editVipWireReportFailed,
+  deleteVipWireReportSuccess,
+  deleteVipWireReportFailed
 } from "./actions";
 
 function* getVipOffers() {
@@ -135,6 +138,24 @@ function* editRecord({ payload }) {
   }
 }
 
+function* delVIPWReport({ payload: record_id }) {
+  console.log("delVIPWReport", record_id);
+  const options = {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/vip_offers/delete_wire_report/${record_id}`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(deleteVipWireReportSuccess(response.data));
+  } catch (error) {
+    let message;
+    message = error.response.data.msg;
+    yield put(deleteVipWireReportFailed(message));
+  }
+}
+
 export function* watchGetOffers(): any {
   yield takeEvery(GET_VIP_OFFERS, getVipOffers);
 }
@@ -154,13 +175,18 @@ export function* watchEditVipWireReport(): any {
   yield takeEvery(EDIT_VIP_WIRE_REPORT, editRecord);
 }
 
+export function* watchDeleteVipWireReport(): any {
+  yield takeEvery(DELETE_VIP_WIRE_REPORT, delVIPWReport);
+}
+
 function* vipOfferSaga(): any {
   yield all([
     fork(watchGetOffers),
     fork(watchGetOrders),
     fork(watchGetCurrentReport),
     fork(watchGetProdsByGameId),
-    fork(watchEditVipWireReport)
+    fork(watchEditVipWireReport),
+    fork(watchDeleteVipWireReport)
   ]);
 }
 

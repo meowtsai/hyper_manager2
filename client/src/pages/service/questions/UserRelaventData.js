@@ -11,7 +11,7 @@ import Moment from "react-moment";
 import PropTypes from "prop-types";
 
 const UserRelaventData = ({ data }) => {
-  console.log(" UserRelaventData data ", data);
+  //console.log(" UserRelaventData data ", data);
   return (
     <div id="accordion" className="custom-accordion mb-4">
       <Card className="mb-0">
@@ -35,7 +35,7 @@ const UserRelaventData = ({ data }) => {
               <tbody>
                 {data.map((record, index) => {
                   return (
-                    <tr key={index}>
+                    <tr key={`urd_${index}`}>
                       <th scope="row">{record.id}</th>
                       <td>{record.game_name}</td>
                       <td>
@@ -73,6 +73,8 @@ const UserRelaventData = ({ data }) => {
   );
 };
 
-UserRelaventData.propTypes = {};
+UserRelaventData.propTypes = {
+  data: PropTypes.array.isRequired
+};
 
 export default UserRelaventData;

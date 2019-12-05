@@ -14,7 +14,10 @@ import {
   GET_VIP_PRODS_BY_GAMEID_FAILED,
   EDIT_VIP_WIRE_REPORT,
   EDIT_VIP_WIRE_REPORT_SUCCESS,
-  EDIT_VIP_WIRE_REPORT_FAILED
+  EDIT_VIP_WIRE_REPORT_FAILED,
+  DELETE_VIP_WIRE_REPORT,
+  DELETE_VIP_WIRE_REPORT_SUCCESS,
+  DELETE_VIP_WIRE_REPORT_FAILED
 } from "./constants";
 
 const INIT_STATE = {
@@ -48,6 +51,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
     case GET_CURRENT_VIP_REPORT:
     case GET_VIP_PRODS_BY_GAMEID:
     case EDIT_VIP_WIRE_REPORT:
+    case DELETE_VIP_WIRE_REPORT:
       return { ...state, loading: true, error: null, errors: {} };
     case GET_VIP_OFFERS_SUCCESS:
       return {
@@ -85,7 +89,19 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         errors: {},
         updateOKMessage: "編輯成功!"
       };
+    case DELETE_VIP_WIRE_REPORT_SUCCESS:
+      return {
+        ...state,
+        vip_orders_list: state.vip_orders_list.filter(
+          report => report.report_id !== action.payload.updatedField
+        ),
+        loading: false,
+        error: null,
+        errors: {},
+        updateOKMessage: action.payload.msg
+      };
     case EDIT_VIP_WIRE_REPORT_FAILED:
+    case DELETE_VIP_WIRE_REPORT_FAILED:
       return {
         ...state,
         updateOKMessage: null,
