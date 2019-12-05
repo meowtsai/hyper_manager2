@@ -13,7 +13,7 @@ const AllocationModel = require("../../models/AllocationModel");
 const WhaleUserModel = require("../../models/WhaleUserModel");
 const SERVICE_CONFIG = require("../../config/service");
 
-const { isEmpty } = require("../../utils/helper");
+const helper = require("../../utils/helper");
 
 const checkPermission = require("../../middleware/checkPermission");
 const auth = require("../../middleware/auth");
@@ -803,7 +803,7 @@ router.get("/list_by_user/:question_id", auth, async (req, res) => {
     //   question.partner_uid
     // );
     let vip;
-    if (!isEmpty(question.partner_uid)) {
+    if (!helper.isEmpty(question.partner_uid)) {
       vip = await WhaleUserModel.findOne(
         question.game_id,
         question.partner_uid
