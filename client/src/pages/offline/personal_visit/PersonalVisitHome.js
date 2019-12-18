@@ -128,6 +128,8 @@ const PersonalVisitHome = ({ getOfflineCsData, records, loading, error }) => {
   ];
   const expandRow = {
     onlyOneExpanding: true,
+    showExpandColumn: true,
+    expandByColumnOnly: true,
     renderer: row => (
       <Row>
         <Col xl={6}>
@@ -287,7 +289,6 @@ const mapStateToProps = state => ({
   error: state.OfflineCs.error
 });
 
-export default connect(
-  mapStateToProps,
-  { getOfflineCsData }
-)(PersonalVisitHome);
+export default connect(mapStateToProps, { getOfflineCsData })(
+  PersonalVisitHome
+);

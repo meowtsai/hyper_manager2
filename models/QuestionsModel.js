@@ -24,18 +24,26 @@ const QuestionsModel = {
     //endTime
     let limitedStatusCondition = "";
     let limitRowCount = 15000;
-    if (status) {
-      limitedStatusCondition = `q.status=${status}`;
-      if (status.toString() === "4") {
-        limitedStatusCondition += " or q.status='7' ";
-
-        if (Object.keys(condition).length === 1) {
-          limitRowCount = 1000;
-        }
-      }
-      limitedStatusCondition = `(${limitedStatusCondition})`;
-    }
     let limitedCondition = "";
+    let joinRepliesTable = "";
+    if (status) {
+      if (status !== "favorite") {
+        limitedStatusCondition = `q.status=${status}`;
+        if (status.toString() === "4") {
+          limitedStatusCondition += " or q.status='7' ";
+
+          if (Object.keys(condition).length === 1) {
+            limitRowCount = 1000;
+          }
+        }
+        limitedStatusCondition = `(${limitedStatusCondition})`;
+      } else {
+        //$this->DB2->where("q.id in(select question_id from question_favorites where admin_uid={$_SESSION['admin_uid']})", null, false);
+
+        limitedCondition = ` q.id in(select question_id from question_favorites where admin_uid='${uid}')`;
+      }
+    }
+
     if (gameId) {
       if (limitedStatusCondition !== "") {
         limitedCondition += " and ";
@@ -54,7 +62,12 @@ const QuestionsModel = {
       if (limitedStatusCondition !== "" || limitedCondition !== "") {
         limitedCondition += " and ";
       }
-      limitedCondition += `q.content like '%${content}%'`;
+      limitedCondition += `(q.content like '%${content}%' or qr.content like '%${content}%')`;
+
+      joinRepliesTable =
+        " left join question_replies qr on q.id=qr.question_id ";
+
+      //question_replies qr", "q.id=qr.question_id", "left
     }
 
     Object.keys({
@@ -81,7 +94,8 @@ const QuestionsModel = {
         ? ""
         : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
 
-    //console.log("limitedCondition", limitedCondition);
+    // console.log("limitedStatusCondition", limitedStatusCondition);
+    // console.log("limitedCondition", limitedCondition);
     // console.log("where_allow_games", where_allow_games);
     return await db2
       .promise()
@@ -93,6 +107,7 @@ const QuestionsModel = {
         left join servers gi on gi.server_id=q.server_id
         left join games g on g.game_id=gi.game_id
         left join admin_users au on au.uid=q.admin_uid
+        ${joinRepliesTable}
         where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit ${limitRowCount}
       `,
         [uid]
@@ -386,6 +401,39 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
           return rows;
         } else {
           return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  addToFavorite: async (admin_uid, question_id, category = 1) => {
+    return await db1
+      .promise()
+      .query("insert into question_favorites set ?", {
+        question_id,
+        admin_uid,
+        category
+      })
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "新增失敗" };
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  RemoveFavorite: async (admin_uid, question_id) => {
+    return await db1
+      .promise()
+      .query(
+        "DELETE FROM question_favorites WHERE admin_uid=? and question_id=?",
+        [admin_uid, question_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "刪除失敗" };
         }
       })
       .catch(err => ({ error: err.message }));

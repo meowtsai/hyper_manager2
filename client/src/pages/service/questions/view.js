@@ -37,7 +37,8 @@ import {
   postAllocation,
   clearAllocationMessage,
   updateQuestionType,
-  getQuestionsByUser
+  getQuestionsByUser,
+  favorQuestion
 } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Moment from "react-moment";
@@ -319,8 +320,18 @@ const QuestionInfo = ({
 
             <td colSpan="3">
               {question.partner_uid}{" "}
-                {vip && <span className={`mr-1 badge badge-${vipRankingOptions.filter(ranking => ranking.value === vip)[0].color}-lighten badge-pill`}>{vipRankingOptions.filter(ranking => ranking.value === vip)[0].label || ""}</span> }
-                
+              {vip && (
+                <span
+                  className={`mr-1 badge badge-${
+                    vipRankingOptions.filter(
+                      ranking => ranking.value === vip
+                    )[0].color
+                  }-lighten badge-pill`}
+                >
+                  {vipRankingOptions.filter(ranking => ranking.value === vip)[0]
+                    .label || ""}
+                </span>
+              )}
             </td>
           </tr>
           <tr>
@@ -455,7 +466,8 @@ const SingleQuestionPage = ({
   allocation_logs,
   allocation_quick_msg,
   updateQuestionType,
-  vip
+  vip,
+  favorQuestion
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -569,6 +581,12 @@ const SingleQuestionPage = ({
     closeQuestion(qData, 2);
   };
 
+  const onRemoveFavor = () => {
+    favorQuestion(current.question.id, "remove");
+  };
+  const onAddFavor = () => {
+    favorQuestion(current.question.id, "add");
+  };
   return (
     <Fragment>
       <PageTitle
@@ -603,7 +621,30 @@ const SingleQuestionPage = ({
               )}
               <Card>
                 <CardBody>
-                  <h3>案件編號 #{current.question.id}</h3>
+                  <h3>
+                    {current.add_favor_ok && (
+                      <Fragment>
+                        {current.question.is_favorite ? (
+                          <Button
+                            color="link"
+                            className="btn-icon text-warning"
+                            onClick={onRemoveFavor}
+                          >
+                            ⭐
+                          </Button>
+                        ) : (
+                          <Button
+                            color="link"
+                            className="btn-icon text-dark"
+                            onClick={onAddFavor}
+                          >
+                            <i className="mdi mdi-star-outline ml-1 mr-1"></i>
+                          </Button>
+                        )}
+                      </Fragment>
+                    )}
+                    案件編號 #{current.question.id}
+                  </h3>
                   <hr />
                   <QuestionInfo
                     pic_plus={current.pic_plus}
@@ -679,7 +720,8 @@ const SingleQuestionPage = ({
                     {current.question.status === "2" &&
                       current.question.allocate_status !== "1" &&
                       (allocation
-                        ? (allocation.allocate_status === 4 || allocation.allocate_status === 3)
+                        ? allocation.allocate_status === 4 ||
+                          allocation.allocate_status === 3
                         : true) && (
                         <Fragment>
                           <button
@@ -763,5 +805,6 @@ export default connect(mapStateToProps, {
   getAllocateById,
   putAllocation,
   postAllocation,
-  updateQuestionType
+  updateQuestionType,
+  favorQuestion
 })(SingleQuestionPage);

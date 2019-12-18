@@ -82,6 +82,8 @@ const QuestionsQueryHome = ({
       });
 
       setArrangedData(newRecords);
+    } else {
+      setArrangedData([]);
     }
   }, [records]);
 
@@ -344,7 +346,7 @@ const QuestionsQueryHome = ({
                     data={arrangedData}
                     columns={columns}
                     condensed
-                    noDataIndication="沒有紀錄"
+                    noDataIndication="無紀錄"
                     defaultSorted={[
                       {
                         dataField: "create_time",

@@ -272,13 +272,13 @@ const QuerySearchBox = ({
                 </Col>
                 <Col md={2}>
                   <div className="form-group">
-                    <label>提問描述</label>
+                    <label>提問或回覆</label>
                     <Input
                       bsSize="sm"
                       type="text"
                       name="content"
                       id="content"
-                      placeholder="提問描述"
+                      placeholder="查找提問或回覆內容關鍵字"
                       value={content}
                       onChange={e => setContent(e.target.value)}
                     />

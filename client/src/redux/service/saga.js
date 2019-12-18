@@ -13,7 +13,8 @@ import {
   REPLY_QUESTION,
   CLOSE_QUESTION,
   GET_SERVICE_CONFIG,
-  GET_QUESTIONS_BY_USER
+  GET_QUESTIONS_BY_USER,
+  FAVORITE_QUESTION_ACTION
 } from "./constants";
 
 import {
@@ -39,7 +40,9 @@ import {
   closeQuestionFailed,
   getServiceConfigSuccess,
   getQuestionsByUserSuccess,
-  getQuestionsByUserFailed
+  getQuestionsByUserFailed,
+  favorQuestionFailed,
+  favorQuestionSuccess
 } from "./actions";
 
 /**
@@ -386,6 +389,39 @@ function* updateStatus({ payload }) {
   }
 }
 
+/**
+ * add or remove question type
+ */
+function* updateQuestionFavorite({ payload }) {
+  //const { qId, action } = payload;
+  //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
+  const options = {
+    data: payload,
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/questions/updateQuestionFavorite`
+  };
+
+  try {
+    const response = yield axios(options);
+
+    yield put(favorQuestionSuccess(response.data));
+  } catch (error) {
+    let message;
+    switch (error.status) {
+      case 500:
+        message = "Internal Server Error";
+        break;
+      case 401:
+        message = "Invalid credentials";
+        break;
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(favorQuestionFailed(message));
+  }
+}
+
 function* getServiceConfig() {
   const options = {
     method: "GET",
@@ -450,6 +486,9 @@ export function* watchGetServiceConfig(): any {
 export function* watchGetRelaventUserData(): any {
   yield takeEvery(GET_QUESTIONS_BY_USER, getQuestionsByUserData);
 }
+export function* watchupdateQuestionFavorite(): any {
+  yield takeEvery(FAVORITE_QUESTION_ACTION, updateQuestionFavorite);
+}
 
 function* serviceSaga(): any {
   yield all([
@@ -464,7 +503,8 @@ function* serviceSaga(): any {
     fork(watchCloseQuestion),
     fork(watchStatData),
     fork(watchGetServiceConfig),
-    fork(watchGetRelaventUserData)
+    fork(watchGetRelaventUserData),
+    fork(watchupdateQuestionFavorite)
   ]);
 }
 export default serviceSaga;

@@ -186,6 +186,8 @@ const GovLetterHome = ({ getOfflineCsData, records, loading, error }) => {
     ];
     const expandRow = {
         onlyOneExpanding: true,
+        showExpandColumn: true,
+        expandByColumnOnly: true,
         renderer: row => (
             <Row>
                 <Col xl={6}>

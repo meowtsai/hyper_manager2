@@ -35,7 +35,10 @@ import {
   GET_SERVICE_CONFIG_SUCCESS,
   GET_QUESTIONS_BY_USER,
   GET_QUESTIONS_BY_USER_SUCCESS,
-  GET_QUESTIONS_BY_USER_FAILED
+  GET_QUESTIONS_BY_USER_FAILED,
+  FAVORITE_QUESTION_ACTION,
+  FAVORITE_QUESTION_ACTION_SUCCESS,
+  FAVORITE_QUESTION_ACTION_FAILED
 } from "./constants";
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -226,4 +229,19 @@ export const getServiceConfig = (): ServiceAction => ({
 export const getServiceConfigSuccess = (data: []): ServiceAction => ({
   type: GET_SERVICE_CONFIG_SUCCESS,
   payload: data
+});
+
+export const favorQuestion = (qId: number, action: string): ServiceAction => ({
+  type: FAVORITE_QUESTION_ACTION,
+  payload: { qId, action }
+});
+
+export const favorQuestionSuccess = (result: {}): ServiceAction => ({
+  type: FAVORITE_QUESTION_ACTION_SUCCESS,
+  payload: result
+});
+
+export const favorQuestionFailed = (error: string): ServiceAction => ({
+  type: FAVORITE_QUESTION_ACTION_FAILED,
+  payload: error
 });

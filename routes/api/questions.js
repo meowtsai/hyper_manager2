@@ -214,15 +214,23 @@ router.post(
     const pAllocation =
       q_ids.length > 0 ? AllocationModel.getRecordsByQid(q_ids) : [];
 
-    Promise.all([pReply, pAllocation])
-      .then(([reply_query, newAllocationStatus]) => {
+    //檢查是否有權限可以加入批次
+    const add_favor_ok = Admin_user.checkPermission(
+      "service",
+      "favorite",
+      req.user.role
+    );
+
+    Promise.all([pReply, pAllocation, add_favor_ok])
+      .then(([reply_query, newAllocationStatus, add_favor_ok]) => {
         res.json({
           query,
           reply_query,
           newAllocationStatus,
           question_type,
           question_status,
-          allocation_status
+          allocation_status,
+          add_favor_ok
         });
       })
       .catch(reason => {
@@ -755,6 +763,34 @@ router.put(
     }
   }
 );
+//加入或移除收藏
+router.put(
+  "/updateQuestionFavorite",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "favorite");
+  },
+  async (req, res) => {
+    const { qId, action } = req.body;
+    const question = await QuestionsModel.findOne(qId);
+
+    if (question.id) {
+      const result =
+        action === "add"
+          ? await QuestionsModel.addToFavorite(req.user.uid, qId, 1)
+          : await QuestionsModel.RemoveFavorite(req.user.uid, qId);
+
+      //console.log(result);
+      if (result.affectedRows === 1) {
+        res.json({ question_id: qId, is_favorite: action === "add" ? 1 : 0 });
+      } else {
+        res.status(500).json({ msg: `更改收藏狀態失敗(${result.error})` });
+      }
+    } else {
+      return res.status(404).json({ msg: `沒有這個提問單` });
+    }
+  }
+);
+//
 
 router.get("/statistics", auth, async (req, res) => {
   const sYYYYMM = req.query.yyyymm;

@@ -30,7 +30,10 @@ import {
   GET_SERVICE_CONFIG_SUCCESS,
   GET_QUESTIONS_BY_USER,
   GET_QUESTIONS_BY_USER_SUCCESS,
-  GET_QUESTIONS_BY_USER_FAILED
+  GET_QUESTIONS_BY_USER_FAILED,
+  FAVORITE_QUESTION_ACTION,
+  FAVORITE_QUESTION_ACTION_SUCCESS,
+  FAVORITE_QUESTION_ACTION_FAILED
 } from "./constants";
 
 const INIT_STATE = {
@@ -44,7 +47,8 @@ const INIT_STATE = {
   csHandleData: [],
   games_list: [],
   user_history: [],
-  vip: null
+  vip: null,
+  add_favor_ok: false
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -53,6 +57,7 @@ type State = {
   current?: {} | null,
   test_list?: [] | null,
   loading?: boolean,
+  add_favor_ok?: boolean,
   +value?: boolean,
   error?: string,
   question_type?: {} | null,
@@ -80,6 +85,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         loading: true,
         error: null
       };
+    case FAVORITE_QUESTION_ACTION:
+      return { ...state };
     case GET_QUESTIONS:
       return {
         ...state,
@@ -101,6 +108,27 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           }
         },
         updateOKMessage: action.payload.msg,
+        loading: false,
+        error: null
+      };
+    case FAVORITE_QUESTION_ACTION_SUCCESS:
+      //res.json({question_id:qId, is_favorite: action === "add" ? 1 : 0});
+      return {
+        ...state,
+        list: state.list.map(q => {
+          if (q.id === action.payload.question_id) {
+            return { ...q, is_favorite: action.payload.is_favorite };
+          } else {
+            return q;
+          }
+        }),
+        current: {
+          ...state.current,
+          question: {
+            ...state.current.question,
+            is_favorite: action.payload.is_favorite
+          }
+        },
         loading: false,
         error: null
       };
@@ -226,7 +254,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         question_status,
         reply_query,
         newAllocationStatus,
-        allocation_status
+        allocation_status,
+        add_favor_ok
       } = action.payload;
       return {
         ...state,
@@ -236,6 +265,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         reply_query,
         newAllocationStatus,
         allocation_status,
+        add_favor_ok,
         loading: false,
         error: null
       };
@@ -248,6 +278,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case GET_CURRENT_QUESTION_FAILED:
     case REPLY_QUESTION_FAILED:
     case CLOSE_QUESTION_FAILED:
+    case FAVORITE_QUESTION_ACTION_FAILED:
       return { ...state, error: action.payload, loading: false };
     case UPDATE_QUESTION_TYPE_SUCCESS:
       return {

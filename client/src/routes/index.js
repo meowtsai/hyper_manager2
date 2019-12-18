@@ -96,6 +96,14 @@ const ModifyPassword = React.lazy(() =>
 const CplCaseHome = React.lazy(() =>
   import("../pages/offline/cpl_case/CplCaseHome")
 );
+const CplCaseForm = React.lazy(() =>
+  import("../pages/offline/cpl_case/CplCaseForm")
+);
+
+const CplCaseView = React.lazy(() =>
+  import("../pages/offline/cpl_case/CplCaseView")
+);
+
 const GovLetterHome = React.lazy(() =>
   import("../pages/offline/gov_letter/GovLetterHome")
 );
@@ -662,6 +670,13 @@ const serviceRoutes = {
       route: PrivateRoute
     },
     {
+      path: "/service/questions/favorite",
+      name: "我收藏的案件",
+      icon: "dripicons-star",
+      component: QuesionsListPage,
+      route: PrivateRoute
+    },
+    {
       exact: true,
       path: "/service/allocate/list",
       name: "派單系統- 案件列表",
@@ -737,6 +752,24 @@ const offlineRoutesSub = {
       path: "/offline/gov_letter/edit/:record_id",
       name: "編輯公函",
       component: GovLetterForm,
+      route: PrivateRoute
+    },
+    {
+      path: "/offline/cpl_case/create",
+      name: "新增消保紀錄",
+      component: CplCaseForm,
+      route: PrivateRoute
+    },
+    {
+      path: "/offline/cpl_case/edit/:record_id",
+      name: "編輯消保紀錄",
+      component: CplCaseForm,
+      route: PrivateRoute
+    },
+    {
+      path: "/offline/cpl_case/view/:record_id",
+      name: "檢視消保紀錄",
+      component: CplCaseView,
       route: PrivateRoute
     },
     {

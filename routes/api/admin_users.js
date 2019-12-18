@@ -23,4 +23,10 @@ router.get("/getAdminUsersByRole/:role", auth, async (req, res) => {
   res.json(adminUsersList);
 });
 
+router.get("/getUserTasks", auth, async (req, res) => {
+  //console.log("req.user", req.user);
+  const userTasks = await Admin_user.findTasksByUid(req.user.uid);
+  res.json(userTasks);
+});
+
 module.exports = router;

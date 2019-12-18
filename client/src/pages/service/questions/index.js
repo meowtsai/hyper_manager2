@@ -12,7 +12,8 @@ import {
   DropdownItem,
   UncontrolledButtonDropdown,
   Form,
-  FormGroup
+  FormGroup,
+  Button
 } from "reactstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -29,7 +30,8 @@ import {
   getGames,
   getQuestions,
   updateQuestionType,
-  updateQuestionStatus
+  updateQuestionStatus,
+  favorQuestion
 } from "../../../redux/actions";
 import Moment from "react-moment";
 import moment from "moment";
@@ -42,6 +44,7 @@ const QuestionListPage = ({
   getGames,
   games,
   records,
+  add_favor_ok,
   getQuestions,
   loading,
   error,
@@ -49,7 +52,7 @@ const QuestionListPage = ({
   question_status = {},
   reply_query,
   newAllocationStatus,
-
+  favorQuestion,
   updateQuestionType,
   updateQuestionStatus,
   location
@@ -74,9 +77,12 @@ const QuestionListPage = ({
   } else if (path === "get_list") {
     defaultStatus = "2";
     mainTitle = "等待中案件";
-  } else {
+  } else if (path === "closed") {
     defaultStatus = "4";
     mainTitle = "近期結案案件";
+  } else if (path === "favorite") {
+    defaultStatus = "favorite";
+    mainTitle = "我收藏的案件";
   }
 
   // console.log("query", rest);
@@ -175,6 +181,12 @@ const QuestionListPage = ({
     return data;
   };
 
+  const onRemoveFavor = question_id => {
+    favorQuestion(question_id, "remove");
+  };
+  const onAddFavor = question_id => {
+    favorQuestion(question_id, "add");
+  };
   const columns = [
     {
       dataField: "id",
@@ -182,6 +194,35 @@ const QuestionListPage = ({
       filter: textFilter(),
       headerStyle: (column, colIndex) => {
         return { width: "110px" };
+      },
+      formatter: (cellContent, row) => {
+        let favorMark;
+        if (add_favor_ok) {
+          favorMark = row.is_favorite ? (
+            <span
+              color="link"
+              className="btn-icon text-warning"
+              style={{ cursor: "pointer" }}
+              onClick={e => onRemoveFavor(row.id)}
+            >
+              ⭐
+            </span>
+          ) : (
+            <span
+              color="link"
+              className="btn-icon text-dark"
+              style={{ cursor: "pointer" }}
+              onClick={e => onAddFavor(row.id)}
+            >
+              <i className="mdi mdi-star-outline ml-1 mr-1"></i>
+            </span>
+          );
+        }
+        return (
+          <h5>
+            {favorMark} {cellContent}
+          </h5>
+        );
       }
     },
     {
@@ -682,6 +723,7 @@ const QuestionListPage = ({
                   paginationTotalRenderer: customTotal
                 })}
                 classes="border-dark"
+                rowClasses="text-dark m-0 font-13"
                 wrapperClasses="border-dark"
               />
             </CardBody>
@@ -698,6 +740,8 @@ QuestionListPage.propTypes = {
 const mapStateToProps = state => ({
   games: state.Games.list,
   records: state.Service.list,
+  add_favor_ok: state.Service.add_favor_ok,
+
   question_type: state.Service.question_type,
   question_status: state.Service.question_status,
   reply_query: state.Service.reply_query,
@@ -711,5 +755,6 @@ export default connect(mapStateToProps, {
   getQuestions,
   getGames,
   updateQuestionType,
-  updateQuestionStatus
+  updateQuestionStatus,
+  favorQuestion
 })(QuestionListPage);

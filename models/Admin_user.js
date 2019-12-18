@@ -184,6 +184,23 @@ const Admin_user = {
         }
       })
       .catch(err => ({ error: err.message }));
+  },
+  findTasksByUid: async uid => {
+    //console.log("uid", uid);
+    return await db2
+      .promise()
+      .query(
+        "select count(*) as favorCount from question_favorites where admin_uid=?",
+        [uid]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows[0];
+        } else {
+          return null;
+        }
+      })
+      .catch(err => ({ error: err.message }));
   }
 };
 

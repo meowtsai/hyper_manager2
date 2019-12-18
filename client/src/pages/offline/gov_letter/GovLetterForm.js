@@ -427,7 +427,6 @@ const GovLetterForm = ({
                         name="file01"
                         id="file01"
                         onChange={e => {
-                          console.log("e.target.files", e.target.files);
                           setFile01(e.target.files);
                         }}
                       />

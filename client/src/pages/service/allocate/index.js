@@ -61,16 +61,6 @@ const AllocateListPage = ({
     setArrangedData(records);
 
     let timeOutId;
-
-    timeOutId = setTimeout(() => {
-      getAllocateData();
-      //console.log("getQuestions effect timeOutId", timeOutId);
-    }, 30000);
-    return () => {
-      //console.log("getQuestions effect  clearTimeout timeOutId", timeOutId);
-      clearTimeout(timeOutId);
-    };
-
     const selAssigneeOptionsArray = new Set(records.map(q => q.assignee_name));
     let tmpS = {};
     selAssigneeOptionsArray.forEach((g, index) => {
@@ -81,6 +71,15 @@ const AllocateListPage = ({
       tmpS[index] = g;
     });
     setSelAssigneeOptions(tmpS);
+
+    timeOutId = setTimeout(() => {
+      getAllocateData();
+      //console.log("getQuestions effect timeOutId", timeOutId);
+    }, 30000);
+    return () => {
+      //console.log("getQuestions effect  clearTimeout timeOutId", timeOutId);
+      clearTimeout(timeOutId);
+    };
   }, [records]);
 
   useEffect(() => {
@@ -268,7 +267,7 @@ const AllocateListPage = ({
               <DropdownMenu>
                 {cs_members.map(cs => (
                   <DropdownItem
-                    key
+                    key={`assign_${cs.uid}`}
                     onClick={e => reassignClick(row.id, cs.uid)}
                   >
                     {cs.name}
