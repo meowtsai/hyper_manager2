@@ -92,6 +92,10 @@ const ModifyPassword = React.lazy(() =>
   import("../pages/platform/ModifyPassword")
 );
 
+const PresetMessageHome = React.lazy(() =>
+  import("../pages/platform/preset_messages/index")
+);
+
 //offline cs
 const CplCaseHome = React.lazy(() =>
   import("../pages/offline/cpl_case/CplCaseHome")
@@ -620,6 +624,12 @@ const platformRoutesSub = {
       path: "/platform/modify_password",
       name: "修改密碼",
       component: ModifyPassword,
+      route: PrivateRoute
+    },
+    {
+      path: "/platform/preset_messages",
+      name: "自訂快速回覆",
+      component: PresetMessageHome,
       route: PrivateRoute
     }
   ]

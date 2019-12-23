@@ -467,7 +467,8 @@ const SingleQuestionPage = ({
   allocation_quick_msg,
   updateQuestionType,
   vip,
-  favorQuestion
+  favorQuestion,
+  history
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -687,6 +688,7 @@ const SingleQuestionPage = ({
                       postAllocation={postAllocation}
                       putAllocation={putAllocation}
                       user={user}
+                      history={history}
                     />
                   )}
                 </CardBody>

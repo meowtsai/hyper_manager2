@@ -5,6 +5,8 @@ const auth = require("../../middleware/auth");
 const QuestionsModel = require("../../models/QuestionsModel");
 const Admin_user = require("../../models/Admin_user");
 const AllocationModel = require("../../models/AllocationModel");
+const AdminPresetMessageModel = require("../../models/AdminPresetMessageModel");
+
 const checkPermission = require("../../middleware/checkPermission");
 const SERVICE_CONFIG = require("../../config/service");
 //@route: GET /api/allocation/test
@@ -41,7 +43,7 @@ router.get("/:question_id", auth, async (req, res) => {
     : [];
 
   const allocation_quick_msg = allocation_logs
-    ? await AllocationModel.getLogsByUid(req.user.uid)
+    ? await AdminPresetMessageModel.getAllByUid(req.user.uid)
     : [];
 
   //console.log("allocation_quick_msg", allocation_quick_msg);

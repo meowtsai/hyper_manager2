@@ -10,6 +10,11 @@ import logo from "../assets/images/logo-light.png";
 
 const ProfileMenus = [
   {
+    label: "自訂快選回覆",
+    icon: "mdi mdi-flash-outline",
+    redirectTo: "/platform/preset_messages"
+  },
+  {
     label: "修改密碼",
     icon: "mdi mdi-account-key-outline",
     redirectTo: "/platform/modify_password"

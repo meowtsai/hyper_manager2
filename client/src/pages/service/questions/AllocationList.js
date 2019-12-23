@@ -27,7 +27,8 @@ const AllocationList = ({
   allocation,
   allocation_logs,
   allocation_quick_msg,
-  user
+  user,
+  history
 }) => {
   //console.log("AllocationList allocation_logs", allocation_logs);
   const [allocateNote, setAllocateNote] = useState("");
@@ -258,15 +259,26 @@ const AllocationList = ({
                         {allocation_quick_msg &&
                           allocation_quick_msg.map((msg, i) => (
                             <DropdownItem
-                              className="text-info"
+                              className="text-dark font-13"
                               key={`quickmsg-${i}`}
                               onClick={e =>
-                                setFinishAllocateNote(`${msg.allocate_note}`)
+                                setFinishAllocateNote(`${msg.message}`)
                               }
                             >
-                              {msg.allocate_note}
+                              {msg.message}
                             </DropdownItem>
                           ))}
+
+                        <DropdownItem divider />
+                        <DropdownItem
+                          className="text-info font-13"
+                          onClick={e =>
+                            history.push("/platform/preset_messages")
+                          }
+                        >
+                          <i className="mdi mdi-flash-outline" />{" "}
+                          編輯我的快選回覆
+                        </DropdownItem>
                       </DropdownMenu>
                     </UncontrolledButtonDropdown>
 
