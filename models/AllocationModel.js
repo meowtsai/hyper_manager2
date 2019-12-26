@@ -88,7 +88,9 @@ const AllocationModel = {
     return await db1
       .promise()
       .query(
-        "select question_allocation.id as allocation_id from question_allocation  join questions q on question_id=q.id where question_allocation.allocate_status=0 ORDER BY FIELD(q.type,'1','2') desc, question_allocation.priority DESC, question_allocation.ID ASC limit 3"
+        `select question_allocation.id as allocation_id from question_allocation  join questions q on question_id=q.id 
+        left join servers s on s.server_id = q.server_id
+        where question_allocation.allocate_status=0 ORDER BY FIELD(q.type,'1','2') desc, s.game_id, question_allocation.priority DESC, question_allocation.ID ASC limit 3`
       )
       .then(([rows, fields]) => {
         return rows;
@@ -133,7 +135,7 @@ const AllocationModel = {
     return await db2
       .promise()
       .query(
-        "select count(*) as chk from question_allocation_records where admin_uid=113 and allocate_status='1' and create_time > ADDTIME(Now(), '-2:00:00') and allocation_id in(select id from question_allocation where assignee=?);",
+        "select count(*) as chk from question_allocation_records where admin_uid=113 and allocate_status='1' and create_time > ADDTIME(Now(), '-1:00:00') and allocation_id in(select id from question_allocation where assignee=?);",
         [assignee]
       )
       .then(([rows, fields]) => {
