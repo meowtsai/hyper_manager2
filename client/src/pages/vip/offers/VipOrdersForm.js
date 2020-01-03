@@ -93,7 +93,8 @@ const VipOrdersForm = ({
       setWireAmount(currentReport.wire_amount);
       setNote(currentReport.note ? currentReport.note : "");
       setReportStatus(currentReport.report_status);
-      setOrderids(currentReport.orderids);
+      setOrderids(currentReport.orderids ? currentReport.orderids : "");
+
       setInvoiceId(currentReport.invoice_id ? currentReport.invoice_id : "");
       setInvoiceDate(
         currentReport.invoice_date ? currentReport.invoice_date : ""

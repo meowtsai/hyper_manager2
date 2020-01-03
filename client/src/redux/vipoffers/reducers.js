@@ -48,11 +48,20 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
   switch (action.type) {
     case GET_VIP_OFFERS:
     case GET_VIP_ORDERS:
-    case GET_CURRENT_VIP_REPORT:
+
     case GET_VIP_PRODS_BY_GAMEID:
     case EDIT_VIP_WIRE_REPORT:
     case DELETE_VIP_WIRE_REPORT:
       return { ...state, loading: true, error: null, errors: {} };
+
+    case GET_CURRENT_VIP_REPORT:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        errors: {},
+        current_report: {}
+      };
     case GET_VIP_OFFERS_SUCCESS:
       return {
         ...state,

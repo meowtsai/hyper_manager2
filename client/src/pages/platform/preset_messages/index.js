@@ -43,6 +43,7 @@ const PresetMessageHome = ({
   const [selectedId, setSelectedId] = useState(null);
   useEffect(() => {
     getPresetMessage();
+    document.title = "自訂快選回覆";
   }, []);
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const PresetMessageHome = ({
   };
 
   const onDeleteClick = id => {
-    const deleteOk = window.confirm("確定要刪除這筆歷程嗎?");
+    const deleteOk = window.confirm("確定要刪除這筆嗎?");
     if (deleteOk) {
       deletePresetMessage(id);
       //deleteCplCaseReply(reply_id);

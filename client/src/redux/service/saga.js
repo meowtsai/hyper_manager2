@@ -14,7 +14,10 @@ import {
   CLOSE_QUESTION,
   GET_SERVICE_CONFIG,
   GET_QUESTIONS_BY_USER,
-  FAVORITE_QUESTION_ACTION
+  FAVORITE_QUESTION_ACTION,
+  ADD_QUESTION_TO_BATCH,
+  REMOVE_QUESTION_FROM_BATCH,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH
 } from "./constants";
 
 import {
@@ -42,7 +45,13 @@ import {
   getQuestionsByUserSuccess,
   getQuestionsByUserFailed,
   favorQuestionFailed,
-  favorQuestionSuccess
+  favorQuestionSuccess,
+  addQuestionToBatchSuccess,
+  addQuestionToBatchFailed,
+  removeQuestionFromBatchSuccess,
+  removeQuestionFromBatchFailed,
+  addMultipleQuestionsToBatchSuccess,
+  addMultipleQuestionsToBatchFailed
 } from "./actions";
 
 /**
@@ -290,6 +299,58 @@ function* allocateQuestion({ payload }) {
     yield put(allocateQuestionFailed(message));
   }
 }
+
+/**
+ * add question to batch
+ */
+function* addQuestionToBatch({ payload }) {
+  //const { question_id, batch_id } = payload;
+  //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
+  const options = {
+    data: payload,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: "/api/batch/add_to_batch"
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(addQuestionToBatchSuccess(response.data));
+  } catch (error) {
+    let message;
+    switch (error.status) {
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(addQuestionToBatchFailed(message));
+  }
+}
+
+/**
+ * remove from batch //@route: DELETE /api/batch/remove_from_batch/:question_id
+ */
+function* removeQuestionFromBatch({ payload }) {
+  //question_id = payload;
+
+  const options = {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/batch/remove_from_batch/${payload}`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(removeQuestionFromBatchSuccess(response.data));
+  } catch (error) {
+    let message;
+    switch (error.status) {
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(removeQuestionFromBatchFailed(message));
+  }
+}
+
 //reply question
 function* replyQuestion({ payload }) {
   //console.log("replyQuestion", payload);
@@ -444,6 +505,30 @@ function* getServiceConfig() {
   }
 }
 
+/**
+ * add more than one question to a batch
+ */
+function* addIdsToBatch({ payload: { batch_id, ids } }) {
+  const options = {
+    data: { batch_id, ids },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    url: "/api/batch/batch_add_to_batch"
+  };
+  try {
+    const response = yield axios(options);
+
+    yield put(addMultipleQuestionsToBatchSuccess(response.data));
+  } catch (error) {
+    let message;
+    switch (error.status) {
+      default:
+        message = error.response.data;
+    }
+    yield put(addMultipleQuestionsToBatchFailed(message));
+  }
+}
+
 export function* watchGetData(): any {
   yield takeEvery(GET_QUESTIONS, getQuestionsData);
 }
@@ -490,6 +575,16 @@ export function* watchupdateQuestionFavorite(): any {
   yield takeEvery(FAVORITE_QUESTION_ACTION, updateQuestionFavorite);
 }
 
+export function* watchAddQuestionToBatch(): any {
+  yield takeEvery(ADD_QUESTION_TO_BATCH, addQuestionToBatch);
+}
+
+export function* watchRemoveQuestionFromBatch(): any {
+  yield takeEvery(REMOVE_QUESTION_FROM_BATCH, removeQuestionFromBatch);
+}
+export function* watchAddMultiToBatch(): any {
+  yield takeEvery(ADD_MULTIPLE_QUESTIONS_TO_BATCH, addIdsToBatch);
+}
 function* serviceSaga(): any {
   yield all([
     fork(watchGetData),
@@ -504,7 +599,10 @@ function* serviceSaga(): any {
     fork(watchStatData),
     fork(watchGetServiceConfig),
     fork(watchGetRelaventUserData),
-    fork(watchupdateQuestionFavorite)
+    fork(watchupdateQuestionFavorite),
+    fork(watchAddQuestionToBatch),
+    fork(watchRemoveQuestionFromBatch),
+    fork(watchAddMultiToBatch)
   ]);
 }
 export default serviceSaga;

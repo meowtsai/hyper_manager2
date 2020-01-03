@@ -19,14 +19,14 @@ import PropTypes from "prop-types";
 import PageTitle from "../../../components/PageTitle";
 import Spinner from "../../../components/Spinner";
 import {
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   editRecord,
   getCurrentRecord
 } from "../../../redux/actions";
 const GovLetterForm = ({
   match,
-  getGames,
+  getServiceConfig,
   games,
   getServersByGameId,
   servers,
@@ -69,7 +69,7 @@ const GovLetterForm = ({
     if (record_id) {
       getCurrentRecord("govletter", record_id, history);
     }
-    getGames();
+    getServiceConfig();
     //getCSMaster();
 
     // eslint-disable-next-line
@@ -514,7 +514,7 @@ GovLetterForm.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  games: state.Games.list,
+  games: state.Service.games_list,
   servers: state.Servers.list,
   error: state.OfflineCs.error,
   affectedId: state.OfflineCs.affectedId,
@@ -522,7 +522,7 @@ const mapStateToProps = state => ({
   currentRecord: state.OfflineCs.currentRecord
 });
 export default connect(mapStateToProps, {
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   editRecord,
   getCurrentRecord

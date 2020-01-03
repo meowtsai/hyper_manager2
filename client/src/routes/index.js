@@ -52,6 +52,9 @@ const ErrorPageNotFound = React.lazy(() =>
   import("../pages/error/PageNotFound")
 );
 const ServerError = React.lazy(() => import("../pages/error/ServerError"));
+const ErrorForbidden = React.lazy(() =>
+  import("../pages/error/ErrorForbidden")
+);
 
 // - other
 const Invoice = React.lazy(() => import("../pages/other/Invoice"));
@@ -84,6 +87,8 @@ const ChartJs = React.lazy(() => import("../pages/charts/ChartJs"));
 // tables
 const BasicTables = React.lazy(() => import("../pages/tables/Basic"));
 const AdvancedTables = React.lazy(() => import("../pages/tables/Advanced"));
+const TestTable = React.lazy(() => import("../pages/tables/TestTable"));
+
 // maps
 const GoogleMaps = React.lazy(() => import("../pages/GoogleMaps"));
 
@@ -143,6 +148,11 @@ const SingleQuestionPage = React.lazy(() =>
 
 const TestPage = React.lazy(() =>
   import("../pages/service/questions/TestPage")
+);
+
+const BatchListPage = React.lazy(() => import("../pages/service/batch"));
+const BatchTaskView = React.lazy(() =>
+  import("../pages/service/batch/BatchTaskView")
 );
 
 //vip
@@ -387,6 +397,12 @@ const pageRoutes = {
       route: PrivateRoute
     },
     {
+      path: "/pages/error-403",
+      name: "Error - 403",
+      component: ErrorForbidden,
+      route: PrivateRoute
+    },
+    {
       path: "/pages/error-404",
       name: "Error - 404",
       component: ErrorPageNotFound,
@@ -604,6 +620,12 @@ const featuresRoutes = {
           name: "Advanced",
           component: AdvancedTables,
           route: PrivateRoute
+        },
+        {
+          path: "/features/tables/testtable",
+          name: "測試表格",
+          component: TestTable,
+          route: PrivateRoute
         }
       ]
     },
@@ -645,6 +667,12 @@ const serviceRoutesSub = {
       name: "客服案件檢視",
       component: SingleQuestionPage,
       route: PrivateRoute
+    },
+    {
+      path: "/service/batch_handler/:record_id",
+      name: "批次處理-項目檢視",
+      component: BatchTaskView,
+      route: PrivateRoute
     }
   ]
 };
@@ -680,6 +708,12 @@ const serviceRoutes = {
       route: PrivateRoute
     },
     {
+      path: "/service/questions/hidden",
+      name: "隱藏案件",
+      component: QuesionsListPage,
+      route: PrivateRoute
+    },
+    {
       path: "/service/questions/favorite",
       name: "我收藏的案件",
       icon: "dripicons-star",
@@ -706,6 +740,14 @@ const serviceRoutes = {
       name: "案件查詢",
       icon: "dripicons-search",
       component: QuestionsQueryHome,
+      route: PrivateRoute
+    },
+    {
+      exact: true,
+      path: "/service/batch_list",
+      name: "批次處理",
+      icon: "dripicons-basket",
+      component: BatchListPage,
       route: PrivateRoute
     }
   ]

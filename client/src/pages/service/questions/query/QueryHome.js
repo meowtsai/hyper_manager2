@@ -10,14 +10,15 @@ import {
   Input,
   FormGroup,
   Label,
-  CustomInput,
+  Alert,
   Badge
 } from "reactstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory, {
   PaginationProvider,
   PaginationTotalStandalone,
-  PaginationListStandalone
+  PaginationListStandalone,
+  SizePerPageDropdownStandalone
 } from "react-bootstrap-table2-paginator";
 import Spinner from "../../../../components/Spinner";
 import filterFactory, {
@@ -27,7 +28,9 @@ import filterFactory, {
 import {
   getServiceConfig,
   getQuestions,
-  clearMessage
+  clearMessage,
+  addMultipleQuestionsToBatch,
+  removeQuestionFromBatch
 } from "../../../../redux/actions";
 import AllocateStatusBadge from "../../allocate/AllocateStatusBadge";
 import PropTypes from "prop-types";
@@ -37,19 +40,26 @@ import QuestionExpandRow from "./QuestionExpandRow";
 import QuerySearchBox from "./QuerySearchBox";
 const QuestionsQueryHome = ({
   games,
-
+  add_favor_ok,
   getServiceConfig,
   records,
   getQuestions,
   loading,
   clearMessage,
+  addMultipleQuestionsToBatch,
+  removeQuestionFromBatch,
   error,
   question_type = {},
   question_status = {},
   reply_query,
-  newAllocationStatus
+  newAllocationStatus,
+  tasks
 }) => {
   const [arrangedData, setArrangedData] = useState([]);
+  const [checkedCase, setCheckedCase] = useState([]);
+  const [pageSize, setPageSize] = useState(100);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [batchId, setBatchId] = useState();
 
   let mainTitle = "案件查詢";
   const fileName = `案件查詢_${moment().format("YYYY-MM-DD")}${Date.now()}`;
@@ -62,6 +72,8 @@ const QuestionsQueryHome = ({
   }, []);
 
   useEffect(() => {
+    setBatchId("");
+    setCheckedCase([]);
     if (records.length > 0) {
       const newRecords = records.map(item => {
         const replies = reply_query.filter(
@@ -87,6 +99,17 @@ const QuestionsQueryHome = ({
     }
   }, [records]);
 
+  const customRowStyle = (row, rowIndex) => {
+    const style = {};
+    if (row.is_batch > 0) {
+      style.backgroundColor = "silver";
+    } else {
+      style.backgroundColor = "#FFFFFF";
+    }
+
+    return style;
+  };
+
   const handleSearchClick = conditions => {
     //console.log(inStockDateFilter);
 
@@ -107,7 +130,110 @@ const QuestionsQueryHome = ({
     </span>
   );
 
+  const selectAll = e => {
+    if (e.target.checked) {
+      // console.log("pageNumber", pageNumber);
+      // console.log("pageSize", pageSize);
+      setCheckedCase(
+        arrangedData
+          .slice(
+            (pageNumber - 1) * pageSize,
+            (pageNumber - 1) * pageSize + pageSize
+          )
+          .map(item => item.id)
+      );
+    } else {
+      setCheckedCase([]);
+    }
+  };
+  const selectSingle = (e, extraData) => {
+    //console.log("checkedCase", extraData);
+    //console.log(e.target);
+    //console.log(document.getElementById(e.target.id).id);
+    if (!e.target.checked) {
+      setCheckedCase(
+        extraData.filter(item => item !== Number.parseInt(e.target.value))
+      );
+    } else {
+      setCheckedCase([...extraData, Number.parseInt(e.target.value)]);
+    }
+  };
+
+  const onAddQuestionsToBatch = batch_id => {
+    setBatchId(batch_id);
+    if (!batch_id || checkedCase.length === 0) {
+      return;
+    }
+
+    //window.alert("把" + checkedCase.join(",") + "加入批次" + batch_id + "中");
+    addMultipleQuestionsToBatch(batch_id, checkedCase);
+  };
+
+  const pagingOptions = {
+    onSizePerPageChange: (sizePerPage, page) => {
+      // console.log("Size per page change!!!");
+      // console.log("Newest size per page:" + sizePerPage);
+      // console.log("Newest page:" + page);
+      setPageSize(sizePerPage);
+    },
+    onPageChange: (page, sizePerPage) => {
+      // console.log("Page change!!!");
+      // console.log("Newest size per page:" + sizePerPage);
+      // console.log("Newest page:" + page);
+      setPageNumber(page);
+    }
+  };
+
   const columns = [
+    {
+      dataField: "batch",
+      isDummyField: true,
+      text: "批次",
+      headerFormatter: (column, colIndex) => {
+        if (add_favor_ok) {
+          return (
+            <input
+              type="checkbox"
+              name="chk-selectAll"
+              id="chk-selectAll"
+              value="check_all"
+              onClick={e => selectAll(e)}
+            />
+          );
+        }
+      },
+      formatter: (cell, row, rowIndex, extraData) => {
+        if (add_favor_ok) {
+          if (row.is_batch === 0) {
+            return (
+              <React.Fragment>
+                <input
+                  type="checkbox"
+                  name={`chk-${row.id}`}
+                  id={`chk-${row.id}`}
+                  value={row.id}
+                  onChange={e => selectSingle(e, extraData)}
+                  checked={extraData.indexOf(row.id) > -1 ? true : false}
+                />
+              </React.Fragment>
+            );
+          } else {
+            return (
+              <span
+                color="link"
+                className="btn-icon text-warning"
+                style={{ cursor: "pointer" }}
+                onClick={e => removeQuestionFromBatch(row.id)}
+              >
+                🔒
+              </span>
+            );
+          }
+        }
+      },
+
+      formatExtraData: checkedCase
+    },
     {
       dataField: "id",
       text: "#"
@@ -299,7 +425,11 @@ const QuestionsQueryHome = ({
         question_status={question_status}
         games={games}
       />
-
+      <Row className="mb-2">
+        <Col lg={6}>
+          {error && error.msg && <Alert color={"danger"}>{error.msg}</Alert>}
+        </Col>
+      </Row>
       <Row>
         <Col>
           <Form inline className="mb-2 mt-2">
@@ -332,14 +462,22 @@ const QuestionsQueryHome = ({
               pagination={paginationFactory({
                 custom: true,
                 totalSize: arrangedData.length,
-                sizePerPage: 100,
-                paginationTotalRenderer: customTotal
+                sizePerPage: pageSize,
+                paginationTotalRenderer: customTotal,
+                ...pagingOptions
               })}
             >
               {({ paginationProps, paginationTableProps }) => (
                 <div>
                   <PaginationTotalStandalone {...paginationProps} />
-                  <PaginationListStandalone {...paginationProps} />
+                  <Row className="mb-2">
+                    <Col lg={8}>
+                      <SizePerPageDropdownStandalone {...paginationProps} />
+                    </Col>
+                    <Col lg={4} className="float-right">
+                      <PaginationListStandalone {...paginationProps} />
+                    </Col>
+                  </Row>
 
                   <BootstrapTable
                     keyField="id"
@@ -355,6 +493,7 @@ const QuestionsQueryHome = ({
                     ]}
                     wrapperClasses="table-responsive"
                     rowClasses="text-dark m-0 font-13"
+                    rowStyle={customRowStyle}
                     expandRow={QuestionExpandRow}
                     filter={filterFactory()}
                     {...paginationTableProps}
@@ -362,6 +501,31 @@ const QuestionsQueryHome = ({
                 </div>
               )}
             </PaginationProvider>
+          )}
+        </Col>
+      </Row>
+      <Row>
+        <Col lg={4}>
+          {add_favor_ok && (tasks || []).length > 0 && (
+            <FormGroup>
+              <Label htmlFor="batchTaskSelect">批次處理</Label>
+              <Input
+                size="sm"
+                type="select"
+                name="batchTaskSelect"
+                id="batchTaskSelect"
+                value={batchId}
+                onChange={e => onAddQuestionsToBatch(e.target.value)}
+              >
+                <option value="">加入批次處理區</option>
+                {tasks &&
+                  tasks.map(task => (
+                    <option key={`task_${task.id}`} value={task.id}>
+                      {task.game_name} - {task.title}
+                    </option>
+                  ))}
+              </Input>
+            </FormGroup>
           )}
         </Col>
       </Row>
@@ -375,12 +539,14 @@ QuestionsQueryHome.propTypes = {
 };
 const mapStateToProps = state => ({
   games: state.Service.games_list,
+  tasks: state.Service.tasks,
+  add_favor_ok: state.Service.add_favor_ok,
   records: state.Service.list,
   question_type: state.Service.question_type,
   question_status: state.Service.question_status,
   reply_query: state.Service.reply_query,
   loading: state.Service.loading,
-  error: state.ServiceAllocate.error,
+  error: state.Service.error,
   newAllocationStatus: state.Service.newAllocationStatus,
   allocation_status: state.Service.allocation_status
 });
@@ -388,5 +554,7 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
   getQuestions,
   clearMessage,
-  getServiceConfig
+  getServiceConfig,
+  addMultipleQuestionsToBatch,
+  removeQuestionFromBatch
 })(QuestionsQueryHome);

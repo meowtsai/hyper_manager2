@@ -18,7 +18,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import PageTitle from "../../../components/PageTitle";
 import {
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,
@@ -34,12 +34,11 @@ const PersonalVisitForm = ({
   currentRecord,
   history,
   match,
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,
-  getCurrentRecord,
-  
+  getCurrentRecord
 }) => {
   const record_id = match.params.record_id ? match.params.record_id : null;
   const act_title = record_id ? "編輯" : "新增";
@@ -56,7 +55,7 @@ const PersonalVisitForm = ({
   const [phone, setPhone] = useState("");
   const [cause, setCause] = useState("");
   const [note, setNote] = useState("");
-  
+
   const [refQId, setRefQId] = useState("");
   const [caseMember, setCaseMember] = useState("");
 
@@ -65,11 +64,11 @@ const PersonalVisitForm = ({
   useEffect(() => {
     console.log("record_id", record_id);
     if (record_id) {
-        getCurrentRecord("pv", record_id, history);
+      getCurrentRecord("pv", record_id, history);
     }
-    getGames();
-    
-    getAdminUsers('cs_master')
+    getServiceConfig();
+
+    getAdminUsers("cs_master");
 
     // eslint-disable-next-line
   }, []);
@@ -118,45 +117,48 @@ const PersonalVisitForm = ({
   const formSubmit = e => {
     e.preventDefault();
     let formData = new FormData();
-    if(clientName) {
-        formData.append("client_name",clientName);
+    if (clientName) {
+      formData.append("client_name", clientName);
     }
-    
 
-    if(visitTime) {formData.append("visit_time",visitTime);}
-    if (phone){formData.append("client_phone",phone);}
+    if (visitTime) {
+      formData.append("visit_time", visitTime);
+    }
+    if (phone) {
+      formData.append("client_phone", phone);
+    }
 
     if (note) {
-        formData.append("note",note);
+      formData.append("note", note);
     }
-    if(gameId) {
-        formData.append("game_id",gameId);
+    if (gameId) {
+      formData.append("game_id", gameId);
     }
-    formData.append("client_email",email);    
-    if(serverId){
-        formData.append("server_id",serverId);
+    formData.append("client_email", email);
+    if (serverId) {
+      formData.append("server_id", serverId);
     }
-    if(roleName){
-        formData.append("role_name",roleName);
+    if (roleName) {
+      formData.append("role_name", roleName);
     }
-    if(cause){
-        formData.append("cause",cause);
+    if (cause) {
+      formData.append("cause", cause);
     }
-    if(refQId){
-        formData.append("ref_q_id",refQId);
+    if (refQId) {
+      formData.append("ref_q_id", refQId);
     }
-    if(caseMember){
-        formData.append("admin_uid",caseMember);
+    if (caseMember) {
+      formData.append("admin_uid", caseMember);
     }
-    
+
     //{"client_name": "蔡湜梵", "visit_time": "2019-09-05T14:27", "client_phone": "926568279", "client_email": "shihfan.tsai@gmail.com","note": "ssss", "cause":"test my cause", "admin_uid":112}
 
     if (record_id) {
-      formData.append("id",record_id);
+      formData.append("id", record_id);
     }
 
     //console.log("record", record);
-    editRecord("pv",formData);
+    editRecord("pv", formData);
   };
   return (
     <Fragment>
@@ -183,7 +185,7 @@ const PersonalVisitForm = ({
 
       <Row className="mb-2">
         <Col lg={6}>
-          {affectedId>0 && (
+          {affectedId > 0 && (
             <Alert color={"success"}>
               <strong> {act_title} 成功 - </strong> 紀錄 - {affectedId} 已經
               {act_title}完成。
@@ -467,7 +469,7 @@ PersonalVisitForm.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  games: state.Games.list,
+  games: state.Service.games_list,
   servers: state.Servers.list,
   cs_master: state.AdminUsers.users,
   error: state.OfflineCs.error,
@@ -475,13 +477,10 @@ const mapStateToProps = state => ({
   affectedId: state.OfflineCs.affectedId,
   currentRecord: state.OfflineCs.currentRecord
 });
-export default connect(
-  mapStateToProps,
-  {
-    getGames,
-    getServersByGameId,
-    getAdminUsers,
-    editRecord,
-    getCurrentRecord
-  }
-)(PersonalVisitForm);
+export default connect(mapStateToProps, {
+  getServiceConfig,
+  getServersByGameId,
+  getAdminUsers,
+  editRecord,
+  getCurrentRecord
+})(PersonalVisitForm);

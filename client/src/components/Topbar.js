@@ -28,7 +28,7 @@ const ProfileMenus = [
 ];
 
 const Topbar = props => {
-  const [menu, setMenu] = useState([]);
+  const [menu, setMenu] = useState(ProfileMenus);
 
   useEffect(() => {
     props.getUserTasks();

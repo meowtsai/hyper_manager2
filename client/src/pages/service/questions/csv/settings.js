@@ -8,6 +8,6 @@ export const csvHeaders = [
   { label: "提問類型", key: "type" },
   { label: "描述", key: "content" },
   { label: "狀態", key: "status" },
-  { label: "匯款時間", key: "create_time" },
+  { label: "建立時間", key: "create_time" },
   { label: "處理人員", key: "admin_name" }
 ];

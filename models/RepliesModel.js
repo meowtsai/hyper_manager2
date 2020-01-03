@@ -99,6 +99,27 @@ const RepliesModel = {
         }
       })
       .catch(err => ({ error: err.message }));
+  },
+  saveBatch: async (q_list, post_content, admin_uid) => {
+    let q_ids = [];
+    let updateSql =
+      "INSERT INTO question_replies(content,question_id,uid,is_official,admin_uid) VALUES";
+    for (let index = 0; index < q_list.length; index++) {
+      if (index > 0) updateSql += ",";
+      updateSql += `('${post_content}' ,'${q_list[index].question_id}',0,'1',${admin_uid})`;
+      q_ids.push(q_list[index].question_id);
+    }
+    return await db1
+      .promise()
+      .query(updateSql)
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return q_ids;
+        } else {
+          return { error: "新增失敗" };
+        }
+      })
+      .catch(err => ({ error: err.message }));
   }
 };
 

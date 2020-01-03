@@ -18,7 +18,7 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import PageTitle from "../../../components/PageTitle";
 import {
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,
@@ -34,7 +34,7 @@ const CplCaseForm = ({
   currentRecord,
   history,
   match,
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,
@@ -65,7 +65,7 @@ const CplCaseForm = ({
     if (record_id) {
       getCurrentRecord("cpl_case", record_id, history);
     }
-    getGames();
+    getServiceConfig();
 
     getAdminUsers("cs_master");
 
@@ -367,7 +367,7 @@ CplCaseForm.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  games: state.Games.list,
+  games: state.Service.games_list,
   servers: state.Servers.list,
   cs_master: state.AdminUsers.users,
   error: state.OfflineCs.error,
@@ -376,7 +376,7 @@ const mapStateToProps = state => ({
   currentRecord: state.OfflineCs.currentRecord
 });
 export default connect(mapStateToProps, {
-  getGames,
+  getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,

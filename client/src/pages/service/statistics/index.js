@@ -23,6 +23,7 @@ const ServiceStatistics = ({
   antsHandleData,
   csHandleData,
   qCountData,
+  question_type,
   loading,
   allgames,
   error
@@ -180,7 +181,11 @@ const ServiceStatistics = ({
               data={qCountData.filter(item => item.game_id === gameId)}
               headers={[
                 { label: "日期", key: "時間" },
-                { label: "數量", key: "cnt" }
+                { label: "數量", key: "cnt" },
+                ...Object.keys(question_type).map(t => ({
+                  label: question_type[t],
+                  key: question_type[t]
+                }))
               ]}
               filename={
                 gameName +
@@ -235,7 +240,8 @@ const ServiceStatistics = ({
             `${gameName}-蟻力提問單處理量`,
             gameId,
             yyyymm,
-            rptCondition
+            rptCondition,
+            question_type
           )}
         </Col>
         <Col lg={4}>
@@ -244,7 +250,8 @@ const ServiceStatistics = ({
             `${gameName}-客服提問單處理量`,
             gameId,
             yyyymm,
-            rptCondition
+            rptCondition,
+            question_type
           )}
         </Col>
       </Row>
@@ -260,6 +267,7 @@ const mapStateToProps = state => ({
   antsHandleData: state.Service.antsHandleData,
   csHandleData: state.Service.csHandleData,
   qCountData: state.Service.qCountData,
+  question_type: state.Service.question_type,
   allgames: state.Service.allgames,
   loading: state.Service.loading,
   error: state.Service.error
@@ -269,14 +277,22 @@ export default connect(mapStateToProps, { getServiceStatistics })(
   ServiceStatistics
 );
 
-const statTable = (statData, label, gameId, yyyymm, condition) => {
+const statTable = (
+  statData,
+  label,
+  gameId,
+  yyyymm,
+  condition,
+  question_type
+) => {
   const dataRaw = statData
     .filter(d => d.game_id === gameId)
     .map(d => ({
       dt: d.時間,
       admin_name: d.admin_name,
       test_cnt: d.test_cnt,
-      cnt: d.cnt
+      cnt: d.cnt,
+      ...d
     }));
 
   let itemSet = [];
@@ -318,7 +334,11 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
           { label: "日期", key: "dt" },
           { label: "人員", key: "admin_name" },
           { label: "數量", key: "cnt" },
-          { label: "測試", key: "test_cnt" }
+          { label: "測試", key: "test_cnt" },
+          ...Object.keys(question_type).map(t => ({
+            label: question_type[t],
+            key: question_type[t]
+          }))
         ]}
         filename={label + yyyymm + new Date().getTime() + ".csv"}
       >
@@ -338,7 +358,6 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
                 ) : (
                   <th>{condLabel}</th>
                 )}
-
                 <th>數量</th>
                 <th>測試</th>
               </tr>
@@ -359,14 +378,13 @@ const statTable = (statData, label, gameId, yyyymm, condition) => {
               ))}
 
               <tr>
-              {condition === "all" ? (
-                    <Fragment>
-                      <th colSpan="2">總計</th>
-                    </Fragment>
-                  ) : (
-                    <th>總計</th>
-                  )}
-                
+                {condition === "all" ? (
+                  <Fragment>
+                    <th colSpan="2">總計</th>
+                  </Fragment>
+                ) : (
+                  <th>總計</th>
+                )}
 
                 <td>{data.reduce((a, b) => a + Number.parseInt(b.cnt), 0)}</td>
                 <td>

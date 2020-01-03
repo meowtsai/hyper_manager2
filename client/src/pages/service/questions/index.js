@@ -13,7 +13,8 @@ import {
   UncontrolledButtonDropdown,
   Form,
   FormGroup,
-  Button
+  Button,
+  CustomInput
 } from "reactstrap";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
@@ -31,7 +32,9 @@ import {
   getQuestions,
   updateQuestionType,
   updateQuestionStatus,
-  favorQuestion
+  favorQuestion,
+  removeQuestionFromBatch,
+  addQuestionToBatch
 } from "../../../redux/actions";
 import Moment from "react-moment";
 import moment from "moment";
@@ -45,14 +48,18 @@ const QuestionListPage = ({
   games,
   records,
   add_favor_ok,
+  batch_tasks,
   getQuestions,
   loading,
   error,
   question_type = {},
   question_status = {},
+  tasks,
   reply_query,
   newAllocationStatus,
   favorQuestion,
+  removeQuestionFromBatch,
+  addQuestionToBatch,
   updateQuestionType,
   updateQuestionStatus,
   location
@@ -83,6 +90,9 @@ const QuestionListPage = ({
   } else if (path === "favorite") {
     defaultStatus = "favorite";
     mainTitle = "我收藏的案件";
+  } else if (path === "hidden") {
+    defaultStatus = "hidden";
+    mainTitle = "隱藏案件";
   }
 
   // console.log("query", rest);
@@ -187,6 +197,7 @@ const QuestionListPage = ({
   const onAddFavor = question_id => {
     favorQuestion(question_id, "add");
   };
+
   const columns = [
     {
       dataField: "id",
@@ -197,6 +208,7 @@ const QuestionListPage = ({
       },
       formatter: (cellContent, row) => {
         let favorMark;
+        let batchMark;
         if (add_favor_ok) {
           favorMark = row.is_favorite ? (
             <span
@@ -217,10 +229,26 @@ const QuestionListPage = ({
               <i className="mdi mdi-star-outline ml-1 mr-1"></i>
             </span>
           );
+
+          if (batch_tasks.length > 0) {
+            if (row.is_batch === 0) {
+            } else {
+              batchMark = (
+                <span
+                  color="link"
+                  className="btn-icon text-warning"
+                  style={{ cursor: "pointer" }}
+                  onClick={e => removeQuestionFromBatch(row.id)}
+                >
+                  🔒
+                </span>
+              );
+            }
+          }
         }
         return (
           <h5>
-            {favorMark} {cellContent}
+            {favorMark} {batchMark} {cellContent}
           </h5>
         );
       }
@@ -502,7 +530,7 @@ const QuestionListPage = ({
       formatter: (cell, row) => {
         return (
           <React.Fragment>
-            <UncontrolledButtonDropdown>
+            <UncontrolledButtonDropdown size="sm">
               <DropdownToggle color="light" caret></DropdownToggle>
               <DropdownMenu>
                 <DropdownItem
@@ -517,8 +545,26 @@ const QuestionListPage = ({
                   <i className="mdi mdi-close"></i>隱藏
                 </DropdownItem>
                 <DropdownItem divider />
+
                 <DropdownItem header>加入批次</DropdownItem>
-                <DropdownItem disabled> (功能尚未完成)</DropdownItem>
+                {tasks.filter(task => task.game_id === row.game_id).length >
+                  0 && row.is_batch === 0 ? (
+                  tasks
+                    .filter(task => task.game_id === row.game_id)
+                    .map(task => (
+                      <DropdownItem
+                        className="text-info"
+                        key={`taskkey-${task.id}`}
+                        onClick={e => addQuestionToBatch(row.id, task.id)}
+                      >
+                        🛒 {task.id} - {task.title}
+                      </DropdownItem>
+                    ))
+                ) : (
+                  <DropdownItem disabled>
+                    {row.is_batch === 0 ? "沒有相關案件" : "已在批次中"}{" "}
+                  </DropdownItem>
+                )}
               </DropdownMenu>
             </UncontrolledButtonDropdown>
           </React.Fragment>
@@ -610,6 +656,17 @@ const QuestionListPage = ({
     setArrangedData(records);
   };
 
+  const customRowStyle = (row, rowIndex) => {
+    const style = {};
+    if (row.is_batch > 0) {
+      style.backgroundColor = "silver";
+    } else {
+      style.backgroundColor = "#FFFFFF";
+    }
+
+    return style;
+  };
+
   return (
     <Fragment>
       <PageTitle
@@ -626,7 +683,7 @@ const QuestionListPage = ({
               {" "}
               提問時間:
               <Input
-                bsSize="sm"
+                size="sm"
                 type="datetime-local"
                 name="create_time_begin"
                 id="create_time_begin"
@@ -641,7 +698,7 @@ const QuestionListPage = ({
               />{" "}
               ~
               <Input
-                bsSize="sm"
+                size="sm"
                 type="datetime-local"
                 name="create_time_end"
                 id="create_time_end"
@@ -724,6 +781,7 @@ const QuestionListPage = ({
                 })}
                 classes="border-dark"
                 rowClasses="text-dark m-0 font-13"
+                rowStyle={customRowStyle}
                 wrapperClasses="border-dark"
               />
             </CardBody>
@@ -741,9 +799,11 @@ const mapStateToProps = state => ({
   games: state.Games.list,
   records: state.Service.list,
   add_favor_ok: state.Service.add_favor_ok,
+  batch_tasks: state.Service.tasks,
 
   question_type: state.Service.question_type,
   question_status: state.Service.question_status,
+  tasks: state.Service.tasks,
   reply_query: state.Service.reply_query,
   loading: state.Service.loading,
   error: state.ServiceAllocate.error,
@@ -756,5 +816,7 @@ export default connect(mapStateToProps, {
   getGames,
   updateQuestionType,
   updateQuestionStatus,
-  favorQuestion
+  favorQuestion,
+  removeQuestionFromBatch,
+  addQuestionToBatch
 })(QuestionListPage);

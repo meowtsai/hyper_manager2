@@ -13,6 +13,7 @@ import serviceAllocateSaga from "./serviceAllocate/saga";
 import serviceSaga from "./service/saga";
 import vipSaga from "./vip/saga";
 import vipOfferSaga from "./vipoffers/saga";
+import batchTaskSaga from "./batch/saga";
 export default function* rootSaga(getState: any): any {
   yield all([
     authSaga(),
@@ -27,6 +28,7 @@ export default function* rootSaga(getState: any): any {
     serviceAllocateSaga(),
     serviceSaga(),
     vipSaga(),
-    vipOfferSaga()
+    vipOfferSaga(),
+    batchTaskSaga()
   ]);
 }

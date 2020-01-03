@@ -38,7 +38,16 @@ import {
   GET_QUESTIONS_BY_USER_FAILED,
   FAVORITE_QUESTION_ACTION,
   FAVORITE_QUESTION_ACTION_SUCCESS,
-  FAVORITE_QUESTION_ACTION_FAILED
+  FAVORITE_QUESTION_ACTION_FAILED,
+  ADD_QUESTION_TO_BATCH,
+  ADD_QUESTION_TO_BATCH_SUCCESS,
+  ADD_QUESTION_TO_BATCH_FAILED,
+  REMOVE_QUESTION_FROM_BATCH,
+  REMOVE_QUESTION_FROM_BATCH_SUCCESS,
+  REMOVE_QUESTION_FROM_BATCH_FAILED,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED
 } from "./constants";
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -244,4 +253,65 @@ export const favorQuestionSuccess = (result: {}): ServiceAction => ({
 export const favorQuestionFailed = (error: string): ServiceAction => ({
   type: FAVORITE_QUESTION_ACTION_FAILED,
   payload: error
+});
+
+export const addQuestionToBatch = (
+  question_id: Number,
+  batch_id: Number
+): ServiceAction => ({
+  type: ADD_QUESTION_TO_BATCH,
+  payload: { question_id, batch_id }
+});
+
+export const addQuestionToBatchSuccess = (result: {}): BatchTaskAction => ({
+  type: ADD_QUESTION_TO_BATCH_SUCCESS,
+  payload: result
+});
+
+export const addQuestionToBatchFailed = (
+  errors: {} | string
+): ServiceAction => ({
+  type: ADD_QUESTION_TO_BATCH_FAILED,
+  payload: errors
+});
+
+export const removeQuestionFromBatch = (
+  question_id: Number
+): ServiceAction => ({
+  type: REMOVE_QUESTION_FROM_BATCH,
+  payload: question_id
+});
+
+export const removeQuestionFromBatchSuccess = (result: {}): ServiceAction => ({
+  type: REMOVE_QUESTION_FROM_BATCH_SUCCESS,
+  payload: result
+});
+
+export const removeQuestionFromBatchFailed = (
+  errors: {} | string
+): ServiceAction => ({
+  type: REMOVE_QUESTION_FROM_BATCH_FAILED,
+  payload: errors
+});
+
+//將多個問題一次加入某個批次
+
+export const addMultipleQuestionsToBatch = (
+  batch_id: number,
+  ids: []
+): ServiceAction => ({
+  type: ADD_MULTIPLE_QUESTIONS_TO_BATCH,
+  payload: { batch_id, ids }
+});
+
+export const addMultipleQuestionsToBatchSuccess = (result: {}): ServiceAction => ({
+  type: ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
+  payload: result
+});
+
+export const addMultipleQuestionsToBatchFailed = (
+  errors: {} | string
+): ServiceAction => ({
+  type: ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED,
+  payload: errors
 });

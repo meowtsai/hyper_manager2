@@ -33,7 +33,16 @@ import {
   GET_QUESTIONS_BY_USER_FAILED,
   FAVORITE_QUESTION_ACTION,
   FAVORITE_QUESTION_ACTION_SUCCESS,
-  FAVORITE_QUESTION_ACTION_FAILED
+  FAVORITE_QUESTION_ACTION_FAILED,
+  ADD_QUESTION_TO_BATCH,
+  ADD_QUESTION_TO_BATCH_SUCCESS,
+  ADD_QUESTION_TO_BATCH_FAILED,
+  REMOVE_QUESTION_FROM_BATCH,
+  REMOVE_QUESTION_FROM_BATCH_SUCCESS,
+  REMOVE_QUESTION_FROM_BATCH_FAILED,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED
 } from "./constants";
 
 const INIT_STATE = {
@@ -48,7 +57,8 @@ const INIT_STATE = {
   games_list: [],
   user_history: [],
   vip: null,
-  add_favor_ok: false
+  add_favor_ok: false,
+  tasks: []
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -58,6 +68,7 @@ type State = {
   test_list?: [] | null,
   loading?: boolean,
   add_favor_ok?: boolean,
+  tasks?: [] | null,
   +value?: boolean,
   error?: string,
   question_type?: {} | null,
@@ -80,11 +91,15 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case REPLY_QUESTION:
     case CLOSE_QUESTION:
     case GET_SERVICE_STATISTICS:
+
+    case ADD_MULTIPLE_QUESTIONS_TO_BATCH:
       return {
         ...state,
         loading: true,
         error: null
       };
+    case REMOVE_QUESTION_FROM_BATCH:
+    case ADD_QUESTION_TO_BATCH:
     case FAVORITE_QUESTION_ACTION:
       return { ...state };
     case GET_QUESTIONS:
@@ -95,6 +110,57 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           action.payload.status === "1"
             ? false
             : true,
+        error: null
+      };
+    case ADD_QUESTION_TO_BATCH_SUCCESS:
+      return {
+        ...state,
+        current: {
+          ...state.current,
+          q_batch_info: [action.payload.batch_info]
+        },
+        list: state.list.map(q => {
+          if (q.id === action.payload.batch_info.question_id) {
+            return { ...q, is_batch: 1 };
+          } else {
+            return q;
+          }
+        }),
+        updateOKMessage: action.payload.msg,
+        loading: false,
+        error: null
+      };
+
+    case ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS:
+      return {
+        ...state,
+        list: state.list.map(q => {
+          if (action.payload.ids.indexOf(q.id) > -1) {
+            return { ...q, is_batch: 1 };
+          } else {
+            return q;
+          }
+        }),
+        loading: false,
+        error: null
+      };
+    case REMOVE_QUESTION_FROM_BATCH_SUCCESS:
+      return {
+        ...state,
+        current: {
+          ...state.current,
+          q_batch_info: []
+        },
+        list: state.list.map(q => {
+          if (q.id === Number.parseInt(action.payload.removed_q_id)) {
+            return { ...q, is_batch: 0 };
+          } else {
+            return q;
+          }
+        }),
+
+        updateOKMessage: action.payload.msg,
+        loading: false,
         error: null
       };
     case ALLOCATE_QUESTION_SUCCESS:
@@ -217,6 +283,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
       var tmpGameIds = [];
       return {
         ...state,
+        question_type: action.payload.question_type,
         allgames: qCountData.reduce(function(prev, curr) {
           if (tmpGameIds.indexOf(curr.game_id) < 0) {
             tmpGameIds.push(curr.game_id);
@@ -255,7 +322,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         reply_query,
         newAllocationStatus,
         allocation_status,
-        add_favor_ok
+        add_favor_ok,
+        tasks
       } = action.payload;
       return {
         ...state,
@@ -266,6 +334,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         newAllocationStatus,
         allocation_status,
         add_favor_ok,
+        tasks,
         loading: false,
         error: null
       };
@@ -279,6 +348,9 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case REPLY_QUESTION_FAILED:
     case CLOSE_QUESTION_FAILED:
     case FAVORITE_QUESTION_ACTION_FAILED:
+    case ADD_QUESTION_TO_BATCH_FAILED:
+    case REMOVE_QUESTION_FROM_BATCH_FAILED:
+    case ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED:
       return { ...state, error: action.payload, loading: false };
     case UPDATE_QUESTION_TYPE_SUCCESS:
       return {

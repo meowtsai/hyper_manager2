@@ -130,13 +130,30 @@ router.get(
         tasks
       ]) => {
         stat = {
-          question,
+          question:
+            req.user.role === "ants"
+              ? {
+                  ...question,
+                  email: question.email
+                    ? question.email.substring(0, 4) +
+                      question.email
+                        .substring(4, question.email.length)
+                        .replace(/./g, "*")
+                    : "",
+                  phone: question.phone
+                    ? question.phone
+                        .substring(0, question.phone.length - 4)
+                        .replace(/./g, "*") +
+                      question.phone.substring(question.phone.length - 4)
+                    : ""
+                }
+              : question,
           replies,
           pic_plus,
           add_favor_ok,
           q_batch_info,
           allocate_users,
-          tasks
+          tasks: tasks.filter(t => t.game_id === question.game_id)
         };
 
         res.json({ stat, question_type, question_status });
@@ -192,7 +209,7 @@ router.post(
     const allocation_status = SERVICE_CONFIG.allocationStatus;
 
     const condition = req.body;
-    //console.log("server get list", req.body);
+    console.log("server get list", req.body);
     //const action = req.query.action; //查詢
     const action = "查詢";
     let query = [];
@@ -221,8 +238,10 @@ router.post(
       req.user.role
     );
 
-    Promise.all([pReply, pAllocation, add_favor_ok])
-      .then(([reply_query, newAllocationStatus, add_favor_ok]) => {
+    const tasks = BatchTasksModel.getActiveTasks(req.user.uid);
+
+    Promise.all([pReply, pAllocation, add_favor_ok, tasks])
+      .then(([reply_query, newAllocationStatus, add_favor_ok, tasks]) => {
         res.json({
           query,
           reply_query,
@@ -230,7 +249,8 @@ router.post(
           question_type,
           question_status,
           allocation_status,
-          add_favor_ok
+          add_favor_ok,
+          tasks
         });
       })
       .catch(reason => {
@@ -798,11 +818,12 @@ router.get("/statistics", auth, async (req, res) => {
   const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "ants");
   const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "cs_master");
   const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
+  const question_type = SERVICE_CONFIG.question_type;
 
   Promise.all([antsHandleP, csHandleP, qCountP])
     .then(
       ([antsHandleData, csHandleData, qCountData]) => {
-        res.json({ antsHandleData, csHandleData, qCountData });
+        res.json({ antsHandleData, csHandleData, qCountData, question_type });
       },
       reason => {
         res.json({ reason });

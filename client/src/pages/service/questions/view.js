@@ -15,7 +15,11 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Input
+  Input,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  UncontrolledButtonDropdown
 } from "reactstrap";
 import classNames from "classnames";
 import { connect } from "react-redux";
@@ -38,7 +42,9 @@ import {
   clearAllocationMessage,
   updateQuestionType,
   getQuestionsByUser,
-  favorQuestion
+  favorQuestion,
+  addQuestionToBatch,
+  removeQuestionFromBatch
 } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Moment from "react-moment";
@@ -468,7 +474,9 @@ const SingleQuestionPage = ({
   updateQuestionType,
   vip,
   favorQuestion,
-  history
+  history,
+  addQuestionToBatch,
+  removeQuestionFromBatch
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
   moment.locale("zh-tw");
@@ -620,6 +628,20 @@ const SingleQuestionPage = ({
                   <div>{allocateUpdateOKMessage}</div>
                 </Alert>
               )}
+
+              {current.q_batch_info.length > 0 && (
+                <Alert
+                  color="warning"
+                  isOpen={current.q_batch_info.length > 0 ? true : false}
+                >
+                  <i className="dripicons-basket mr-1"></i>
+                  <strong>鎖定中</strong> 本提問單目前由
+                  {current.q_batch_info[0].admin_name}鎖定中, 可以按下方的
+                  <strong>🔒</strong>
+                  移除
+                </Alert>
+              )}
+
               <Card>
                 <CardBody>
                   <h3>
@@ -642,6 +664,60 @@ const SingleQuestionPage = ({
                             <i className="mdi mdi-star-outline ml-1 mr-1"></i>
                           </Button>
                         )}
+
+                        {current.question.status !== "4" &&
+                          current.question.status !== "7" &&
+                          (current.q_batch_info.length === 0 ? (
+                            <Fragment>
+                              <UncontrolledButtonDropdown>
+                                <DropdownToggle
+                                  color="light"
+                                  size="sm"
+                                  caret
+                                ></DropdownToggle>
+                                <DropdownMenu>
+                                  <DropdownItem header>加入批次</DropdownItem>
+                                  {current.tasks.length > 0 ? (
+                                    current.tasks
+                                      .filter(
+                                        task =>
+                                          task.game_id ===
+                                          current.question.game_id
+                                      )
+                                      .map(task => (
+                                        <DropdownItem
+                                          className="text-info"
+                                          key={`taskkey-${task.id}`}
+                                          onClick={e =>
+                                            addQuestionToBatch(
+                                              current.question.id,
+                                              task.id
+                                            )
+                                          }
+                                        >
+                                          🛒 {task.id} - {task.title}
+                                        </DropdownItem>
+                                      ))
+                                  ) : (
+                                    <DropdownItem disabled>
+                                      沒有相關案件
+                                    </DropdownItem>
+                                  )}
+                                </DropdownMenu>
+                              </UncontrolledButtonDropdown>
+                            </Fragment>
+                          ) : (
+                            <span
+                              color="link"
+                              className="btn-icon font-13"
+                              style={{ cursor: "pointer" }}
+                              onClick={e =>
+                                removeQuestionFromBatch(current.question.id)
+                              }
+                            >
+                              🔒
+                            </span>
+                          ))}
                       </Fragment>
                     )}
                     案件編號 #{current.question.id}
@@ -808,5 +884,7 @@ export default connect(mapStateToProps, {
   putAllocation,
   postAllocation,
   updateQuestionType,
-  favorQuestion
+  favorQuestion,
+  addQuestionToBatch,
+  removeQuestionFromBatch
 })(SingleQuestionPage);

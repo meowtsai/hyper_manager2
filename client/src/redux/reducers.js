@@ -14,6 +14,8 @@ import ServiceAllocate from "./serviceAllocate/reducers";
 import VIP from "./vip/reducers";
 import VipOffers from "./vipoffers/reducers";
 import Service from "./service/reducers";
+import BatchTasks from "./batch/reducers";
+
 export default combineReducers({
   Auth,
   AppMenu,
@@ -27,5 +29,6 @@ export default combineReducers({
   ServiceAllocate,
   Service,
   VIP,
-  VipOffers
+  VipOffers,
+  BatchTasks
 });
