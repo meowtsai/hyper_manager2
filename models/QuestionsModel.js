@@ -44,7 +44,7 @@ const QuestionsModel = {
         if (status === "favorite") {
           limitedCondition = ` q.id in(select question_id from question_favorites where admin_uid='${uid}')`;
         } else if (status === "hidden") {
-          limitedCondition = ` q.status='0' or  g.game_id in('N5','Ma71','Ma71tw','MA81','MA74')`;
+          limitedCondition = ` q.status='0' or  (g.game_id in('N5','Ma71','Ma71tw','MA81','MA74') and q.status='1')`;
         }
       }
     }
@@ -420,7 +420,32 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
       })
       .catch(err => ({ error: err.message }));
   },
-
+  getStatisticsQAllocationRequestCount: async (yyyymm, role) => {
+    return await db2
+      .promise()
+      .query(
+        `select g.game_id, g.name as game_name,DATE_FORMAT(qa.create_time, '%Y-%m-%d') as '時間', qa.assignor as admin_uid,au.name as admin_name,  count(*) as cnt, 0 as test_cnt
+        from question_allocation qa 
+        LEFT JOIN questions q on qa.question_id =q.id
+        LEFT JOIN servers gi ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        left join admin_users au on au.uid=qa.assignor
+        where  DATE_FORMAT(qa.create_time,'%Y-%m') = ?
+        and au.role=?
+        group by qa.assignor,game_id, game_name, au.name,DATE_FORMAT(qa.create_time, '%Y-%m-%d') 
+        order by DATE_FORMAT(qa.create_time,'%Y-%m-%d') 
+        `,
+        [yyyymm, role]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
   getListByUserShort: async ({ partner_uid, phone, email }) => {
     let condition = "";
 

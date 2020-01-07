@@ -54,6 +54,8 @@ const INIT_STATE = {
   antsHandleData: [],
   qCountData: [],
   csHandleData: [],
+  csHandleAllocationData: [],
+  antsHandleAllocationData: [],
   games_list: [],
   user_history: [],
   vip: null,
@@ -283,7 +285,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         antsHandleData,
         qCountData,
         csHandleData,
-        csHandleAllocationData
+        csHandleAllocationData,
+        antsHandleAllocationData
       } = action.payload;
       var tmpGameIds = [];
       return {
@@ -304,6 +307,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         qCountData,
         csHandleData,
         csHandleAllocationData,
+        antsHandleAllocationData,
         loading: false,
         error: null
       };

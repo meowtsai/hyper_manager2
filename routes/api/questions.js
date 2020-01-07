@@ -819,20 +819,39 @@ router.get("/statistics", auth, async (req, res) => {
   const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "cs_master");
   const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
   //cs 後送處理量
+
   const csHandleAllocationP = QuestionsModel.getStatisticsQAllocationCount(
     sYYYYMM,
     "cs_master"
   );
 
+  const antsHandleAllocationP = QuestionsModel.getStatisticsQAllocationRequestCount(
+    sYYYYMM,
+    "ants"
+  );
+
   const question_type = SERVICE_CONFIG.question_type;
 
-  Promise.all([antsHandleP, csHandleP, qCountP, csHandleAllocationP])
+  Promise.all([
+    antsHandleP,
+    csHandleP,
+    qCountP,
+    csHandleAllocationP,
+    antsHandleAllocationP
+  ])
     .then(
-      ([antsHandleData, csHandleData, qCountData, csHandleAllocationData]) => {
+      ([
+        antsHandleData,
+        csHandleData,
+        qCountData,
+        csHandleAllocationData,
+        antsHandleAllocationData
+      ]) => {
         res.json({
           antsHandleData,
           csHandleData,
           qCountData,
+          antsHandleAllocationData,
           csHandleAllocationData,
           question_type
         });

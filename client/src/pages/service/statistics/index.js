@@ -13,8 +13,14 @@ import {
   FormGroup,
   Input,
   Button,
-  ButtonGroup
+  ButtonGroup,
+  TabContent,
+  TabPane,
+  Nav,
+  NavItem,
+  NavLink
 } from "reactstrap";
+import classnames from "classnames";
 import { getServiceStatistics } from "../../../redux/actions";
 import PageTitle from "../../../components/PageTitle";
 import Spinner from "../../../components/Spinner";
@@ -24,10 +30,12 @@ const ServiceStatistics = ({
   csHandleData,
   qCountData,
   csHandleAllocationData,
+  antsHandleAllocationData,
   question_type,
   loading,
   allgames,
-  error
+  error,
+  user
 }) => {
   const mainTitle = "客服案件統計";
   const mainPath = "/service";
@@ -41,6 +49,21 @@ const ServiceStatistics = ({
   );
 
   const [rptCondition, setRptCondition] = useState("all");
+
+  const [activeTab, setActiveTab] = useState("1");
+
+  const tabContents = [
+    {
+      id: "1",
+      title: "提問單",
+      icon: "mdi mdi-home-variant"
+    },
+    {
+      id: "2",
+      title: "後送案件",
+      icon: "mdi mdi-account-circle"
+    }
+  ];
 
   useEffect(() => {
     getServiceStatistics(yyyymm);
@@ -56,6 +79,12 @@ const ServiceStatistics = ({
     if (gameid !== "" && gameid !== undefined && gameid !== null) {
       setGameId(gameid);
       setGameName(allgames.filter(g => g.game_id === gameid)[0].game_name);
+    }
+  };
+
+  const toggle = tab => {
+    if (activeTab !== tab) {
+      setActiveTab(tab);
     }
   };
 
@@ -174,97 +203,148 @@ const ServiceStatistics = ({
           </Form>
         </Col>
       </Row>
-      <Row></Row>
-      <Row className="mb-2">
-        <Col lg={4}>
-          {qCountData.length > 0 && (
-            <CSVLink
-              data={qCountData.filter(item => item.game_id === gameId)}
-              headers={[
-                { label: "日期", key: "時間" },
-                { label: "數量", key: "cnt" },
-                ...Object.keys(question_type).map(t => ({
-                  label: question_type[t],
-                  key: question_type[t]
-                }))
-              ]}
-              filename={
-                gameName +
-                yyyymm +
-                "提問單進件量" +
-                new Date().getTime() +
-                ".csv"
-              }
-            >
-              下載 csv檔案
-            </CSVLink>
-          )}
-
-          {qCountData && (
-            <Card>
-              <CardBody>
-                <h4 className="header-title">{gameName}-提問單進件量</h4>
-                <Table className="mb-0" bordered size="sm">
-                  <thead>
-                    <tr>
-                      <th>日期</th>
-                      <th>數量</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {qCountData
-                      .filter(item => item.game_id === gameId)
-                      .map((item, index) => (
-                        <tr key={`q_${index}`}>
-                          <th>{item.時間}</th>
-                          <td>{item.cnt}</td>
-                        </tr>
-                      ))}
-
-                    <tr>
-                      <th>總計</th>
-                      <td>
-                        {qCountData
-                          .filter(item => item.game_id === gameId)
-                          .reduce((a, b) => a + b.cnt, 0)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
-          )}
-        </Col>
-        <Col lg={4}>
-          {statTable(
-            antsHandleData,
-            `${gameName}-蟻力提問單處理量`,
-            gameId,
-            yyyymm,
-            rptCondition,
-            question_type
-          )}
-        </Col>
-        <Col lg={4}>
-          {statTable(
-            csHandleData,
-            `${gameName}-客服提問單處理量`,
-            gameId,
-            yyyymm,
-            rptCondition,
-            question_type
-          )}
-
-          {statTable(
-            csHandleAllocationData,
-            `${gameName}-客服後送處理量`,
-            gameId,
-            yyyymm,
-            rptCondition,
-            {}
-          )}
+      <Row>
+        <Col lg={12}>
+          <Nav tabs className="nav-bordered">
+            {tabContents.map((tab, index) => {
+              return (
+                <NavItem key={`tab_${index}`}>
+                  <NavLink
+                    href="#"
+                    className={classnames({
+                      active: activeTab === tab.id
+                    })}
+                    onClick={() => {
+                      toggle(tab.id);
+                    }}
+                  >
+                    <i
+                      className={classnames(
+                        tab.icon,
+                        "d-lg-none",
+                        "d-block",
+                        "mr-1"
+                      )}
+                    ></i>
+                    <span className="d-none d-lg-block">{tab.title}</span>
+                  </NavLink>
+                </NavItem>
+              );
+            })}
+          </Nav>
         </Col>
       </Row>
+      <TabContent activeTab={activeTab}>
+        <TabPane tabId="1">
+          <Row className="mb-2">
+            <Col lg={4}>
+              {qCountData.length > 0 && (
+                <CSVLink
+                  data={qCountData.filter(item => item.game_id === gameId)}
+                  headers={[
+                    { label: "日期", key: "時間" },
+                    { label: "數量", key: "cnt" },
+                    ...Object.keys(question_type).map(t => ({
+                      label: question_type[t],
+                      key: question_type[t]
+                    }))
+                  ]}
+                  filename={
+                    gameName +
+                    yyyymm +
+                    "提問單進件量" +
+                    new Date().getTime() +
+                    ".csv"
+                  }
+                >
+                  下載 csv檔案
+                </CSVLink>
+              )}
+
+              {qCountData && (
+                <Card>
+                  <CardBody>
+                    <h4 className="header-title">{gameName}-提問單進件量</h4>
+                    <Table className="mb-0" bordered size="sm">
+                      <thead>
+                        <tr>
+                          <th>日期</th>
+                          <th>數量</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {qCountData
+                          .filter(item => item.game_id === gameId)
+                          .map((item, index) => (
+                            <tr key={`q_${index}`}>
+                              <th>{item.時間}</th>
+                              <td>{item.cnt}</td>
+                            </tr>
+                          ))}
+
+                        <tr>
+                          <th>總計</th>
+                          <td>
+                            {qCountData
+                              .filter(item => item.game_id === gameId)
+                              .reduce((a, b) => a + b.cnt, 0)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </CardBody>
+                </Card>
+              )}
+            </Col>
+            <Col lg={4}>
+              {statTable(
+                antsHandleData,
+                `${gameName}-蟻力提問單處理量`,
+                gameId,
+                yyyymm,
+                rptCondition,
+                question_type
+              )}
+            </Col>
+            <Col lg={4}>
+              {statTable(
+                csHandleData,
+                `${gameName}-客服提問單處理量`,
+                gameId,
+                yyyymm,
+                rptCondition,
+                question_type
+              )}
+            </Col>
+          </Row>
+        </TabPane>
+        <TabPane tabId="2">
+          <Row className="mb-2">
+            <Col lg={4}>
+              {statTable(
+                antsHandleAllocationData,
+                `${gameName}-蟻力後送案件量`,
+                gameId,
+                yyyymm,
+                rptCondition,
+                {}
+              )}
+            </Col>
+            {(user.role === "admin" || user.role === "pm") && (
+              <Col lg={4}>
+                {statTable(
+                  csHandleAllocationData,
+                  `${gameName}-客服後送處理量`,
+                  gameId,
+                  yyyymm,
+                  rptCondition,
+                  {}
+                )}
+              </Col>
+            )}
+          </Row>
+        </TabPane>
+      </TabContent>
     </Fragment>
   );
 };
@@ -278,10 +358,12 @@ const mapStateToProps = state => ({
   csHandleData: state.Service.csHandleData,
   qCountData: state.Service.qCountData,
   csHandleAllocationData: state.Service.csHandleAllocationData,
+  antsHandleAllocationData: state.Service.antsHandleAllocationData,
   question_type: state.Service.question_type,
   allgames: state.Service.allgames,
   loading: state.Service.loading,
-  error: state.Service.error
+  error: state.Service.error,
+  user: state.Auth.user
 });
 
 export default connect(mapStateToProps, { getServiceStatistics })(
