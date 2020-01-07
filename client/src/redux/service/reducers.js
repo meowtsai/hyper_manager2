@@ -279,7 +279,12 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         error: null
       };
     case GET_SERVICE_STATISTICS_SUCCESS:
-      const { antsHandleData, qCountData, csHandleData } = action.payload;
+      const {
+        antsHandleData,
+        qCountData,
+        csHandleData,
+        csHandleAllocationData
+      } = action.payload;
       var tmpGameIds = [];
       return {
         ...state,
@@ -298,6 +303,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         antsHandleData,
         qCountData,
         csHandleData,
+        csHandleAllocationData,
         loading: false,
         error: null
       };

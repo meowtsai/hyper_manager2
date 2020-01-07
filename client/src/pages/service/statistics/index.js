@@ -23,6 +23,7 @@ const ServiceStatistics = ({
   antsHandleData,
   csHandleData,
   qCountData,
+  csHandleAllocationData,
   question_type,
   loading,
   allgames,
@@ -253,6 +254,15 @@ const ServiceStatistics = ({
             rptCondition,
             question_type
           )}
+
+          {statTable(
+            csHandleAllocationData,
+            `${gameName}-客服後送處理量`,
+            gameId,
+            yyyymm,
+            rptCondition,
+            {}
+          )}
         </Col>
       </Row>
     </Fragment>
@@ -267,6 +277,7 @@ const mapStateToProps = state => ({
   antsHandleData: state.Service.antsHandleData,
   csHandleData: state.Service.csHandleData,
   qCountData: state.Service.qCountData,
+  csHandleAllocationData: state.Service.csHandleAllocationData,
   question_type: state.Service.question_type,
   allgames: state.Service.allgames,
   loading: state.Service.loading,
@@ -359,7 +370,7 @@ const statTable = (
                   <th>{condLabel}</th>
                 )}
                 <th>數量</th>
-                <th>測試</th>
+                {Object.keys(question_type).length !== 0 && <th>測試</th>}
               </tr>
             </thead>
             <tbody>
@@ -373,7 +384,9 @@ const statTable = (
                     <th>{item[cond]}</th>
                   )}
                   <td>{item.cnt}</td>
-                  <td>{item.test_cnt}</td>
+                  {Object.keys(question_type).length !== 0 && (
+                    <td>{item.test_cnt}</td>
+                  )}
                 </tr>
               ))}
 
@@ -387,9 +400,11 @@ const statTable = (
                 )}
 
                 <td>{data.reduce((a, b) => a + Number.parseInt(b.cnt), 0)}</td>
-                <td>
-                  {data.reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
-                </td>
+                {Object.keys(question_type).length !== 0 && (
+                  <td>
+                    {data.reduce((a, b) => a + Number.parseInt(b.test_cnt), 0)}
+                  </td>
+                )}
               </tr>
             </tbody>
           </Table>

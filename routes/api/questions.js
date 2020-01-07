@@ -209,7 +209,7 @@ router.post(
     const allocation_status = SERVICE_CONFIG.allocationStatus;
 
     const condition = req.body;
-    console.log("server get list", req.body);
+    //console.log("server get list", req.body);
     //const action = req.query.action; //查詢
     const action = "查詢";
     let query = [];
@@ -818,12 +818,24 @@ router.get("/statistics", auth, async (req, res) => {
   const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "ants");
   const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "cs_master");
   const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
+  //cs 後送處理量
+  const csHandleAllocationP = QuestionsModel.getStatisticsQAllocationCount(
+    sYYYYMM,
+    "cs_master"
+  );
+
   const question_type = SERVICE_CONFIG.question_type;
 
-  Promise.all([antsHandleP, csHandleP, qCountP])
+  Promise.all([antsHandleP, csHandleP, qCountP, csHandleAllocationP])
     .then(
-      ([antsHandleData, csHandleData, qCountData]) => {
-        res.json({ antsHandleData, csHandleData, qCountData, question_type });
+      ([antsHandleData, csHandleData, qCountData, csHandleAllocationData]) => {
+        res.json({
+          antsHandleData,
+          csHandleData,
+          qCountData,
+          csHandleAllocationData,
+          question_type
+        });
       },
       reason => {
         res.json({ reason });

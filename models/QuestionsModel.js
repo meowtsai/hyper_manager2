@@ -393,6 +393,34 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
       })
       .catch(err => ({ error: err.message }));
   },
+  getStatisticsQAllocationCount: async (yyyymm, role) => {
+    return await db2
+      .promise()
+      .query(
+        `select g.game_id, g.name as game_name,DATE_FORMAT(qar.create_time, '%Y-%m-%d') as '時間', qar.admin_uid,au.name as admin_name,  count(*) as cnt, 0 as test_cnt
+        from question_allocation_records qar
+        LEFT JOIN question_allocation qa on qa.id = qar.allocation_id
+        LEFT JOIN questions q on qa.question_id =q.id
+        LEFT JOIN servers gi ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        left join admin_users au on au.uid=qar.admin_uid
+        where qar.allocate_status in(2,3,4) and DATE_FORMAT(qar.create_time,'%Y-%m') = ?
+        and au.role=?
+        group by qar.admin_uid,game_id, game_name, au.name,DATE_FORMAT(qar.create_time, '%Y-%m-%d') 
+        order by DATE_FORMAT(qar.create_time,'%Y-%m-%d') 
+        `,
+        [yyyymm, role]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+
   getListByUserShort: async ({ partner_uid, phone, email }) => {
     let condition = "";
 

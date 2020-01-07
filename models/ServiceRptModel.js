@@ -4,20 +4,24 @@ const ServiceRpt = {
   getCaseCountByDateRange: async (beginDt, endDt, admin_uid) => {
     //console.log(cs_member);
     const conditional_query =
-      admin_uid !== "" ? ` and allocate_admin_uid=${admin_uid}` : "";
+      admin_uid !== "" ? ` and assignee=${admin_uid}` : "";
     //console.log("conditional_query", conditional_query);
     return await db2
       .promise()
       .query(
-        `select g.name as game_name, b.game_id, count(*) as cnt ,
-        SUM(case when allocate_status='1' then 1 else 0 end) as 'status_process', 
-        SUM(case when allocate_status='2' then 1 else 0 end) as 'status_done',
-        SUM(case when allocate_admin_uid='113' then 1 else 0 end) as 'status_robot'
-        from questions q left join servers b on q.server_id =b.server_id 
-        left join games g on b.game_id = g.game_id 
-        where allocate_status is not null and allocate_date between ? and ? 
+        `select g.game_id, g.name as game_name,  count(*) as cnt,
+        SUM(case when qa.allocate_status='0' then 1 else 0 end) as 'status_robot', 
+        SUM(case when qa.allocate_status='1' then 1 else 0 end) as 'status_process', 
+        SUM(case when qa.allocate_status>1 then 1 else 0 end) as 'status_done'
+        from question_allocation qa 
+        LEFT JOIN questions q on qa.question_id =q.id
+        LEFT JOIN servers gi ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        where  qa.create_time between ? and ?
         ${conditional_query}
-        group by g.name, b.game_id order by cnt desc;`,
+        group by game_id, game_name
+        order by cnt desc
+        `,
         [beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => ({ admin_uid, result: rows }))
@@ -31,12 +35,14 @@ const ServiceRpt = {
     return await db2
       .promise()
       .query(
-        `select  count(*) as cnt ,
-        SUM(case when allocate_status='1' then 1 else 0 end) as 'status_process', 
-        SUM(case when allocate_status='2' then 1 else 0 end) as 'status_done'
-        from questions q left join servers b on q.server_id =b.server_id 
-        left join games g on b.game_id = g.game_id 
-        where allocate_status is not null and allocate_admin_uid=? and allocate_date between ? and ?`,
+        `select count(*) as cnt,
+        SUM(case when qa.allocate_status='0' then 1 else 0 end) as 'status_robot', 
+        SUM(case when qa.allocate_status='1' then 1 else 0 end) as 'status_process', 
+        SUM(case when qa.allocate_status>1 then 1 else 0 end) as 'status_done'
+        from question_allocation qa 
+        where assignee=? and qa.create_time between ? and ? 
+
+       `,
         [admin_uid, beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => rows[0])
@@ -116,14 +122,14 @@ const ServiceRpt = {
       .promise()
       .query(
         `select admin_uid,b.name as admin_name,b.role , sum(cnt) as cnt , sum(status_process) as status_process,sum(status_done) as status_done,sum(gov_cnt) as gov_cnt,sum(cpl_cnt2) as cpl_cnt2 from 
-    (select allocate_admin_uid as admin_uid, count(*) as cnt ,
-        SUM(case when allocate_status='1' then 1 else 0 end) as 'status_process',
-        SUM(case when allocate_status='2' then 1 else 0 end) as 'status_done',
-        0 as gov_cnt,
-          0 as cpl_cnt2
-    from questions q 
-    where allocate_status is not null and allocate_date between '${beginDt}' and '${endDt}'
-    group by allocate_admin_uid
+    (select assignee as  admin_uid, count(*) as cnt ,
+    SUM(case when allocate_status='1' then 1 else 0 end) as 'status_process',
+    SUM(case when allocate_status>1 then 1 else 0 end) as 'status_done',
+    0 as gov_cnt,
+      0 as cpl_cnt2
+from question_allocation qa 
+where allocate_status >0  and create_time between '${beginDt}' and '${endDt}'
+group by assignee
     union 
     select admin_uid, 0 as cnt, 0 as status_process, 0 as status_done, count(*) as gov_cnt, 0 as cpl_cnt2 from gov_letters where  close_date between '${beginDt}' and '${endDt}' and status=4 group by admin_uid
     union 
@@ -144,14 +150,14 @@ const ServiceRpt = {
     return await db2
       .promise()
       .query(
-        `select DATE_FORMAT(allocate_date,'%Y-%m') as month, count(*) total,
-        SUM(case when allocate_admin_uid='86' then 1 else 0 end) as 'admin_86',
-        SUM(case when allocate_admin_uid='87' then 1 else 0 end) as 'admin_87',
-        SUM(case when allocate_admin_uid='116' then 1 else 0 end) as 'admin_116',
-        SUM(case when allocate_admin_uid='151' then 1 else 0 end) as 'admin_151'
-        from questions q 
-        where allocate_status is not null and  allocate_date between CONCAT(YEAR(CURDATE()),'-01-01') AND CONCAT(YEAR(CURDATE()),'-12-31')
-        GROUP BY DATE_FORMAT(allocate_date,'%Y-%m');`
+        `select DATE_FORMAT(create_time,'%Y-%m') as month, count(*) total,
+        SUM(case when assignee='86' then 1 else 0 end) as 'admin_86',
+        SUM(case when assignee='87' then 1 else 0 end) as 'admin_87',
+        SUM(case when assignee='116' then 1 else 0 end) as 'admin_116',
+        SUM(case when assignee='151' then 1 else 0 end) as 'admin_151'
+        from question_allocation qa 
+        where allocate_status >0 and  create_time between CONCAT(YEAR(CURDATE()),'-01-01') AND CONCAT(YEAR(CURDATE()),'-12-31')
+        GROUP BY DATE_FORMAT(create_time,'%Y-%m');`
       )
       .then(([rows, fields]) => rows)
       .catch(err => {
