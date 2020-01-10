@@ -907,4 +907,41 @@ router.get("/list_by_user/:question_id", auth, async (req, res) => {
   }
 });
 
+router.get(
+  "/stat_hourly_count",
+  function(req, res, next) {
+    return checkPermission(req, res, next, "service", "read");
+  },
+  async (req, res) => {
+    //console.log("sDate", req.query.sDate);
+    const sDate = req.query.sDate ? req.query.sDate : new Date();
+
+    const statReportP = QuestionsModel.getReportCountByHour(
+      req.user.allow_games,
+      sDate
+    );
+
+    const statReplyP = QuestionsModel.getReplyCountByHour(
+      req.user.allow_games,
+      sDate
+    );
+
+    const question_type = SERVICE_CONFIG.question_type;
+
+    Promise.all([statReportP, statReplyP])
+      .then(
+        ([statReportData, statReplyData]) => {
+          res.json({
+            question_type,
+            statReportData,
+            statReplyData
+          });
+        },
+        reason => {
+          res.json({ reason });
+        }
+      )
+      .catch(err => console.log("get statistics data error: ", err));
+  }
+);
 module.exports = router;

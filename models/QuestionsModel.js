@@ -530,6 +530,60 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         }
       })
       .catch(err => ({ error: err.message }));
+  },
+  getReportCountByHour: async (allow_games, sDate) => {
+    const where_allow_games =
+      allow_games === "all_game"
+        ? ""
+        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+    return await db2
+      .promise()
+      .query(
+        `SELECT g.game_id, g.name as 'game_name',q.type , DATE_FORMAT(create_time, '%H:00') as 'hour',count(*) as 'cnt'
+        from questions q LEFT JOIN servers gi
+        ON gi.server_id=q.server_id
+        LEFT JOIN games g on g.game_id=gi.game_id
+        where q.create_time between '${sDate} 00:00:00' and '${sDate} 23:59:59'
+        ${where_allow_games}
+        group by g.game_id,g.name,q.type,DATE_FORMAT(create_time, '%H:00')
+      `
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getReplyCountByHour: async (allow_games, sDate) => {
+    const where_allow_games =
+      allow_games === "all_game"
+        ? ""
+        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+    return await db2
+      .promise()
+      .query(
+        `select g.game_id,g.name as 'game_name',DATE_FORMAT(qr.create_time, '%H:00') as 'hour',count(*) as 'cnt'
+		from questions q
+		left join question_replies qr on q.id=qr.question_id
+		LEFT JOIN servers gi
+		ON gi.server_id=q.server_id
+		LEFT JOIN games g on g.game_id=gi.game_id
+		where qr.create_time between '${sDate} 00:00:00' and '${sDate} 23:59:59'
+		${where_allow_games}
+		and qr.admin_uid <>113 and qr.is_official=1
+    group by g.game_id,g.name,DATE_FORMAT(qr.create_time, '%H:00')`
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch(err => ({ error: err.message }));
   }
 };
 

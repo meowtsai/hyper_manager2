@@ -8,6 +8,7 @@ import {
   GET_TEST_DATA,
   GET_OVERVIEW,
   GET_SERVICE_STATISTICS,
+  GET_SERVICE_STATISTICS_BY_HOUR,
   GET_CURRENT_QUESTION,
   ALLOCATE_QUESTION,
   REPLY_QUESTION,
@@ -33,6 +34,8 @@ import {
   getOverviewFailed,
   getServiceStatisticsSuccess,
   getServiceStatisticsFailed,
+  getServiceStatisticsByHourFailed,
+  getServiceStatisticsByHourSuccess,
   getCurrentQuestionFailed,
   getCurrentQuestionSuccess,
   allocateQuestionSuccess,
@@ -226,6 +229,33 @@ function* getServiceStat({ payload: { yyyymm } }) {
         message = error.response.data.msg;
     }
     yield put(getServiceStatisticsFailed(message));
+  }
+}
+function* getServiceStatByHour({ payload: { sDate } }) {
+  const options = {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/questions/stat_hourly_count?sDate=${sDate}`
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(getServiceStatisticsByHourSuccess(response.data));
+  } catch (error) {
+    // console.log(' login error ', error);
+    // console.log(' error.status ', error.response.status);
+    let message;
+    switch (error.response.status) {
+      case 500:
+        message = "內部伺服器發生錯誤";
+        break;
+      case 401:
+        message = "沒有權限";
+        break;
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(getServiceStatisticsByHourFailed(message));
   }
 }
 /**
@@ -545,6 +575,9 @@ export function* watchOverviewData(): any {
 export function* watchStatData(): any {
   yield takeEvery(GET_SERVICE_STATISTICS, getServiceStat);
 }
+export function* watchStatDataByHour(): any {
+  yield takeEvery(GET_SERVICE_STATISTICS_BY_HOUR, getServiceStatByHour);
+}
 
 export function* watchUpdateType(): any {
   yield takeEvery(UPDATE_QUESTION_TYPE, updateType);
@@ -602,7 +635,8 @@ function* serviceSaga(): any {
     fork(watchupdateQuestionFavorite),
     fork(watchAddQuestionToBatch),
     fork(watchRemoveQuestionFromBatch),
-    fork(watchAddMultiToBatch)
+    fork(watchAddMultiToBatch),
+    fork(watchStatDataByHour)
   ]);
 }
 export default serviceSaga;

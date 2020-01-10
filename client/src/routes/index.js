@@ -136,6 +136,10 @@ const ServiceStatistics = React.lazy(() =>
   import("../pages/service/statistics")
 );
 
+const ServiceStatisticsByHour = React.lazy(() =>
+  import("../pages/service/statistics/ServiceStatisticsByHour")
+);
+
 const QuestionsQueryHome = React.lazy(() =>
   import("../pages/service/questions/query/QueryHome")
 );
@@ -734,6 +738,14 @@ const serviceRoutes = {
       component: ServiceStatistics,
       route: PrivateRoute
     },
+    {
+      exact: true,
+      path: "/service/pivot_tbl",
+      name: "時間別統計",
+      component: ServiceStatisticsByHour,
+      route: PrivateRoute
+    },
+
     {
       exact: true,
       path: "/service/questions/query",

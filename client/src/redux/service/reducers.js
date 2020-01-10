@@ -25,6 +25,9 @@ import {
   GET_SERVICE_STATISTICS,
   GET_SERVICE_STATISTICS_SUCCESS,
   GET_SERVICE_STATISTICS_FAILED,
+  GET_SERVICE_STATISTICS_BY_HOUR,
+  GET_SERVICE_STATISTICS_BY_HOUR_SUCCESS,
+  GET_SERVICE_STATISTICS_BY_HOUR_FAILED,
   CLEAR_MESSAGE,
   GET_SERVICE_CONFIG,
   GET_SERVICE_CONFIG_SUCCESS,
@@ -56,6 +59,7 @@ const INIT_STATE = {
   csHandleData: [],
   csHandleAllocationData: [],
   antsHandleAllocationData: [],
+  statReportData: [],
   games_list: [],
   user_history: [],
   vip: null,
@@ -86,6 +90,7 @@ type State = {
 };
 
 const Service = (state: State = INIT_STATE, action: ServiceAction) => {
+  let tmpGameIds = [];
   switch (action.type) {
     case GET_OVERVIEW:
     case GET_CURRENT_QUESTION:
@@ -93,7 +98,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case REPLY_QUESTION:
     case CLOSE_QUESTION:
     case GET_SERVICE_STATISTICS:
-
+    case GET_SERVICE_STATISTICS_BY_HOUR:
     case ADD_MULTIPLE_QUESTIONS_TO_BATCH:
       return {
         ...state,
@@ -280,6 +285,26 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         loading: false,
         error: null
       };
+    case GET_SERVICE_STATISTICS_BY_HOUR_SUCCESS:
+      return {
+        ...state,
+        question_type: action.payload.question_type,
+        allgames: action.payload.statReportData.reduce(function(prev, curr) {
+          if (tmpGameIds.indexOf(curr.game_id) < 0) {
+            tmpGameIds.push(curr.game_id);
+            return [
+              ...prev,
+              { game_id: curr.game_id, game_name: curr.game_name }
+            ];
+          } else {
+            return prev;
+          }
+        }, []),
+        statReplyData: action.payload.statReplyData,
+        statReportData: action.payload.statReportData,
+        loading: false,
+        error: null
+      };
     case GET_SERVICE_STATISTICS_SUCCESS:
       const {
         antsHandleData,
@@ -288,7 +313,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         csHandleAllocationData,
         antsHandleAllocationData
       } = action.payload;
-      var tmpGameIds = [];
+
       return {
         ...state,
         question_type: action.payload.question_type,

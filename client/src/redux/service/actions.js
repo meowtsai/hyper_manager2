@@ -30,6 +30,9 @@ import {
   GET_SERVICE_STATISTICS,
   GET_SERVICE_STATISTICS_SUCCESS,
   GET_SERVICE_STATISTICS_FAILED,
+  GET_SERVICE_STATISTICS_BY_HOUR,
+  GET_SERVICE_STATISTICS_BY_HOUR_SUCCESS,
+  GET_SERVICE_STATISTICS_BY_HOUR_FAILED,
   CLEAR_MESSAGE,
   GET_SERVICE_CONFIG,
   GET_SERVICE_CONFIG_SUCCESS,
@@ -224,6 +227,23 @@ export const getServiceStatisticsSuccess = (data: []): ServiceAction => ({
 
 export const getServiceStatisticsFailed = (error: string): ServiceAction => ({
   type: GET_SERVICE_STATISTICS_FAILED,
+  payload: error
+});
+
+export const getServiceStatisticsByHour = (sDate: string): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS_BY_HOUR,
+  payload: { sDate }
+});
+
+export const getServiceStatisticsByHourSuccess = (data: []): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS_BY_HOUR_SUCCESS,
+  payload: data
+});
+
+export const getServiceStatisticsByHourFailed = (
+  error: string
+): ServiceAction => ({
+  type: GET_SERVICE_STATISTICS_BY_HOUR_FAILED,
   payload: error
 });
 
