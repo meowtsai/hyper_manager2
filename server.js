@@ -35,6 +35,7 @@ app.use("/api/allocation", require("./routes/api/allocation"));
 app.use("/api/vip", require("./routes/api/vip"));
 app.use("/api/vip_offers", require("./routes/api/vip_offers"));
 app.use("/api/batch", require("./routes/api/batch"));
+app.use("/api/gmt_tool", require("./routes/api/gmt_tool"));
 
 //serve static assets if in production
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "stage") {
