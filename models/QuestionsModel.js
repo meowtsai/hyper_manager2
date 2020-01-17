@@ -99,13 +99,14 @@ const QuestionsModel = {
         ? ""
         : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
 
+    // console.log("joinRepliesTable", joinRepliesTable);
     // console.log("limitedStatusCondition", limitedStatusCondition);
     // console.log("limitedCondition", limitedCondition);
     // console.log("where_allow_games", where_allow_games);
     return await db2
       .promise()
       .query(
-        `  select q.*, g.game_id, g.name as game_name, au.name as admin_uname, gi.name as server_name,
+        `  select distinct q.*, g.game_id, g.name as game_name, au.name as admin_uname, gi.name as server_name,
         (select count(*) from question_favorites where question_id=q.id and category=1 and admin_uid=?) as is_favorite,
         (select count(*) from batch_questions where question_id=q.id and batch_id in(select id from batch_tasks where status=1)) as is_batch
         from questions q  

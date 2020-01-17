@@ -2,25 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { CSVLink } from "react-csv";
-import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  Form,
-  Label,
-  FormGroup,
-  Input,
-  Button,
-  ButtonGroup,
-  TabContent,
-  TabPane,
-  Nav,
-  NavItem,
-  NavLink
-} from "reactstrap";
-import classnames from "classnames";
+import { Row, Col, Table, Form, Label, FormGroup, Button } from "reactstrap";
 import moment from "moment";
 import HyperDatepicker from "../../../components/Datepicker";
 import { getServiceStatisticsByHour } from "../../../redux/actions";
@@ -189,7 +171,29 @@ const ServiceStatisticsByHour = ({
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td>總數</td>
+                {hourArray.map(hh =>
+                  statTD(
+                    statReportData
+                      .filter(data => data.hour === hh)
+                      .reduce((a, b) => a + b.cnt, 0),
+                    `hh5_${hh}`
+                  )
+                )}
+                {statTD(
+                  statReportData.reduce((a, b) => a + b.cnt, 0),
+                  `gg4_total`
+                )}
+              </tr>
+            </tfoot>
           </Table>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg={12}>
+          <hr />
         </Col>
       </Row>
       <Row>
@@ -236,6 +240,23 @@ const ServiceStatisticsByHour = ({
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td>總數</td>
+                {hourArray.map(hh =>
+                  statTD(
+                    statReplyData
+                      .filter(data => data.hour === hh)
+                      .reduce((a, b) => a + b.cnt, 0),
+                    `hh4_${hh}`
+                  )
+                )}
+                {statTD(
+                  statReplyData.reduce((a, b) => a + b.cnt, 0),
+                  `gg5_total`
+                )}
+              </tr>
+            </tfoot>
           </Table>
         </Col>
       </Row>
@@ -265,8 +286,8 @@ const statTD = (data, key) => (
   <td
     key={key}
     style={{
-      backgroundColor: `rgb(255, ${255 - data * 1.5}
-                       , ${255 - data * 1.5}`
+      backgroundColor: `rgb(255, ${255 - data * 2}
+                       , ${255 - data * data * 3}`
     }}
   >
     {data}

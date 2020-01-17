@@ -113,7 +113,7 @@ const QuestionsQueryHome = ({
   const handleSearchClick = conditions => {
     //console.log(inStockDateFilter);
 
-    console.log("conditions", conditions);
+    //console.log("conditions", conditions);
     getQuestions(conditions);
     // setArrangedData(
     //   records.filter(

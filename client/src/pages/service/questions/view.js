@@ -79,6 +79,7 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
           <Moment format="YYYY-MM-DD HH:mm:ss">{reply.create_time}</Moment>
         </CardSubtitle>
         <hr />
+
         <CardText
           className="card-text"
           dangerouslySetInnerHTML={{

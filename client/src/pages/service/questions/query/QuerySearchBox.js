@@ -39,7 +39,6 @@ const QuerySearchBox = ({
   const [question_no, setQuestionNo] = useState("");
   const [content, setContent] = useState("");
 
-  console.log("email", email);
   const searchClick = e => {
     e.preventDefault();
     setSearchActivated(true);

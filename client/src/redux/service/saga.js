@@ -101,9 +101,10 @@ function* getCurrentQuestionData({ payload: question_id }) {
 
   try {
     const response = yield axios(options);
+    console.log("getCurrentQuestionData", response.data);
     yield put(getCurrentQuestionSuccess(response.data));
   } catch (error) {
-    // console.log(' login error ', error);
+    console.log(" getCurrentQuestionData error ", error);
     // console.log(' error.status ', error.response.status);
     let message;
     switch (error.response.status) {

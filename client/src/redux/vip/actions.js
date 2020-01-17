@@ -9,6 +9,9 @@ import {
   UPDATE_VIP_STATUS,
   UPDATE_VIP_STATUS_SUCCESS,
   UPDATE_VIP_STATUS_FAILED,
+  UPDATE_VIP_INFO,
+  UPDATE_VIP_INFO_SUCCESS,
+  UPDATE_VIP_INFO_FAILED,
   CLEAR_VIP_MESSAGE,
   DELETE_VIP_REQUEST,
   DELETE_VIP_REQUEST_SUCCESS,
@@ -16,7 +19,13 @@ import {
   ADD_VIP_REQUEST,
   ADD_VIP_REQUEST_SUCCESS,
   ADD_VIP_REQUEST_FAILED,
-  ADD_VIP_REQUEST_VALIDATION_FAILED
+  ADD_VIP_REQUEST_VALIDATION_FAILED,
+  GET_CURRENT_WHALE_USER,
+  GET_CURRENT_WHALE_USER_SUCCESS,
+  GET_CURRENT_WHALE_USER_FAILED,
+  GET_VIP_REQUESTS,
+  GET_VIP_REQUESTS_SUCCESS,
+  GET_VIP_REQUESTS_FAILED
 } from "./constants";
 
 type VipAction = { type: string, payload: {} | string };
@@ -106,4 +115,57 @@ export const addVipServiceRequestFailed = (error: string | {}): VipAction => ({
 export const addVipServiceRequestValidationFailed = (errors: {}): VipAction => ({
   type: ADD_VIP_REQUEST_VALIDATION_FAILED,
   payload: errors
+});
+
+export const getCurrentWhaleUser = (
+  game_id: string,
+  role_id: string,
+  history: {}
+): VipAction => ({
+  type: GET_CURRENT_WHALE_USER,
+  payload: { game_id, role_id, history }
+});
+
+export const getCurrentWhaleUserSuccess = (record: {}): VipAction => ({
+  type: GET_CURRENT_WHALE_USER_SUCCESS,
+  payload: record
+});
+
+export const getCurrentWhaleUserFailed = (error: string): VipAction => ({
+  type: GET_CURRENT_WHALE_USER_FAILED,
+  payload: error
+});
+
+export const updateVipInfo = (
+  game_id: string,
+  role_id: String,
+  fields: {}
+): VipAction => ({
+  type: UPDATE_VIP_INFO,
+  payload: { game_id, role_id, fields }
+});
+
+export const updateVipInfoSuccess = (data: {}): VipAction => ({
+  type: UPDATE_VIP_INFO_SUCCESS,
+  payload: data
+});
+
+export const updateVipInfoFailed = (error: string): VipAction => ({
+  type: UPDATE_VIP_INFO_FAILED,
+  payload: error
+});
+
+export const getVipRequests = (condition: {}): VipAction => ({
+  type: GET_VIP_REQUESTS,
+  payload: condition
+});
+
+export const getVipRequestsSuccess = (data: []): VipAction => ({
+  type: GET_VIP_REQUESTS_SUCCESS,
+  payload: data
+});
+
+export const getVipRequestsFailed = (error: string): VipAction => ({
+  type: GET_VIP_REQUESTS_FAILED,
+  payload: error
 });

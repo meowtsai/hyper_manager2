@@ -163,6 +163,16 @@ const BatchTaskView = React.lazy(() =>
 const WhaleUserHome = React.lazy(() =>
   import("../pages/vip/whale_users/WhaleUserHome")
 );
+
+///vip/user_dashboard/${gameId}?
+const WhaleUserDashboard = React.lazy(() =>
+  import("../pages/vip/whale_users/UserDashboard")
+);
+
+const RequestReportHome = React.lazy(() =>
+  import("../pages/vip/whale_users/RequestReportHome")
+);
+
 const VipOfferHome = React.lazy(() => import("../pages/vip/offers/index"));
 const VipOfferForm = React.lazy(() => import("../pages/vip/offers/form"));
 const VipOrdersHome = React.lazy(() =>
@@ -858,6 +868,13 @@ const vipRoutes = {
       route: PrivateRoute
     },
     {
+      path: "/vip/requests_report",
+      name: "鯨魚用戶服務紀錄",
+      component: RequestReportHome,
+      route: PrivateRoute
+    },
+
+    {
       path: "/vip/wire_report/list",
       name: "VIP 訂單",
       component: VipOrdersHome,
@@ -936,6 +953,12 @@ const vipRoutesSub = {
       path: "/vip/wire_report/edit/:report_id",
       name: "編輯vip訂單",
       component: VipOrdersForm,
+      route: PrivateRoute
+    },
+    {
+      path: "/vip/user_dashboard/:game_id",
+      name: "維護鯨魚用戶資料",
+      component: WhaleUserDashboard,
       route: PrivateRoute
     }
   ]

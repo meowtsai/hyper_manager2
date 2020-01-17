@@ -12,6 +12,7 @@ import {
   DropdownItem,
   UncontrolledButtonDropdown
 } from "reactstrap";
+import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { CSVLink } from "react-csv";
 import PageTitle from "../../../components/PageTitle";
@@ -45,7 +46,6 @@ import paginationFactory, {
 } from "react-bootstrap-table2-paginator";
 
 import PropTypes from "prop-types";
-import WhaleUserModal from "./WhaleUserModal";
 
 const WhaleUserHome = ({
   getVipGames,
@@ -61,9 +61,14 @@ const WhaleUserHome = ({
   clearVIPMessage,
   requestData,
   deleteVipServiceRequest,
-  addVipServiceRequest
+  addVipServiceRequest,
+  history
 }) => {
-  const [gameId, setGameId] = useState("");
+  const search = window.location.search;
+  const params = new URLSearchParams(search);
+  const query_game_id = params.get("game_id") ? params.get("game_id") : "";
+
+  const [gameId, setGameId] = useState(query_game_id);
   const [modal, setModal] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [reqRoleIDArray, setReqRoleIDArray] = useState([]);
@@ -85,6 +90,10 @@ const WhaleUserHome = ({
 
   useEffect(() => {
     getVipGames();
+    if (gameId) {
+      getVip(gameId);
+    }
+    document.title = "VIP - 鯨魚用戶列表";
     // eslint-disable-next-line
   }, []);
 
@@ -135,8 +144,11 @@ const WhaleUserHome = ({
 
   const changeVIPGame = game_id => {
     //console.log(game_id);
-    setGameId(game_id);
-    getVip(game_id);
+    if (game_id) {
+      history.push(`/vip/whale_users?game_id=${game_id}`);
+      setGameId(game_id);
+      getVip(game_id);
+    }
   };
 
   const onLineAddChange = uid => {
@@ -149,7 +161,7 @@ const WhaleUserHome = ({
   };
 
   const onEdit = char_in_game_id => {
-    console.log("onEdit", char_in_game_id);
+    //console.log("onEdit", char_in_game_id);
     setCurrentUser(
       vip_list.filter(vip => vip.char_in_game_id === char_in_game_id)[0] || {}
     );
@@ -203,6 +215,20 @@ const WhaleUserHome = ({
       headerSortingStyle,
       headerStyle: (column, colIndex) => {
         return { width: "150px" };
+      },
+      formatter: (cellContent, row) => {
+        return cellContent ? (
+          <Fragment>
+            {" "}
+            <Link
+              to={`/vip/user_dashboard/${row.site}?user=${row.char_in_game_id}`}
+            >
+              {cellContent}
+            </Link>
+          </Fragment>
+        ) : (
+          ""
+        );
       }
     },
     {
@@ -344,44 +370,44 @@ const WhaleUserHome = ({
         ) : null;
         return displayBlock;
       }
-    },
-    {
-      dataField: "action",
-      isDummyField: true,
-      text: "操作",
-      formatter: (cell, row) => {
-        return (
-          <Fragment>
-            <UncontrolledButtonDropdown>
-              <DropdownToggle color="light" caret></DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem onClick={e => onLineAddChange(row.uid)}>
-                  {row.is_added === 1 ? (
-                    <i className="mdi mdi-account-remove mr-1"></i>
-                  ) : (
-                    <i className="mdi mdi-account-plus mr-1"></i>
-                  )}
-
-                  {row.is_added === 1 ? "設為未加入Line" : "設為已經加入Line"}
-                </DropdownItem>
-                <DropdownItem onClick={e => onConfirmInactive(row.uid)}>
-                  {" "}
-                  <i className="mdi mdi-account-off mr-1"></i>確認流失
-                </DropdownItem>
-                <DropdownItem onClick={e => onEdit(row.char_in_game_id)}>
-                  {" "}
-                  <i className="mdi mdi-square-edit-outline mr-1"></i>編輯
-                </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledButtonDropdown>
-          </Fragment>
-        );
-      }
     }
+    // {
+    //   dataField: "action",
+    //   isDummyField: true,
+    //   text: "操作",
+    //   formatter: (cell, row) => {
+    //     return (
+    //       <Fragment>
+    //         <UncontrolledButtonDropdown>
+    //           <DropdownToggle color="light" caret></DropdownToggle>
+    //           <DropdownMenu>
+    //             <DropdownItem onClick={e => onLineAddChange(row.uid)}>
+    //               {row.is_added === 1 ? (
+    //                 <i className="mdi mdi-account-remove mr-1"></i>
+    //               ) : (
+    //                 <i className="mdi mdi-account-plus mr-1"></i>
+    //               )}
+
+    //               {row.is_added === 1 ? "設為未加入Line" : "設為已經加入Line"}
+    //             </DropdownItem>
+    //             <DropdownItem onClick={e => onConfirmInactive(row.uid)}>
+    //               {" "}
+    //               <i className="mdi mdi-account-off mr-1"></i>確認流失
+    //             </DropdownItem>
+    //             <DropdownItem onClick={e => onEdit(row.char_in_game_id)}>
+    //               {" "}
+    //               <i className="mdi mdi-square-edit-outline mr-1"></i>編輯
+    //             </DropdownItem>
+    //           </DropdownMenu>
+    //         </UncontrolledButtonDropdown>
+    //       </Fragment>
+    //     );
+    //   }
+    // }
   ];
 
   const onDelReqeust = record_id => {
-    console.log("onDelReqeust", record_id);
+    //console.log("onDelReqeust", record_id);
     deleteVipServiceRequest(record_id);
   };
 
@@ -508,13 +534,6 @@ const WhaleUserHome = ({
 
   return (
     <Fragment>
-      <WhaleUserModal
-        modal={modal}
-        toggle={toggle}
-        user={currentUser}
-        onAddRequestRecord={onAddRequestRecord}
-        error={error}
-      />
       <PageTitle
         breadCrumbItems={[
           { label: "VIP", path: "/vip", active: false },

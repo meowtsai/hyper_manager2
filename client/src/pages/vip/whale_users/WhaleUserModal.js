@@ -79,9 +79,10 @@ const WhaleUserModal = ({ modal, toggle, user, onAddRequestRecord, error }) => {
         <Row>
           <Col md={12}>
             <Input
-              type="text"
+              type="textarea"
               name="reqNote"
               id="reqNote"
+              rows="5"
               placeholder="(選填) 輸入服務項目相關說明或重點對話, 250字以內..."
               onChange={e => setReqNote(e.target.value)}
               value={reqNote}
