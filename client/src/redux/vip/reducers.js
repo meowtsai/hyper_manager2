@@ -143,8 +143,8 @@ const VIP = (state: State = INIT_STATE, action: VipAction) => {
           request_data:
             action.payload.act === "add"
               ? [
-                  ...state.currentWhaleUser.request_data,
-                  action.payload.updatedField
+                  action.payload.updatedField,
+                  ...state.currentWhaleUser.request_data
                 ]
               : [
                   ...state.currentWhaleUser.request_data.filter(

@@ -52,6 +52,12 @@ const VipOrderExpandRow = {
               <td>{row.role_id}</td>
             </tr>
             <tr>
+              <th>VIP等級：</th>
+              <td>{row.vip_ranking}</td>
+              <th>Role ID：</th>
+              <td>{row.char_in_game_id}</td>
+            </tr>
+            <tr>
               <th>電話：</th>
               <td>{row.phone}</td>
               <th>Email：</th>

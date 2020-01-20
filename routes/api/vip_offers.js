@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const VipOffersModel = require("../../models/VipOffersModel");
+const WhaleUserModel = require("../../models/WhaleUserModel");
 const checkPermission = require("../../middleware/checkPermission");
 const validator = require("validator");
 const auth = require("../../middleware/auth");
@@ -106,6 +107,26 @@ router.put(
 
       record.admin_uid = req.user.uid;
       record.update_time = new Date();
+
+      //try update vip_ranking
+      if (
+        report.vip_ranking === null &&
+        record.char_in_game_id !== report.char_in_game_id
+      ) {
+        //console.log("report.game_id", report.game_id, report.char_in_game_id);
+        const vip = await WhaleUserModel.findUserByRoleId(
+          report.game_id,
+          record.char_in_game_id
+        );
+
+        //console.log("vip_ranking", vip.vip_ranking);
+        if (vip) {
+          record.vip_ranking =
+            vip.vip_ranking === null ? "NO_R" : vip.vip_ranking;
+        } else {
+          record.vip_ranking = "NOT_LISTED";
+        }
+      }
 
       const updateMsg = await VipOffersModel.findByIdAndUpdate(
         report.id,

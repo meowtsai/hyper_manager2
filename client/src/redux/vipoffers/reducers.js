@@ -93,6 +93,10 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
       return {
         ...state,
         affectedRecord: action.payload.updatedField,
+        current_report: {
+          ...state.current_report,
+          ...action.payload.updatedField
+        },
         loading: false,
         error: null,
         errors: {},

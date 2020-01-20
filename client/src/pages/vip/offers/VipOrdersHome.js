@@ -16,6 +16,7 @@ import moment from "moment";
 import Spinner from "../../../components/Spinner";
 import { CSVLink } from "react-csv";
 import { reportStatusOptions, invoiceOptions } from "./vipOptions";
+import { vipRankingOptions } from "../whale_users/whaleOptConfig";
 
 import PropTypes from "prop-types";
 import VipOrderExpandRow from "./VipOrderExpandRow";
@@ -80,7 +81,8 @@ const VipOrdersHome = ({
     { label: "伺服器", key: "server_name" },
     { label: "角色ID", key: "role_id" },
     { label: "角色名稱", key: "char_name" },
-
+    { label: "Role ID", key: "char_in_game_id" },
+    { label: "VIP等級", key: "vip_ranking" },
     { label: "匯款銀行", key: "bank_name" },
     { label: "玩家匯款資訊(帳號末五碼)", key: "wire_code" },
     { label: "匯款戶名(本名或帳號都可)", key: "wire_name" },
@@ -165,14 +167,26 @@ const VipOrdersHome = ({
       text: "角色",
       filter: textFilter(),
       formatter: (cellContent, row) => {
+        const opt = vipRankingOptions.filter(
+          opt => opt.value === row.vip_ranking
+        )[0];
+        const ranking_badge = opt ? (
+          <span className={`mr-1 badge badge-${opt.color}-lighten badge-pill`}>
+            {opt.label || ""}
+          </span>
+        ) : (
+          ""
+        );
         return (
           <div>
             <strong style={{ color: "blue" }}>{cellContent} </strong>
+            {ranking_badge}
             <br />
             GID: {row.role_id}
           </div>
         );
       },
+
       footer: ""
     },
 

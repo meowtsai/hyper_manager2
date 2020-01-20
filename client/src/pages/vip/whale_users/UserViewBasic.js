@@ -33,12 +33,18 @@ const UserViewBasic = ({
   const [charNameEditMode, setCharNameEditMode] = useState(false);
   const [lineStatusEditMode, setLineStatusEditMode] = useState(false);
 
+  const [inactiveEditMode, setInactiveEditMode] = useState(false);
+  const [isActive, setIsActive] = useState(
+    vip.inactive_confirm_date === null ? "active" : "inactive"
+  );
+
   const opt = vipRankingOptions.filter(opt => opt.value === vip.vip_ranking)[0];
 
   useEffect(() => {
     if (updateOKMessage) {
       setCharNameEditMode(false);
       setLineStatusEditMode(false);
+      setInactiveEditMode(false);
     }
   }, [updateOKMessage]);
   return (
@@ -269,6 +275,89 @@ const UserViewBasic = ({
                       <i className="mdi mdi-window-close" />
                     </Button>
                     <FormText>可以變更加入line狀態以及加入日期</FormText>
+                  </Form>
+                </Col>
+              </Row>
+            )}
+
+            <Row form>
+              <Col md={12}>
+                <hr />
+                {!inactiveEditMode && (
+                  <FormGroup>
+                    <Label>活躍狀態：</Label>
+
+                    {vip.inactive_confirm_date === null ? (
+                      <span className="text-success">
+                        <strong>正常</strong>
+                      </span>
+                    ) : (
+                      <span className="text-danger">
+                        <strong>流失</strong>
+                      </span>
+                    )}
+
+                    <Button
+                      color="secondary"
+                      size="sm"
+                      className="ml-1"
+                      onClick={e => setInactiveEditMode(true)}
+                    >
+                      <i className="mdi mdi-pencil-outline" />
+                    </Button>
+                  </FormGroup>
+                )}
+              </Col>
+            </Row>
+            {inactiveEditMode && (
+              <Row form className="mb-2">
+                <Col md={12}>
+                  <Form inline>
+                    <FormGroup className="mb-2 mr-sm-2">
+                      <Label for="select_line_status" className="mr-sm-2">
+                        活躍狀態
+                      </Label>
+                      <Input
+                        type="select"
+                        name="selectActiveStatus"
+                        id="selectActiveStatus"
+                        value={isActive}
+                        onChange={e => setIsActive(e.target.value)}
+                      >
+                        <option value="active">正常</option>
+                        <option value="inactive">流失</option>
+                      </Input>
+                    </FormGroup>
+
+                    <Button
+                      color="primary"
+                      onClick={e =>
+                        onEditWhaleUser({
+                          inactive_confirm_date:
+                            isActive === "active"
+                              ? null
+                              : moment().format("YYYY-MM-DD HH:mm")
+                        })
+                      }
+                      size="sm"
+                    >
+                      <i className="mdi mdi-content-save" />
+                    </Button>
+                    <Button
+                      color="secondary"
+                      onClick={e => {
+                        setInactiveEditMode(false);
+                        setIsActive(
+                          vip.inactive_confirm_date === null
+                            ? "active"
+                            : "inactive"
+                        );
+                      }}
+                      size="sm"
+                    >
+                      <i className="mdi mdi-window-close" />
+                    </Button>
+                    <FormText>標示玩家的活躍狀態</FormText>
                   </Form>
                 </Col>
               </Row>

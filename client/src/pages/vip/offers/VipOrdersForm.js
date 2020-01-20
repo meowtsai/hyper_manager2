@@ -48,6 +48,9 @@ const VipOrdersForm = ({
   const [product_id, setProductId] = useState("");
   const [qty, setQty] = useState("");
   const [orderids, setOrderids] = useState("");
+  const [char_in_game_id, setCharInGameId] = useState("");
+  const [vip_ranking, setVipRanking] = useState("");
+
   const [role_id, setRoleId] = useState("");
   const [char_name, setCharName] = useState("");
   const [bank_name, setBankName] = useState("");
@@ -94,6 +97,11 @@ const VipOrdersForm = ({
       setNote(currentReport.note ? currentReport.note : "");
       setReportStatus(currentReport.report_status);
       setOrderids(currentReport.orderids ? currentReport.orderids : "");
+      setCharInGameId(
+        currentReport.char_in_game_id ? currentReport.char_in_game_id : ""
+      );
+
+      setVipRanking(currentReport.vip_ranking);
 
       setInvoiceId(currentReport.invoice_id ? currentReport.invoice_id : "");
       setInvoiceDate(
@@ -134,6 +142,9 @@ const VipOrdersForm = ({
       note,
       report_status,
       orderids,
+      char_in_game_id,
+      vip_ranking,
+
       invoice_id,
       invoice_date: formatedInvoiceDate,
       invoice_option,
@@ -464,6 +475,34 @@ const VipOrdersForm = ({
                       />
 
                       <FormFeedback>{errors.orderids}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label htmlFor="char_in_game_id" className="text-primary">
+                        🔔Role ID
+                      </Label>
+                      <Input
+                        type="text"
+                        name="char_in_game_id"
+                        id="char_in_game_id"
+                        value={char_in_game_id}
+                        onChange={e => setCharInGameId(e.target.value)}
+                        invalid={errors.char_in_game_id ? true : false}
+                      />
+
+                      <FormFeedback>{errors.char_in_game_id}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label htmlFor="vip_ranking">VIP等級</Label>
+
+                      {vip_ranking && (
+                        <Input plaintext defaultValue={vip_ranking} readOnly />
+                      )}
                     </FormGroup>
                   </Col>
                 </Row>
