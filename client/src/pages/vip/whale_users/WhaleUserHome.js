@@ -221,7 +221,7 @@ const WhaleUserHome = ({
           <Fragment>
             {" "}
             <Link
-              to={`/vip/user_dashboard/${row.site}?user=${row.char_in_game_id}`}
+              to={`/vip/user_dashboard/${row.site}?user=${encodeURIComponent(row.char_in_game_id)}`}
             >
               {cellContent}
             </Link>

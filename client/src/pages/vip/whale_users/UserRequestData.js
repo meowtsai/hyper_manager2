@@ -90,7 +90,7 @@ const UserRequestData = ({ requests, lbltext, onDeleteClick }) => {
 UserRequestData.propTypes = {
   requests: PropTypes.array.isRequired,
   onDeleteClick: PropTypes.func.isRequired,
-  onEditClick: PropTypes.func.isRequired
+ 
 };
 
 export default UserRequestData;

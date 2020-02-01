@@ -63,6 +63,7 @@ const WhaleUserDashboard = ({
 
   useEffect(() => {
     if (game_id && query_user) {
+      
       getCurrentWhaleUser(game_id, query_user, history);
     }
     document.title = "VIP - 鯨魚用戶檢視";
