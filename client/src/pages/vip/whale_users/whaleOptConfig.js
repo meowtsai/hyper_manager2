@@ -5,6 +5,11 @@ export const isAddedOptions = {
 
 export const vipRankingOptions = [
   {
+    value: "revered",
+    label: "尊榮R",
+    color: "success"
+  },
+  {
     value: "red",
     label: "紅R",
     color: "danger"
