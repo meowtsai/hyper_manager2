@@ -330,7 +330,7 @@ const AllocationList = ({
                           )}
                         {(allocation.allocate_status === 2 ||
                           allocation.allocate_status === 1) &&
-                          allocation.assignee === user.uid && (
+                          user.role === "cs_master" && (
                             <Fragment>
                               <button
                                 type="button"

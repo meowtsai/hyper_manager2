@@ -327,7 +327,8 @@ router.put(
 
     const record = {
       allocate_status,
-      update_time: new Date()
+      update_time: new Date(),
+      
     };
 
     //表示可能補足條件的單子重新進入派單
@@ -339,6 +340,10 @@ router.put(
     //99是補充說明 不改變狀態
     if (allocate_status === 99) {
       record.allocate_status = allocation.allocate_status;
+    }
+    if(allocate_status === 3 ||allocate_status === 4){
+      record.assignee=req.user.uid;
+      
     }
 
     const updResult = await AllocationModel.findByIdAndUpdate(
@@ -358,6 +363,10 @@ router.put(
     if (allocate_status === 0) {
       record.assignee_name = null;
     }
+    if (allocate_status === 3 || allocate_status === 4) {
+      record.assignee_name=req.user.name;
+    }
+    
 
     if (!updResult.error) {
       res.json({
