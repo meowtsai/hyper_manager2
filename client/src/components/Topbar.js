@@ -78,11 +78,12 @@ const Topbar = props => {
 
           <ul className="list-unstyled topbar-right-menu float-right mb-0">
             <li className="notification-list">
-              <ProfileDropdown
+              {user && <ProfileDropdown
                 menuItems={menu}
                 username={user.account}
                 userTitle={user.role}
-              />
+              />  }
+              
             </li>
           </ul>
 

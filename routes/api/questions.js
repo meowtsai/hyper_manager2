@@ -243,7 +243,15 @@ router.post(
     Promise.all([pReply, pAllocation, add_favor_ok, tasks])
       .then(([reply_query, newAllocationStatus, add_favor_ok, tasks]) => {
         res.json({
-          query,
+          query:req.user.role === "ants"? query.map(q=> ({...q, email: q.email
+            ? q.email.substring(0, 4) +
+              q.email
+                .substring(4, q.email.length)
+                .replace(/./g, "*")
+            : "", phone: q.phone? q.phone.substring(0, q.phone.length - 4)
+            .replace(/./g, "*") +
+          q.phone.substring(q.phone.length - 4)
+        : "" })):query,
           reply_query,
           newAllocationStatus,
           question_type,
