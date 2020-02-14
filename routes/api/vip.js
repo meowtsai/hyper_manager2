@@ -60,8 +60,9 @@ router.get(
     return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
+    //console.log(decodeURIComponent(req.query.user))
     const game_id = req.params.game_id;
-    const role_id = decodeURI(req.query.user).replace(" ", "+");
+    const role_id = decodeURIComponent(req.query.user).replace(" ", "+");
 
     //console.log("user_dashboard", role_id);
 

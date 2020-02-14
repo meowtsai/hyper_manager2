@@ -89,7 +89,7 @@ function* getSingleVip({ payload: { game_id, role_id, history } }) {
   const options = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    url: `/api/vip/user_dashboard/${game_id}?user=${role_id}`
+    url: `/api/vip/user_dashboard/${game_id}?user=${encodeURIComponent(role_id)}`
   };
 
   try {
