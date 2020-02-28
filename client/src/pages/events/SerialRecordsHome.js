@@ -123,7 +123,11 @@ const SerialRecordsHome = ({
         options: serversOption
       }),
       formatter: (cellContent, row) => {
-        return <Fragment>{serversOption[cellContent]}</Fragment>;
+        return (
+          <Fragment>
+            {serversOption.filter(s => s.value === cellContent)[0].label}
+          </Fragment>
+        );
       },
       sort: true
     }
