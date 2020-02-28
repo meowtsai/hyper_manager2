@@ -1,191 +1,197 @@
-import React from "react";
-import { Redirect } from "react-router-dom";
-import { Route } from "react-router-dom";
+import React from 'react';
+import { Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
-import { isUserAuthenticated, getLoggedInUser } from "../helpers/authUtils";
+import { isUserAuthenticated, getLoggedInUser } from '../helpers/authUtils';
 
 // lazy load all the views
 
 // auth
-const Login = React.lazy(() => import("../pages/auth/Login"));
-const Logout = React.lazy(() => import("../pages/auth/Logout"));
-const Register = React.lazy(() => import("../pages/auth/Register"));
-const ForgetPassword = React.lazy(() => import("../pages/auth/ForgetPassword"));
-const Confirm = React.lazy(() => import("../pages/auth/Confirm"));
+const Login = React.lazy(() => import('../pages/auth/Login'));
+const Logout = React.lazy(() => import('../pages/auth/Logout'));
+const Register = React.lazy(() => import('../pages/auth/Register'));
+const ForgetPassword = React.lazy(() => import('../pages/auth/ForgetPassword'));
+const Confirm = React.lazy(() => import('../pages/auth/Confirm'));
 // dashboard
 const EcommerceDashboard = React.lazy(() =>
-  import("../pages/dashboards/Ecommerce")
+  import('../pages/dashboards/Ecommerce')
 );
-const CRMDashboard = React.lazy(() => import("../pages/dashboards/CRM"));
+const CRMDashboard = React.lazy(() => import('../pages/dashboards/CRM'));
 //*add new
-const AdminDashboard = React.lazy(() => import("../pages/dashboards/Admin"));
+const AdminDashboard = React.lazy(() => import('../pages/dashboards/Admin'));
 // apps
-const CalendarApp = React.lazy(() => import("../pages/apps/Calendar"));
-const Projects = React.lazy(() => import("../pages/apps/Projects"));
-const ProjectDetail = React.lazy(() => import("../pages/apps/ProjectDetail"));
+const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
+const Projects = React.lazy(() => import('../pages/apps/Projects'));
+const ProjectDetail = React.lazy(() => import('../pages/apps/ProjectDetail'));
 // - ecommece pages
 const EcommerceProducts = React.lazy(() =>
-  import("../pages/apps/Ecommerce/Products")
+  import('../pages/apps/Ecommerce/Products')
 );
 const ProductDetails = React.lazy(() =>
-  import("../pages/apps/Ecommerce/ProductDetails")
+  import('../pages/apps/Ecommerce/ProductDetails')
 );
-const Orders = React.lazy(() => import("../pages/apps/Ecommerce/Orders"));
+const Orders = React.lazy(() => import('../pages/apps/Ecommerce/Orders'));
 const OrderDetails = React.lazy(() =>
-  import("../pages/apps/Ecommerce/OrderDetails")
+  import('../pages/apps/Ecommerce/OrderDetails')
 );
-const Customers = React.lazy(() => import("../pages/apps/Ecommerce/Customers"));
-const Cart = React.lazy(() => import("../pages/apps/Ecommerce/Cart"));
-const Checkout = React.lazy(() => import("../pages/apps/Ecommerce/Checkout/"));
-const Sellers = React.lazy(() => import("../pages/apps/Ecommerce/Sellers"));
+const Customers = React.lazy(() => import('../pages/apps/Ecommerce/Customers'));
+const Cart = React.lazy(() => import('../pages/apps/Ecommerce/Cart'));
+const Checkout = React.lazy(() => import('../pages/apps/Ecommerce/Checkout/'));
+const Sellers = React.lazy(() => import('../pages/apps/Ecommerce/Sellers'));
 // - kanban
-const Kanban = React.lazy(() => import("../pages/apps/Kanban/"));
+const Kanban = React.lazy(() => import('../pages/apps/Kanban/'));
 
 // - email
-const Inbox = React.lazy(() => import("../pages/apps/Email/Inbox"));
-const EmailDetail = React.lazy(() => import("../pages/apps/Email/Detail"));
+const Inbox = React.lazy(() => import('../pages/apps/Email/Inbox'));
+const EmailDetail = React.lazy(() => import('../pages/apps/Email/Detail'));
 
 // pages
-const Starter = React.lazy(() => import("../pages/Starter"));
-const Profile = React.lazy(() => import("../pages/profile"));
+const Starter = React.lazy(() => import('../pages/Starter'));
+const Profile = React.lazy(() => import('../pages/profile'));
 const ErrorPageNotFound = React.lazy(() =>
-  import("../pages/error/PageNotFound")
+  import('../pages/error/PageNotFound')
 );
-const ServerError = React.lazy(() => import("../pages/error/ServerError"));
+const ServerError = React.lazy(() => import('../pages/error/ServerError'));
 const ErrorForbidden = React.lazy(() =>
-  import("../pages/error/ErrorForbidden")
+  import('../pages/error/ErrorForbidden')
 );
 
 // - other
-const Invoice = React.lazy(() => import("../pages/other/Invoice"));
-const FAQ = React.lazy(() => import("../pages/other/FAQ"));
-const Pricing = React.lazy(() => import("../pages/other/Pricing"));
+const Invoice = React.lazy(() => import('../pages/other/Invoice'));
+const FAQ = React.lazy(() => import('../pages/other/FAQ'));
+const Pricing = React.lazy(() => import('../pages/other/Pricing'));
 
 // uikit
-const Cards = React.lazy(() => import("../pages/uikit/Cards"));
-const Buttons = React.lazy(() => import("../pages/uikit/Buttons"));
-const Modals = React.lazy(() => import("../pages/uikit/Modals"));
-const Tabs = React.lazy(() => import("../pages/uikit/Tabs"));
-const Notifications = React.lazy(() => import("../pages/uikit/Notifications"));
-const Grid = React.lazy(() => import("../pages/uikit/Grid"));
-const General = React.lazy(() => import("../pages/uikit/General"));
-const Typography = React.lazy(() => import("../pages/uikit/Typography"));
-const Icons = React.lazy(() => import("../pages/uikit/Icons"));
-const Spinners = React.lazy(() => import("../pages/uikit/Spinners"));
-const Widgets = React.lazy(() => import("../pages/uikit/Widgets"));
+const Cards = React.lazy(() => import('../pages/uikit/Cards'));
+const Buttons = React.lazy(() => import('../pages/uikit/Buttons'));
+const Modals = React.lazy(() => import('../pages/uikit/Modals'));
+const Tabs = React.lazy(() => import('../pages/uikit/Tabs'));
+const Notifications = React.lazy(() => import('../pages/uikit/Notifications'));
+const Grid = React.lazy(() => import('../pages/uikit/Grid'));
+const General = React.lazy(() => import('../pages/uikit/General'));
+const Typography = React.lazy(() => import('../pages/uikit/Typography'));
+const Icons = React.lazy(() => import('../pages/uikit/Icons'));
+const Spinners = React.lazy(() => import('../pages/uikit/Spinners'));
+const Widgets = React.lazy(() => import('../pages/uikit/Widgets'));
 // forms
-const BasicForms = React.lazy(() => import("../pages/forms/Basic"));
-const FormValidation = React.lazy(() => import("../pages/forms/Validation"));
-const FormAdvanced = React.lazy(() => import("../pages/forms/Advanced"));
-const FormWizard = React.lazy(() => import("../pages/forms/Wizard"));
-const FileUpload = React.lazy(() => import("../pages/forms/FileUpload"));
-const Editors = React.lazy(() => import("../pages/forms/Editors"));
+const BasicForms = React.lazy(() => import('../pages/forms/Basic'));
+const FormValidation = React.lazy(() => import('../pages/forms/Validation'));
+const FormAdvanced = React.lazy(() => import('../pages/forms/Advanced'));
+const FormWizard = React.lazy(() => import('../pages/forms/Wizard'));
+const FileUpload = React.lazy(() => import('../pages/forms/FileUpload'));
+const Editors = React.lazy(() => import('../pages/forms/Editors'));
 // charts
-const ApexChart = React.lazy(() => import("../pages/charts/Apex"));
-const BriteChart = React.lazy(() => import("../pages/charts/Brite"));
-const ChartJs = React.lazy(() => import("../pages/charts/ChartJs"));
+const ApexChart = React.lazy(() => import('../pages/charts/Apex'));
+const BriteChart = React.lazy(() => import('../pages/charts/Brite'));
+const ChartJs = React.lazy(() => import('../pages/charts/ChartJs'));
 // tables
-const BasicTables = React.lazy(() => import("../pages/tables/Basic"));
-const AdvancedTables = React.lazy(() => import("../pages/tables/Advanced"));
-const TestTable = React.lazy(() => import("../pages/tables/TestTable"));
+const BasicTables = React.lazy(() => import('../pages/tables/Basic'));
+const AdvancedTables = React.lazy(() => import('../pages/tables/Advanced'));
+const TestTable = React.lazy(() => import('../pages/tables/TestTable'));
 
 // maps
-const GoogleMaps = React.lazy(() => import("../pages/GoogleMaps"));
+const GoogleMaps = React.lazy(() => import('../pages/GoogleMaps'));
 
 //platform
 const ModifyPassword = React.lazy(() =>
-  import("../pages/platform/ModifyPassword")
+  import('../pages/platform/ModifyPassword')
 );
 
 const PresetMessageHome = React.lazy(() =>
-  import("../pages/platform/preset_messages/index")
+  import('../pages/platform/preset_messages/index')
 );
 
 //offline cs
 const CplCaseHome = React.lazy(() =>
-  import("../pages/offline/cpl_case/CplCaseHome")
+  import('../pages/offline/cpl_case/CplCaseHome')
 );
 const CplCaseForm = React.lazy(() =>
-  import("../pages/offline/cpl_case/CplCaseForm")
+  import('../pages/offline/cpl_case/CplCaseForm')
 );
 
 const CplCaseView = React.lazy(() =>
-  import("../pages/offline/cpl_case/CplCaseView")
+  import('../pages/offline/cpl_case/CplCaseView')
 );
 
 const GovLetterHome = React.lazy(() =>
-  import("../pages/offline/gov_letter/GovLetterHome")
+  import('../pages/offline/gov_letter/GovLetterHome')
 );
 const PersonalVisitHome = React.lazy(() =>
-  import("../pages/offline/personal_visit/PersonalVisitHome")
+  import('../pages/offline/personal_visit/PersonalVisitHome')
 );
 const PersonalVisitForm = React.lazy(() =>
-  import("../pages/offline/personal_visit/PersonalVisitForm")
+  import('../pages/offline/personal_visit/PersonalVisitForm')
 );
 
 const GovLetterForm = React.lazy(() =>
-  import("../pages/offline/gov_letter/GovLetterForm")
+  import('../pages/offline/gov_letter/GovLetterForm')
 );
 
 //service
 
 const ServiceOverview = React.lazy(() =>
-  import("../pages/service/questions/overview")
+  import('../pages/service/questions/overview')
 );
 const ServiceStatistics = React.lazy(() =>
-  import("../pages/service/statistics")
+  import('../pages/service/statistics')
 );
 
 const ServiceStatisticsByHour = React.lazy(() =>
-  import("../pages/service/statistics/ServiceStatisticsByHour")
+  import('../pages/service/statistics/ServiceStatisticsByHour')
 );
 
 const QuestionsQueryHome = React.lazy(() =>
-  import("../pages/service/questions/query/QueryHome")
+  import('../pages/service/questions/query/QueryHome')
 );
 
-const AllocateListPage = React.lazy(() => import("../pages/service/allocate"));
-const QuesionsListPage = React.lazy(() => import("../pages/service/questions"));
+const AllocateListPage = React.lazy(() => import('../pages/service/allocate'));
+const QuesionsListPage = React.lazy(() => import('../pages/service/questions'));
 const SingleQuestionPage = React.lazy(() =>
-  import("../pages/service/questions/view")
+  import('../pages/service/questions/view')
 );
 
 const TestPage = React.lazy(() =>
-  import("../pages/service/questions/TestPage")
+  import('../pages/service/questions/TestPage')
 );
 
-const BatchListPage = React.lazy(() => import("../pages/service/batch"));
+const BatchListPage = React.lazy(() => import('../pages/service/batch'));
 const BatchTaskView = React.lazy(() =>
-  import("../pages/service/batch/BatchTaskView")
+  import('../pages/service/batch/BatchTaskView')
 );
 
 //vip
 const WhaleUserHome = React.lazy(() =>
-  import("../pages/vip/whale_users/WhaleUserHome")
+  import('../pages/vip/whale_users/WhaleUserHome')
 );
 
 ///vip/user_dashboard/${gameId}?
 const WhaleUserDashboard = React.lazy(() =>
-  import("../pages/vip/whale_users/UserDashboard")
+  import('../pages/vip/whale_users/UserDashboard')
 );
 
 const RequestReportHome = React.lazy(() =>
-  import("../pages/vip/whale_users/RequestReportHome")
+  import('../pages/vip/whale_users/RequestReportHome')
 );
 
-const VipOfferHome = React.lazy(() => import("../pages/vip/offers/index"));
-const VipOfferForm = React.lazy(() => import("../pages/vip/offers/form"));
+const VipOfferHome = React.lazy(() => import('../pages/vip/offers/index'));
+const VipOfferForm = React.lazy(() => import('../pages/vip/offers/form'));
 const VipOrdersHome = React.lazy(() =>
-  import("../pages/vip/offers/VipOrdersHome")
+  import('../pages/vip/offers/VipOrdersHome')
 );
 const VipOrdersForm = React.lazy(() =>
-  import("../pages/vip/offers/VipOrdersForm")
+  import('../pages/vip/offers/VipOrdersForm')
 );
 
 //Games
-const GamesHome = React.lazy(() => import("../pages/games"));
-const GamesEditForm = React.lazy(() => import("../pages/games/form"));
-const ServerHome = React.lazy(() => import("../pages/games/ServerHome"));
+const GamesHome = React.lazy(() => import('../pages/games'));
+const GamesEditForm = React.lazy(() => import('../pages/games/form'));
+const ServerHome = React.lazy(() => import('../pages/games/ServerHome'));
+
+//event
+
+const SerialRecordsHome = React.lazy(() =>
+  import('../pages/events/SerialRecordsHome')
+);
 
 // handle auth and authorization
 
@@ -197,7 +203,7 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => (
         // not logged in so redirect to login page with the return url
         return (
           <Redirect
-            to={{ pathname: "/account/login", state: { from: props.location } }}
+            to={{ pathname: '/account/login', state: { from: props.location } }}
           />
         );
       }
@@ -206,7 +212,7 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => (
       // check if route is restricted by role
       if (roles && roles.indexOf(loggedInUser.role) === -1) {
         // role not authorised so redirect to home page
-        return <Redirect to={{ pathname: "/" }} />;
+        return <Redirect to={{ pathname: '/' }} />;
       }
 
       // authorised so return component
@@ -217,32 +223,32 @@ const PrivateRoute = ({ component: Component, roles, ...rest }) => (
 
 // root routes
 const rootRoute = {
-  path: "/",
+  path: '/',
   exact: true,
-  component: () => <Redirect to="/dashboard/service" />,
+  component: () => <Redirect to='/dashboard/service' />,
   route: PrivateRoute
 };
 
 // dashboards
 const myDashboardRoutes = {
-  path: "/mydashboard",
-  name: "我的",
-  icon: "dripicons-meter",
-  header: "Navigation",
+  path: '/mydashboard',
+  name: '我的',
+  icon: 'dripicons-meter',
+  header: 'Navigation',
   children: [
     {
-      path: "/mydashboard/ecommerce",
-      name: "Ecommerce",
+      path: '/mydashboard/ecommerce',
+      name: 'Ecommerce',
       badge: {
-        variant: "success",
-        text: "3"
+        variant: 'success',
+        text: '3'
       },
       component: EcommerceDashboard,
       route: PrivateRoute
     },
     {
-      path: "/mydashboard/crm",
-      name: "CRM",
+      path: '/mydashboard/crm',
+      name: 'CRM',
       component: CRMDashboard,
       route: PrivateRoute
     }
@@ -250,14 +256,14 @@ const myDashboardRoutes = {
 };
 //official dashboards
 const dashboardRoutes = {
-  path: "/dashboard",
-  name: "Dashboard",
-  icon: "dripicons-meter",
-  header: "Navigation",
+  path: '/dashboard',
+  name: 'Dashboard',
+  icon: 'dripicons-meter',
+  header: 'Navigation',
   children: [
     {
-      path: "/dashboard/service",
-      name: "客服相關",
+      path: '/dashboard/service',
+      name: '客服相關',
       component: AdminDashboard,
       route: PrivateRoute
     }
@@ -265,107 +271,107 @@ const dashboardRoutes = {
 };
 // apps
 const appRoutes = {
-  path: "/apps",
-  name: "Apps",
-  icon: "dripicons-view-apps",
+  path: '/apps',
+  name: 'Apps',
+  icon: 'dripicons-view-apps',
   children: [
     {
-      path: "/apps/calendar",
-      name: "Calendar",
+      path: '/apps/calendar',
+      name: 'Calendar',
       component: CalendarApp,
       route: PrivateRoute
     },
     {
-      path: "/apps/projects",
-      name: "Projects",
+      path: '/apps/projects',
+      name: 'Projects',
       children: [
         {
-          path: "/apps/projects/list",
-          name: "List",
+          path: '/apps/projects/list',
+          name: 'List',
           component: Projects,
           route: PrivateRoute
         },
         {
-          path: "/apps/projects/detail",
-          name: "Detail",
+          path: '/apps/projects/detail',
+          name: 'Detail',
           component: ProjectDetail,
           route: PrivateRoute
         }
       ]
     },
     {
-      path: "/apps/ecommerce",
-      name: "eCommerce",
+      path: '/apps/ecommerce',
+      name: 'eCommerce',
       children: [
         {
-          path: "/apps/ecommerce/products",
-          name: "Products",
+          path: '/apps/ecommerce/products',
+          name: 'Products',
           component: EcommerceProducts,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/details",
-          name: "Product Details",
+          path: '/apps/ecommerce/details',
+          name: 'Product Details',
           component: ProductDetails,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/orders",
-          name: "Orders",
+          path: '/apps/ecommerce/orders',
+          name: 'Orders',
           component: Orders,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/order/details",
-          name: "Order Details",
+          path: '/apps/ecommerce/order/details',
+          name: 'Order Details',
           component: OrderDetails,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/customers",
-          name: "Customers",
+          path: '/apps/ecommerce/customers',
+          name: 'Customers',
           component: Customers,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/shopping-cart",
-          name: "Shopping Cart",
+          path: '/apps/ecommerce/shopping-cart',
+          name: 'Shopping Cart',
           component: Cart,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/checkout",
-          name: "Checkout",
+          path: '/apps/ecommerce/checkout',
+          name: 'Checkout',
           component: Checkout,
           route: PrivateRoute
         },
         {
-          path: "/apps/ecommerce/sellers",
-          name: "Sellers",
+          path: '/apps/ecommerce/sellers',
+          name: 'Sellers',
           component: Sellers,
           route: PrivateRoute
         }
       ]
     },
     {
-      path: "/apps/kanban",
-      name: "Kanban",
+      path: '/apps/kanban',
+      name: 'Kanban',
       component: Kanban,
       route: PrivateRoute
     },
     {
-      path: "/apps/email",
-      name: "Email",
+      path: '/apps/email',
+      name: 'Email',
       children: [
         {
-          path: "/apps/email/inbox",
-          name: "Inbox",
+          path: '/apps/email/inbox',
+          name: 'Inbox',
           component: Inbox,
           route: PrivateRoute
         },
         {
-          path: "/apps/email/details",
-          name: "Email Details",
+          path: '/apps/email/details',
+          name: 'Email Details',
           component: EmailDetail,
           route: PrivateRoute
         }
@@ -376,55 +382,55 @@ const appRoutes = {
 
 // pages
 const pageRoutes = {
-  path: "/pages",
-  name: "Pages",
-  icon: "dripicons-copy",
+  path: '/pages',
+  name: 'Pages',
+  icon: 'dripicons-copy',
   children: [
     {
-      path: "/pages/starter",
-      name: "Starter",
+      path: '/pages/starter',
+      name: 'Starter',
       component: Starter,
       route: PrivateRoute
     },
     {
-      path: "/pages/profile",
-      name: "Profile",
+      path: '/pages/profile',
+      name: 'Profile',
       component: Profile,
       route: PrivateRoute
     },
     {
-      path: "/pages/invoice",
-      name: "Invoice",
+      path: '/pages/invoice',
+      name: 'Invoice',
       component: Invoice,
       route: PrivateRoute
     },
     {
-      path: "/pages/faq",
-      name: "FAQ",
+      path: '/pages/faq',
+      name: 'FAQ',
       component: FAQ,
       route: PrivateRoute
     },
     {
-      path: "/pages/pricing",
-      name: "Pricing",
+      path: '/pages/pricing',
+      name: 'Pricing',
       component: Pricing,
       route: PrivateRoute
     },
     {
-      path: "/pages/error-403",
-      name: "Error - 403",
+      path: '/pages/error-403',
+      name: 'Error - 403',
       component: ErrorForbidden,
       route: PrivateRoute
     },
     {
-      path: "/pages/error-404",
-      name: "Error - 404",
+      path: '/pages/error-404',
+      name: 'Error - 404',
       component: ErrorPageNotFound,
       route: PrivateRoute
     },
     {
-      path: "/pages/error-500",
-      name: "Error - 500",
+      path: '/pages/error-500',
+      name: 'Error - 500',
       component: ServerError,
       route: PrivateRoute
     }
@@ -433,36 +439,36 @@ const pageRoutes = {
 
 // auth
 const authRoutes = {
-  path: "/account",
-  name: "Auth",
+  path: '/account',
+  name: 'Auth',
   children: [
     {
-      path: "/account/login",
-      name: "Login",
+      path: '/account/login',
+      name: 'Login',
       component: Login,
       route: Route
     },
     {
-      path: "/account/logout",
-      name: "Logout",
+      path: '/account/logout',
+      name: 'Logout',
       component: Logout,
       route: Route
     },
     {
-      path: "/account/register",
-      name: "Register",
+      path: '/account/register',
+      name: 'Register',
       component: Register,
       route: Route
     },
     {
-      path: "/account/confirm",
-      name: "Confirm",
+      path: '/account/confirm',
+      name: 'Confirm',
       component: Confirm,
       route: Route
     },
     {
-      path: "/account/forget-password",
-      name: "Forget Password",
+      path: '/account/forget-password',
+      name: 'Forget Password',
       component: ForgetPassword,
       route: Route
     }
@@ -471,73 +477,73 @@ const authRoutes = {
 
 // ui
 const uiRoutes = {
-  path: "/ui",
-  name: "UI Kit",
-  icon: "dripicons-briefcase",
+  path: '/ui',
+  name: 'UI Kit',
+  icon: 'dripicons-briefcase',
   children: [
     {
-      path: "/ui/buttons",
-      name: "Buttons",
+      path: '/ui/buttons',
+      name: 'Buttons',
       component: Buttons,
       route: PrivateRoute
     },
     {
-      path: "/ui/cards",
-      name: "Cards",
+      path: '/ui/cards',
+      name: 'Cards',
       component: Cards,
       route: PrivateRoute
     },
     {
-      path: "/ui/general",
-      name: "General",
+      path: '/ui/general',
+      name: 'General',
       component: General,
       route: PrivateRoute
     },
     {
-      path: "/ui/grid",
-      name: "Grid",
+      path: '/ui/grid',
+      name: 'Grid',
       component: Grid,
       route: PrivateRoute
     },
     {
-      path: "/ui/icons",
-      name: "Icons",
+      path: '/ui/icons',
+      name: 'Icons',
       component: Icons,
       route: PrivateRoute
     },
     {
-      path: "/ui/modals",
-      name: "Modals",
+      path: '/ui/modals',
+      name: 'Modals',
       component: Modals,
       route: PrivateRoute
     },
     {
-      path: "/ui/notifications",
-      name: "Notifications",
+      path: '/ui/notifications',
+      name: 'Notifications',
       component: Notifications,
       route: PrivateRoute
     },
     {
-      path: "/ui/spinners",
-      name: "Spinners",
+      path: '/ui/spinners',
+      name: 'Spinners',
       component: Spinners,
       route: PrivateRoute
     },
     {
-      path: "/ui/tabs",
-      name: "Tabs",
+      path: '/ui/tabs',
+      name: 'Tabs',
       component: Tabs,
       route: PrivateRoute
     },
     {
-      path: "/ui/typography",
-      name: "Typography",
+      path: '/ui/typography',
+      name: 'Typography',
       component: Typography,
       route: PrivateRoute
     },
     {
-      path: "/ui/widgets",
-      name: "Widgets",
+      path: '/ui/widgets',
+      name: 'Widgets',
       component: Widgets,
       route: PrivateRoute
     }
@@ -546,43 +552,43 @@ const uiRoutes = {
 
 // forms
 const formsRoutes = {
-  path: "/forms",
-  name: "Forms",
-  icon: "dripicons-document",
+  path: '/forms',
+  name: 'Forms',
+  icon: 'dripicons-document',
   children: [
     {
-      path: "/forms/basic",
-      name: "Basic Elements",
+      path: '/forms/basic',
+      name: 'Basic Elements',
       component: BasicForms,
       route: PrivateRoute
     },
     {
-      path: "/forms/advanced",
-      name: "Form Advanced",
+      path: '/forms/advanced',
+      name: 'Form Advanced',
       component: FormAdvanced,
       route: PrivateRoute
     },
     {
-      path: "/forms/validation",
-      name: "Form validation",
+      path: '/forms/validation',
+      name: 'Form validation',
       component: FormValidation,
       route: PrivateRoute
     },
     {
-      path: "/forms/wizard",
-      name: "Form Wizard",
+      path: '/forms/wizard',
+      name: 'Form Wizard',
       component: FormWizard,
       route: PrivateRoute
     },
     {
-      path: "/forms/upload",
-      name: "File Upload",
+      path: '/forms/upload',
+      name: 'File Upload',
       component: FileUpload,
       route: PrivateRoute
     },
     {
-      path: "/forms/editors",
-      name: "Editors",
+      path: '/forms/editors',
+      name: 'Editors',
       component: Editors,
       route: PrivateRoute
     }
@@ -591,61 +597,61 @@ const formsRoutes = {
 
 // other features
 const featuresRoutes = {
-  path: "/features",
-  name: "Features",
-  icon: "dripicons-view-list-large",
+  path: '/features',
+  name: 'Features',
+  icon: 'dripicons-view-list-large',
   children: [
     {
-      path: "/features/charts",
-      name: "Charts",
+      path: '/features/charts',
+      name: 'Charts',
       children: [
         {
-          path: "/features/charts/apex",
-          name: "Apex",
+          path: '/features/charts/apex',
+          name: 'Apex',
           component: ApexChart,
           route: PrivateRoute
         },
         {
-          path: "/features/charts/brite",
-          name: "Brite",
+          path: '/features/charts/brite',
+          name: 'Brite',
           component: BriteChart,
           route: PrivateRoute
         },
         {
-          path: "/features/charts/chartjs",
-          name: "Chartjs",
+          path: '/features/charts/chartjs',
+          name: 'Chartjs',
           component: ChartJs,
           route: PrivateRoute
         }
       ]
     },
     {
-      path: "/features/tables",
-      name: "Tables",
+      path: '/features/tables',
+      name: 'Tables',
       children: [
         {
-          path: "/features/tables/basic",
-          name: "Basic",
+          path: '/features/tables/basic',
+          name: 'Basic',
           component: BasicTables,
           route: PrivateRoute
         },
         {
-          path: "/features/tables/advanced",
-          name: "Advanced",
+          path: '/features/tables/advanced',
+          name: 'Advanced',
           component: AdvancedTables,
           route: PrivateRoute
         },
         {
-          path: "/features/tables/testtable",
-          name: "測試表格",
+          path: '/features/tables/testtable',
+          name: '測試表格',
           component: TestTable,
           route: PrivateRoute
         }
       ]
     },
     {
-      path: "/features/googlemaps",
-      name: "Google Maps",
+      path: '/features/googlemaps',
+      name: 'Google Maps',
       component: GoogleMaps,
       route: PrivateRoute
     }
@@ -653,18 +659,18 @@ const featuresRoutes = {
 };
 
 const platformRoutesSub = {
-  path: "/platform",
-  name: "Platform",
+  path: '/platform',
+  name: 'Platform',
   children: [
     {
-      path: "/platform/modify_password",
-      name: "修改密碼",
+      path: '/platform/modify_password',
+      name: '修改密碼',
       component: ModifyPassword,
       route: PrivateRoute
     },
     {
-      path: "/platform/preset_messages",
-      name: "自訂快速回覆",
+      path: '/platform/preset_messages',
+      name: '自訂快速回覆',
       component: PresetMessageHome,
       route: PrivateRoute
     }
@@ -673,102 +679,102 @@ const platformRoutesSub = {
 // online cs
 
 const serviceRoutesSub = {
-  path: "/service",
-  name: "Service",
+  path: '/service',
+  name: 'Service',
   children: [
     {
-      path: "/service/view/:question_id",
-      name: "客服案件檢視",
+      path: '/service/view/:question_id',
+      name: '客服案件檢視',
       component: SingleQuestionPage,
       route: PrivateRoute
     },
     {
-      path: "/service/batch_handler/:record_id",
-      name: "批次處理-項目檢視",
+      path: '/service/batch_handler/:record_id',
+      name: '批次處理-項目檢視',
       component: BatchTaskView,
       route: PrivateRoute
     }
   ]
 };
 const serviceRoutes = {
-  path: "/service",
-  name: "客服",
-  icon: " dripicons-device-desktop",
+  path: '/service',
+  name: '客服',
+  icon: ' dripicons-device-desktop',
   children: [
     {
       exact: true,
-      path: "/service/overview",
-      name: "總覽",
+      path: '/service/overview',
+      name: '總覽',
       component: ServiceOverview,
       route: PrivateRoute
     },
     {
       exact: true,
-      path: "/service/questions/todo",
-      name: "待處理案件",
+      path: '/service/questions/todo',
+      name: '待處理案件',
       component: QuesionsListPage,
       route: PrivateRoute
     },
     {
-      path: "/service/questions/get_list",
-      name: "等待中案件",
+      path: '/service/questions/get_list',
+      name: '等待中案件',
       component: QuesionsListPage,
       route: PrivateRoute
     },
     {
-      path: "/service/questions/closed",
-      name: "近期結案案件",
+      path: '/service/questions/closed',
+      name: '近期結案案件',
       component: QuesionsListPage,
       route: PrivateRoute
     },
     {
-      path: "/service/questions/hidden",
-      name: "隱藏案件",
+      path: '/service/questions/hidden',
+      name: '隱藏案件',
       component: QuesionsListPage,
       route: PrivateRoute
     },
     {
-      path: "/service/questions/favorite",
-      name: "我收藏的案件",
-      icon: "dripicons-star",
+      path: '/service/questions/favorite',
+      name: '我收藏的案件',
+      icon: 'dripicons-star',
       component: QuesionsListPage,
       route: PrivateRoute
     },
     {
       exact: true,
-      path: "/service/allocate/list",
-      name: "派單系統- 案件列表",
+      path: '/service/allocate/list',
+      name: '派單系統- 案件列表',
       component: AllocateListPage,
       route: PrivateRoute
     },
     {
       exact: true,
-      path: "/service/statistics",
-      name: "件數統計",
+      path: '/service/statistics',
+      name: '件數統計',
       component: ServiceStatistics,
       route: PrivateRoute
     },
     {
       exact: true,
-      path: "/service/pivot_tbl",
-      name: "時間別統計",
+      path: '/service/pivot_tbl',
+      name: '時間別統計',
       component: ServiceStatisticsByHour,
       route: PrivateRoute
     },
 
     {
       exact: true,
-      path: "/service/questions/query",
-      name: "案件查詢",
-      icon: "dripicons-search",
+      path: '/service/questions/query',
+      name: '案件查詢',
+      icon: 'dripicons-search',
       component: QuestionsQueryHome,
       route: PrivateRoute
     },
     {
       exact: true,
-      path: "/service/batch_list",
-      name: "批次處理",
-      icon: "dripicons-basket",
+      path: '/service/batch_list',
+      name: '批次處理',
+      icon: 'dripicons-basket',
       component: BatchListPage,
       route: PrivateRoute
     }
@@ -776,79 +782,79 @@ const serviceRoutes = {
 };
 // offline cs
 const offlineRoutes = {
-  path: "/offline",
-  name: "線下客服區",
-  icon: "dripicons-briefcase",
+  path: '/offline',
+  name: '線下客服區',
+  icon: 'dripicons-briefcase',
   children: [
     {
-      path: "/offline/cpl_case/home",
-      name: "消保",
+      path: '/offline/cpl_case/home',
+      name: '消保',
       component: CplCaseHome,
       route: PrivateRoute
     },
     {
-      path: "/offline/gov_letter/home",
-      name: "公函",
+      path: '/offline/gov_letter/home',
+      name: '公函',
       component: GovLetterHome,
       route: PrivateRoute
     },
     {
-      path: "/offline/personal_visit/home",
-      name: "親訪",
+      path: '/offline/personal_visit/home',
+      name: '親訪',
       component: PersonalVisitHome,
       route: PrivateRoute
     }
   ]
 };
 const offlineRoutesSub = {
-  path: "/offline",
-  name: "offlineCS",
+  path: '/offline',
+  name: 'offlineCS',
   children: [
     {
-      path: "/offline/personal_visit/create",
-      name: "新增親訪紀錄",
+      path: '/offline/personal_visit/create',
+      name: '新增親訪紀錄',
       component: PersonalVisitForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/personal_visit/edit/:record_id",
-      name: "編輯親訪紀錄",
+      path: '/offline/personal_visit/edit/:record_id',
+      name: '編輯親訪紀錄',
       component: PersonalVisitForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/gov_letter/create",
-      name: "新增公函",
+      path: '/offline/gov_letter/create',
+      name: '新增公函',
       component: GovLetterForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/gov_letter/edit/:record_id",
-      name: "編輯公函",
+      path: '/offline/gov_letter/edit/:record_id',
+      name: '編輯公函',
       component: GovLetterForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/cpl_case/create",
-      name: "新增消保紀錄",
+      path: '/offline/cpl_case/create',
+      name: '新增消保紀錄',
       component: CplCaseForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/cpl_case/edit/:record_id",
-      name: "編輯消保紀錄",
+      path: '/offline/cpl_case/edit/:record_id',
+      name: '編輯消保紀錄',
       component: CplCaseForm,
       route: PrivateRoute
     },
     {
-      path: "/offline/cpl_case/view/:record_id",
-      name: "檢視消保紀錄",
+      path: '/offline/cpl_case/view/:record_id',
+      name: '檢視消保紀錄',
       component: CplCaseView,
       route: PrivateRoute
     },
     {
-      path: "/test",
-      name: "測試",
+      path: '/test',
+      name: '測試',
       component: TestPage,
       route: PrivateRoute
     }
@@ -857,42 +863,42 @@ const offlineRoutesSub = {
 
 // VIP
 const vipRoutes = {
-  path: "/vip",
-  name: "VIP",
-  icon: "dripicons-trophy",
+  path: '/vip',
+  name: 'VIP',
+  icon: 'dripicons-trophy',
   children: [
     {
-      path: "/vip/whale_users",
-      name: "鯨魚用戶",
+      path: '/vip/whale_users',
+      name: '鯨魚用戶',
       component: WhaleUserHome,
       route: PrivateRoute
     },
     {
-      path: "/vip/requests_report",
-      name: "鯨魚用戶服務紀錄",
+      path: '/vip/requests_report',
+      name: '鯨魚用戶服務紀錄',
       component: RequestReportHome,
       route: PrivateRoute
     },
 
     {
-      path: "/vip/wire_report/list",
-      name: "VIP 訂單",
+      path: '/vip/wire_report/list',
+      name: 'VIP 訂單',
       component: VipOrdersHome,
       route: PrivateRoute
     },
     {
-      path: "/vip/offers",
-      name: "VIP方案",
+      path: '/vip/offers',
+      name: 'VIP方案',
       children: [
         {
-          path: "/vip/offers/offer_list",
-          name: "方案列表",
+          path: '/vip/offers/offer_list',
+          name: '方案列表',
           component: VipOfferHome,
           route: PrivateRoute
         },
         {
-          path: "/vip/offers/add_offer",
-          name: "方案明細",
+          path: '/vip/offers/add_offer',
+          name: '方案明細',
           component: VipOfferForm,
           route: PrivateRoute
         }
@@ -903,26 +909,26 @@ const vipRoutes = {
 //games
 
 const gamesRoutes = {
-  path: "/games",
-  name: "遊戲管理",
-  icon: "dripicons-archive",
+  path: '/games',
+  name: '遊戲管理',
+  icon: 'dripicons-archive',
   children: [
     {
-      path: "/games/home",
-      name: "遊戲設定",
+      path: '/games/home',
+      name: '遊戲設定',
       component: GamesHome,
       route: PrivateRoute,
       exact: true
     },
     {
-      path: "/games/create",
-      name: "新增遊戲",
+      path: '/games/create',
+      name: '新增遊戲',
       component: GamesEditForm,
       route: PrivateRoute
     },
     {
-      path: "/games/servers",
-      name: "伺服器設定",
+      path: '/games/servers',
+      name: '伺服器設定',
       component: ServerHome,
       route: PrivateRoute,
       exact: true
@@ -930,15 +936,31 @@ const gamesRoutes = {
   ]
 };
 
+//events
+
+const eventsRoutes = {
+  path: '/events',
+  name: '活動',
+  icon: 'dripicons-broadcast',
+  children: [
+    {
+      path: '/events/serial',
+      name: '虛寶活動',
+      component: SerialRecordsHome,
+      route: PrivateRoute,
+      exact: true
+    }
+  ]
+};
 // online cs
 
 const gameRoutesSub = {
-  path: "/games",
-  name: "games",
+  path: '/games',
+  name: 'games',
   children: [
     {
-      path: "/games/edit/:game_id",
-      name: "編輯遊戲",
+      path: '/games/edit/:game_id',
+      name: '編輯遊戲',
       component: GamesEditForm,
       route: PrivateRoute
     }
@@ -946,18 +968,18 @@ const gameRoutesSub = {
 };
 
 const vipRoutesSub = {
-  path: "/vip",
-  name: "VIP",
+  path: '/vip',
+  name: 'VIP',
   children: [
     {
-      path: "/vip/wire_report/edit/:report_id",
-      name: "編輯vip訂單",
+      path: '/vip/wire_report/edit/:report_id',
+      name: '編輯vip訂單',
       component: VipOrdersForm,
       route: PrivateRoute
     },
     {
-      path: "/vip/user_dashboard/:game_id",
-      name: "維護鯨魚用戶資料",
+      path: '/vip/user_dashboard/:game_id',
+      name: '維護鯨魚用戶資料',
       component: WhaleUserDashboard,
       route: PrivateRoute
     }
@@ -972,7 +994,7 @@ const flattenRoutes = routes => {
   routes.forEach(item => {
     flatRoutes.push(item);
 
-    if (typeof item.children !== "undefined") {
+    if (typeof item.children !== 'undefined') {
       flatRoutes = [...flatRoutes, ...flattenRoutes(item.children)];
     }
   });
@@ -998,7 +1020,8 @@ const allRoutes = [
   vipRoutes,
   gamesRoutes,
   gameRoutesSub,
-  vipRoutesSub
+  vipRoutesSub,
+  eventsRoutes
 ];
 
 //所有要在leftSideBar顯示的路徑
@@ -1016,9 +1039,17 @@ const authProtectedRoutes =
         myDashboardRoutes,
         serviceRoutes,
         vipRoutes,
-        gamesRoutes
+        gamesRoutes,
+        eventsRoutes
       ]
-    : [dashboardRoutes, offlineRoutes, serviceRoutes, vipRoutes, gamesRoutes];
+    : [
+        dashboardRoutes,
+        offlineRoutes,
+        serviceRoutes,
+        vipRoutes,
+        gamesRoutes,
+        eventsRoutes
+      ];
 
 const allFlattenRoutes = flattenRoutes(allRoutes);
 

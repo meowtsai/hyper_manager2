@@ -1,20 +1,20 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const EventsModel = require("../../models/EventsModel");
+const EventsModel = require('../../models/EventsModel');
 //const Admin_user = require("../../models/Admin_user");
-const moment = require("moment");
+const moment = require('moment');
 //const auth = require("../../middleware/auth");
-const checkPermission = require("../../middleware/checkPermission");
-const validator = require("validator");
+const checkPermission = require('../../middleware/checkPermission');
+const validator = require('validator');
 //@route: GET /api/events/list
 //@desc: get overview of op report
 //@access: public
 
 router.get(
-  "/list",
+  '/list',
 
   function(req, res, next) {
-    return checkPermission(req, res, next, "event", "read");
+    return checkPermission(req, res, next, 'event', 'read');
   },
   async (req, res) => {
     const events_list = await EventsModel.getAll();
@@ -23,15 +23,15 @@ router.get(
       formated_begin_time: event.begin_time
         ? moment(event.begin_time)
             .local()
-            .format("YYYY-MM-DD HH:mm:ss")
-        : "",
+            .format('YYYY-MM-DD HH:mm:ss')
+        : '',
       formated_end_time: event.end_time
         ? moment(event.end_time)
             .local()
-            .format("YYYY-MM-DD HH:mm:ss")
-        : "",
-      formated_status: event.status === 0 ? "關閉" : "開啟",
-      formated_type: event.type === 2 ? "2 - 虛寶" : `其他(${event.type})`
+            .format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      formated_status: event.status === 0 ? '關閉' : '開啟',
+      formated_type: event.type === 2 ? '2 - 虛寶' : `其他(${event.type})`
     }));
 
     res.json(return_list);
@@ -39,9 +39,9 @@ router.get(
 );
 
 router.get(
-  "/detail/:event_id",
+  '/detail/:event_id',
   function(req, res, next) {
-    return checkPermission(req, res, next, "event", "read");
+    return checkPermission(req, res, next, 'event', 'read');
   },
   async (req, res) => {
     const event_id = req.params.event_id;
@@ -49,7 +49,7 @@ router.get(
     if (event) {
       res.json(event);
     } else {
-      res.status(400).json({ msg: "沒有這個活動" });
+      res.status(400).json({ msg: '沒有這個活動' });
     }
   }
 );
@@ -58,9 +58,9 @@ router.get(
 //@desc: add a new event or edit an existing event if eventid exist
 //@access: private
 router.post(
-  "/",
+  '/',
   function(req, res, next) {
-    return checkPermission(req, res, next, "event", "modify");
+    return checkPermission(req, res, next, 'event', 'modify');
   },
   async (req, res) => {
     //console.log(req.body);
@@ -82,12 +82,29 @@ router.post(
       console.log(result);
       if (result.affectedRows === 1) {
         res.json({
-          msg: "編輯成功",
+          msg: '編輯成功',
           affectedId: event_id ? event_id : result.insertId
         });
       } else {
         res.status(500).json({ msg: `新增失敗(${result.error})` });
       }
+    }
+  }
+);
+
+//events/serialRecords/${event_id}`
+router.get(
+  '/serialRecords/:event_id',
+  function(req, res, next) {
+    return checkPermission(req, res, next, 'event', 'read');
+  },
+  async (req, res) => {
+    const event_id = req.params.event_id;
+    const serialRecords = await EventsModel.findSerialRecords(event_id);
+    if (serialRecords) {
+      res.json(serialRecords);
+    } else {
+      res.status(400).json({ msg: '沒有兌換紀錄' });
     }
   }
 );
@@ -98,24 +115,24 @@ const validateEventInput = data => {
   let errors = {};
   const { game_id, event_name, type, status, begin_time, end_time } = data;
   if (!game_id || validator.isEmpty(game_id)) {
-    errors.game_id = "遊戲ID必須填寫。";
+    errors.game_id = '遊戲ID必須填寫。';
   }
   if (!event_name || !validator.isByteLength(event_name, { min: 5, max: 40 })) {
-    errors.event_name = "活動名稱長度必須在5~20之間。";
+    errors.event_name = '活動名稱長度必須在5~20之間。';
   }
   if (!validator.isNumeric(type.toString())) {
-    errors.type = "類型是數字";
+    errors.type = '類型是數字';
   }
   if (!validator.isNumeric(status.toString())) {
-    errors.status = "活動狀態必是須數字";
+    errors.status = '活動狀態必是須數字';
   }
 
   if (!end_time || !validator.isAfter(end_time, begin_time)) {
-    errors.end_time = "結束時間必須在開始時間之後";
+    errors.end_time = '結束時間必須在開始時間之後';
   }
 
   if (!begin_time) {
-    errors.begin_time = "請填寫開始時間";
+    errors.begin_time = '請填寫開始時間';
   }
 
   return {
