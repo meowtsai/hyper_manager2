@@ -46,13 +46,13 @@ import {
   ADD_MULTIPLE_QUESTIONS_TO_BATCH,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED
-} from "./constants";
+} from './constants';
 
 const INIT_STATE = {
   list: [],
   current: {},
   loading: true,
-  error: "",
+  error: '',
   allgames: [],
   antsHandleData: [],
   qCountData: [],
@@ -114,7 +114,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         ...state,
         loading:
           Object.keys(action.payload).length === 1 &&
-          action.payload.status === "1"
+          action.payload.status === '1'
             ? false
             : true,
         error: null
@@ -282,6 +282,8 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         games_list: action.payload.games_list,
         question_type: action.payload.question_type,
         question_status: action.payload.question_status,
+        cs_admins: action.payload.cs_admins,
+        ants_admins: action.payload.ants_admins,
         loading: false,
         error: null
       };

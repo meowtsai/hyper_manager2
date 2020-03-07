@@ -1,28 +1,28 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const moment = require("moment");
-const jwt = require("jsonwebtoken");
-const validator = require("validator");
-const QuestionsModel = require("../../models/QuestionsModel");
-const Admin_user = require("../../models/Admin_user");
-const RepliesModel = require("../../models/RepliesModel");
-const BatchTasksModel = require("../../models/BatchTasksModel");
-const LogAdminActionsModel = require("../../models/LogAdminActionsModel");
-const GamesModel = require("../../models/GamesModel");
-const AllocationModel = require("../../models/AllocationModel");
-const WhaleUserModel = require("../../models/WhaleUserModel");
-const SERVICE_CONFIG = require("../../config/service");
+const moment = require('moment');
+const jwt = require('jsonwebtoken');
+const validator = require('validator');
+const QuestionsModel = require('../../models/QuestionsModel');
+const Admin_user = require('../../models/Admin_user');
+const RepliesModel = require('../../models/RepliesModel');
+const BatchTasksModel = require('../../models/BatchTasksModel');
+const LogAdminActionsModel = require('../../models/LogAdminActionsModel');
+const GamesModel = require('../../models/GamesModel');
+const AllocationModel = require('../../models/AllocationModel');
+const WhaleUserModel = require('../../models/WhaleUserModel');
+const SERVICE_CONFIG = require('../../config/service');
 
-const helper = require("../../utils/helper");
+const helper = require('../../utils/helper');
 
-const checkPermission = require("../../middleware/checkPermission");
-const auth = require("../../middleware/auth");
+const checkPermission = require('../../middleware/checkPermission');
+const auth = require('../../middleware/auth');
 
 //@route: GET /api/questions/test
 //@desc: get questions list
 //@access: private
 
-router.get("/test", auth, async (req, res) => {
+router.get('/test', auth, async (req, res) => {
   const questionsList = await QuestionsModel.getTestData();
   res.json(questionsList);
 });
@@ -32,9 +32,9 @@ router.get("/test", auth, async (req, res) => {
 //@access: private
 
 router.get(
-  "/overview",
+  '/overview',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "read");
+    return checkPermission(req, res, next, 'service', 'read');
   },
   async (req, res) => {
     // const allow_games =
@@ -76,8 +76,8 @@ router.get(
 //@desc: get questions list
 //@access: private
 
-router.get("/", auth, async (req, res) => {
-  const questionsList = await QuestionsModel.getAll("", 0, 25);
+router.get('/', auth, async (req, res) => {
+  const questionsList = await QuestionsModel.getAll('', 0, 25);
   res.json(questionsList);
 });
 
@@ -86,17 +86,17 @@ router.get("/", auth, async (req, res) => {
 //@access: private
 
 router.get(
-  "/view/:question_id",
+  '/view/:question_id',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const question_type = SERVICE_CONFIG.question_type;
     const question_status = SERVICE_CONFIG.question_status;
     //檢查是否有權限可以加入批次
     const add_favor_ok = Admin_user.checkPermission(
-      "service",
-      "favorite",
+      'service',
+      'favorite',
       req.user.role
     );
 
@@ -108,7 +108,7 @@ router.get(
     const replies = RepliesModel.getRepliesByQidSingle(question_id);
     const pic_plus = QuestionsModel.getPicPlus(question_id);
 
-    const allocate_users = Admin_user.findAllByRole("cs");
+    const allocate_users = Admin_user.findAllByRole('cs');
     const tasks = BatchTasksModel.getActiveTasks(req.user.uid);
 
     Promise.all([
@@ -131,21 +131,21 @@ router.get(
       ]) => {
         stat = {
           question:
-            req.user.role === "ants"
+            req.user.role === 'ants'
               ? {
                   ...question,
                   email: question.email
                     ? question.email.substring(0, 4) +
                       question.email
                         .substring(4, question.email.length)
-                        .replace(/./g, "*")
-                    : "",
+                        .replace(/./g, '*')
+                    : '',
                   phone: question.phone
                     ? question.phone
                         .substring(0, question.phone.length - 4)
-                        .replace(/./g, "*") +
+                        .replace(/./g, '*') +
                       question.phone.substring(question.phone.length - 4)
-                    : ""
+                    : ''
                 }
               : question,
           replies,
@@ -155,6 +155,19 @@ router.get(
           allocate_users,
           tasks: tasks.filter(t => t.game_id === question.game_id)
         };
+
+        const log = {
+          admin_uid: req.user.uid,
+          ip: req.clientIp,
+          action: 'view_question',
+          function: `${question.game_name},${question_id}`,
+          desc: `${req.user.name} 在 ${moment().format(
+            'YYYY-MM-DD HH:mm:ss'
+          )} 開啟提問單#${question_id}`,
+          create_time: new Date()
+        };
+
+        LogAdminActionsModel.save(log);
 
         res.json({ stat, question_type, question_status });
       },
@@ -171,7 +184,7 @@ router.get(
 //@desc: get allocated questions list
 //@access: private
 //$allocate_count = $this->DB1->from("questions q")->where("q.allocate_admin_uid", $_SESSION['admin_uid'])->where("q.allocate_status", "1")->count_all_results();
-router.get("/allocated", auth, async (req, res) => {
+router.get('/allocated', auth, async (req, res) => {
   //const admin_uid = req.user.uid;
   const admin_uid = 86;
   const questionsList = await QuestionsModel.getAllocateList(admin_uid, 1);
@@ -179,17 +192,25 @@ router.get("/allocated", auth, async (req, res) => {
 });
 
 router.get(
-  "/config",
+  '/config',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "read");
+    return checkPermission(req, res, next, 'service', 'read');
   },
   async (req, res) => {
     const question_type = SERVICE_CONFIG.question_type;
     const question_status = SERVICE_CONFIG.question_status;
 
     const games_list = await GamesModel.getListByCodition(req.user.allow_games);
+    const cs_admins = await Admin_user.findAllByRole('cs_master');
+    const ants_admins = await Admin_user.findAllByRole('ants');
 
-    res.json({ question_type, question_status, games_list });
+    res.json({
+      question_type,
+      question_status,
+      games_list,
+      ants_admins,
+      cs_admins
+    });
   }
 );
 
@@ -198,9 +219,9 @@ router.get(
 //@access: private
 //$allocate_count = $this->DB1->from("questions q")->where("q.allocate_admin_uid", $_SESSION['admin_uid'])->where("q.allocate_status", "1")->count_all_results();
 router.post(
-  "/getList",
+  '/getList',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "read");
+    return checkPermission(req, res, next, 'service', 'read');
   },
   async (req, res) => {
     //const admin_uid = req.user.uid;
@@ -209,9 +230,9 @@ router.post(
     const allocation_status = SERVICE_CONFIG.allocationStatus;
 
     const condition = req.body;
-    //console.log("server get list", req.body);
+    //console.log('server get list', req.body);
     //const action = req.query.action; //查詢
-    const action = "查詢";
+    const action = '查詢';
     let query = [];
     if (action) {
       try {
@@ -221,20 +242,21 @@ router.post(
           condition
         );
       } catch (error) {
+        //console.log(error);
         return res.status(500).json({ msg: `獲取資料失敗(${error})` });
       }
     } else {
       //default
     }
-    const q_ids = query.length > 0 ? query.map(q => q.id).join(",") : [];
+    const q_ids = query.length > 0 ? query.map(q => q.id).join(',') : [];
     const pReply = q_ids.length > 0 ? RepliesModel.getRepliesByQid(q_ids) : [];
     const pAllocation =
       q_ids.length > 0 ? AllocationModel.getRecordsByQid(q_ids) : [];
 
     //檢查是否有權限可以加入批次
     const add_favor_ok = Admin_user.checkPermission(
-      "service",
-      "favorite",
+      'service',
+      'favorite',
       req.user.role
     );
 
@@ -243,15 +265,22 @@ router.post(
     Promise.all([pReply, pAllocation, add_favor_ok, tasks])
       .then(([reply_query, newAllocationStatus, add_favor_ok, tasks]) => {
         res.json({
-          query:req.user.role === "ants"? query.map(q=> ({...q, email: q.email
-            ? q.email.substring(0, 4) +
-              q.email
-                .substring(4, q.email.length)
-                .replace(/./g, "*")
-            : "", phone: q.phone? q.phone.substring(0, q.phone.length - 4)
-            .replace(/./g, "*") +
-          q.phone.substring(q.phone.length - 4)
-        : "" })):query,
+          query:
+            req.user.role === 'ants'
+              ? query.map(q => ({
+                  ...q,
+                  email: q.email
+                    ? q.email.substring(0, 4) +
+                      q.email.substring(4, q.email.length).replace(/./g, '*')
+                    : '',
+                  phone: q.phone
+                    ? q.phone
+                        .substring(0, q.phone.length - 4)
+                        .replace(/./g, '*') +
+                      q.phone.substring(q.phone.length - 4)
+                    : ''
+                }))
+              : query,
           reply_query,
           newAllocationStatus,
           question_type,
@@ -271,9 +300,9 @@ router.post(
 );
 
 router.put(
-  "/updateQuestionType",
+  '/updateQuestionType',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     //console.log("updateQuestionType", req.body);
@@ -285,7 +314,7 @@ router.put(
     //console.log(result);
     if (result.affectedRows === 1) {
       res.json({
-        msg: "編輯成功",
+        msg: '編輯成功',
         id: qId,
         type: newType
       });
@@ -295,9 +324,9 @@ router.put(
   }
 );
 router.put(
-  "/updateQuestionStatus",
+  '/updateQuestionStatus',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     //console.log("updateQuestionStatus", req.body);
@@ -309,7 +338,7 @@ router.put(
     //console.log(result);
     if (result.affectedRows === 1) {
       res.json({
-        msg: "編輯成功",
+        msg: '編輯成功',
         id: qId,
         status: newStatus
       });
@@ -320,9 +349,9 @@ router.put(
 );
 
 router.put(
-  "/allocate_json",
+  '/allocate_json',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     //console.log("allocate_json", req.body);
@@ -335,10 +364,10 @@ router.put(
 
     const dt = moment()
       .local()
-      .format("YYYY-MM-DD HH:mm");
+      .format('YYYY-MM-DD HH:mm');
 
     const updatedResult = `${
-      allocate_result === null ? "" : allocate_result
+      allocate_result === null ? '' : allocate_result
     }${dt} - ${req.user.name}：[後送]${result}<br>`;
 
     const updatedField = {
@@ -358,7 +387,7 @@ router.put(
     //console.log(result);
     if (dbResult.affectedRows === 1) {
       res.json({
-        msg: "後送成功",
+        msg: '後送成功',
         id: question_id,
         updatedField: updatedField
       });
@@ -369,9 +398,9 @@ router.put(
 );
 
 router.put(
-  "/request_allocate_json",
+  '/request_allocate_json',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     //console.log("allocate_json", req.body);
@@ -384,10 +413,10 @@ router.put(
 
     const dt = moment()
       .local()
-      .format("YYYY-MM-DD HH:mm");
+      .format('YYYY-MM-DD HH:mm');
 
     const updatedResult = `${
-      allocate_result === null ? "" : allocate_result
+      allocate_result === null ? '' : allocate_result
     }${dt} - ${req.user.name}：[資料請求]${result}<br>`;
 
     const updatedField = {
@@ -406,7 +435,7 @@ router.put(
     //console.log(result);
     if (dbResult.affectedRows === 1) {
       res.json({
-        msg: "後送成功",
+        msg: '後送成功',
         id: question_id,
         updatedField: updatedField
       });
@@ -417,16 +446,16 @@ router.put(
 );
 
 router.put(
-  "/finish_allocate_json",
+  '/finish_allocate_json',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { question_id, allocate_result, result } = req.body;
 
     const dt = moment()
       .local()
-      .format("YYYY-MM-DD HH:mm");
+      .format('YYYY-MM-DD HH:mm');
 
     const updatedResult = `${allocate_result}${dt} - ${req.user.name}：[處理完成]${result}<br>`;
 
@@ -445,7 +474,7 @@ router.put(
     //console.log(result);
     if (dbResult.affectedRows === 1) {
       res.json({
-        msg: "已修改為後送處理完成",
+        msg: '已修改為後送處理完成',
         id: question_id,
         updatedField: { ...updatedField, allocate_user_name: req.user.name }
       });
@@ -456,14 +485,14 @@ router.put(
 );
 
 router.put(
-  "/modify_reply_json",
+  '/modify_reply_json',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { id, question_id, content } = req.body;
     if (helper.isEmpty(content)) {
-      return res.status(400).json({ msg: "請輸入回覆內容。" });
+      return res.status(400).json({ msg: '請輸入回覆內容。' });
     }
 
     const post_content = helper.nl2brB(content);
@@ -472,13 +501,13 @@ router.put(
     const isDub = await RepliesModel.checkDuplicate(question_id, post_content);
     //檢查是否重複作答
     if (isDub) {
-      return res.status(409).json({ msg: "請勿重覆回答。" });
+      return res.status(409).json({ msg: '請勿重覆回答。' });
     }
     const data = {
       uid: 0,
       question_id,
       content: post_content,
-      is_official: "1",
+      is_official: '1',
       admin_uid: req.user.uid
     };
 
@@ -490,10 +519,10 @@ router.put(
       const log = {
         admin_uid: req.user.uid,
         ip: req.clientIp,
-        action: "question_reply",
-        function: "update",
+        action: 'question_reply',
+        function: 'update',
         desc: `編輯回覆 #${id} ${reply.content} => ${data.content}`,
-        create_time: "NOW()"
+        create_time: new Date()
       };
 
       LogAdminActionsModel.save(log);
@@ -501,7 +530,7 @@ router.put(
 
       if (!replyResult.error) {
         res.json({
-          msg: "編輯回覆成功。",
+          msg: '編輯回覆成功。',
           id: id,
           updatedField: {
             ...data,
@@ -515,8 +544,8 @@ router.put(
       const insResult = await RepliesModel.save(data);
       const updateQuestionData = {
         update_time: new Date(),
-        is_read: "0",
-        status: "2",
+        is_read: '0',
+        status: '2',
         admin_uid: req.user.uid
       };
       QuestionsModel.findByIdAndUpdate(question_id, updateQuestionData);
@@ -538,7 +567,7 @@ router.put(
       let maileSentResult;
       if (validator.isEmail(email)) {
         let msg;
-        if (is_in_game === "1") {
+        if (is_in_game === '1') {
           //在遊戲中的不提示檢核碼, 請玩家直接進入客服中心查看
           msg = `提問單編號[${question_id}]回覆通知 - 您提問的內容已收到最新回覆，<br />您可以透過<b>遊戲內客服中心</b>查看相關內容。`;
         } else {
@@ -557,7 +586,7 @@ router.put(
                 jsonToBeSinged,
                 SERVICE_CONFIG.supportJwtSecret,
                 {
-                  expiresIn: "7d"
+                  expiresIn: '7d'
                 }
               );
 
@@ -572,23 +601,23 @@ router.put(
 
         /// EMAIL /////
         //if (process.env.NODE_ENV != "development") {
-        if (process.env.NODE_ENV === "production") {
-          const nodemailer = require("nodemailer");
-          const smtp_server = require("../../config/default")["smtp_server"];
+        if (process.env.NODE_ENV === 'production') {
+          const nodemailer = require('nodemailer');
+          const smtp_server = require('../../config/default')['smtp_server'];
           let transporter = nodemailer.createTransport(smtp_server);
 
-          const fs = require("fs");
+          const fs = require('fs');
 
           let html_template = fs.readFileSync(
-            __dirname + "/../../utils//template/mail.html",
-            "utf8"
+            __dirname + '/../../utils//template/mail.html',
+            'utf8'
           );
 
           html_template = html_template.replace(/{{game_name}}/g, game_name);
 
-          html_template = html_template.replace("{{msg}}", msg);
+          html_template = html_template.replace('{{msg}}', msg);
           html_template = html_template.replace(
-            "{{year}}",
+            '{{year}}',
             new Date().getFullYear()
           );
 
@@ -597,7 +626,7 @@ router.put(
             from: '"龍邑自動回覆系統" <no-reply@longeplay.com.tw>', // sender address
             to: email, // list of receivers
             subject: `${game_name}客服回覆通知信 ${moment().format(
-              "YYYY-MM-DD HH:mm:ss"
+              'YYYY-MM-DD HH:mm:ss'
             )}`, // Subject line
             html: html_template // html body
           };
@@ -631,9 +660,9 @@ router.put(
 );
 
 router.put(
-  "/close_question",
+  '/close_question',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { question_id } = req.body;
@@ -645,7 +674,7 @@ router.put(
       }
 
       const updateFiled = {
-        status: "4",
+        status: '4',
         close_admin_uid: req.user.uid,
         system_closed_start: null
       };
@@ -657,7 +686,7 @@ router.put(
       //console.log(result);
       if (result.affectedRows === 1) {
         res.json({
-          msg: "已將問題設定為結案狀態。",
+          msg: '已將問題設定為結案狀態。',
           id: question_id,
           updatedField: { ...updateFiled, close_admin_name: req.user.name }
         });
@@ -671,9 +700,9 @@ router.put(
 );
 
 router.put(
-  "/reserved_question",
+  '/reserved_question',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { question_id } = req.body;
@@ -682,8 +711,8 @@ router.put(
     if (question.id) {
       if (
         !question.admin_uid ||
-        question.status.toString() !== "2" ||
-        question.allocate_status.toString() === "1"
+        question.status.toString() !== '2' ||
+        question.allocate_status.toString() === '1'
       ) {
         return res
           .status(409)
@@ -691,7 +720,7 @@ router.put(
       }
 
       const updateFiled = {
-        status: "7",
+        status: '7',
         close_admin_uid: req.user.uid,
         system_closed_start: new Date()
       };
@@ -703,7 +732,7 @@ router.put(
       //console.log(result);
       if (result.affectedRows === 1) {
         res.json({
-          msg: "已將問題設定為預約結案狀態。",
+          msg: '已將問題設定為預約結案狀態。',
           id: question_id,
           updatedField: { ...updateFiled, close_admin_name: req.user.name }
         });
@@ -717,21 +746,21 @@ router.put(
 );
 
 router.put(
-  "/cancel_reserved_question",
+  '/cancel_reserved_question',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { question_id } = req.body;
     const question = await QuestionsModel.findOne(question_id);
 
     if (question.id) {
-      if (question.system_closed.toString() === "1") {
+      if (question.system_closed.toString() === '1') {
         return res.status(409).json({ msg: `該問題已無法取消預約` });
       }
 
       const updateFiled = {
-        status: "2",
+        status: '2',
         close_admin_uid: null,
         system_closed_start: null
       };
@@ -743,7 +772,7 @@ router.put(
       //console.log(result);
       if (result.affectedRows === 1) {
         res.json({
-          msg: "已經取消預約。",
+          msg: '已經取消預約。',
           id: question_id,
           updatedField: { ...updateFiled, close_admin_name: null }
         });
@@ -757,9 +786,9 @@ router.put(
 );
 
 router.put(
-  "/restored_question",
+  '/restored_question',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "modify");
+    return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
     const { question_id } = req.body;
@@ -767,7 +796,7 @@ router.put(
 
     if (question.id) {
       const updateFiled = {
-        status: "2",
+        status: '2',
         close_admin_uid: null,
         system_closed_start: null
       };
@@ -779,7 +808,7 @@ router.put(
       //console.log(result);
       if (result.affectedRows === 1) {
         res.json({
-          msg: "調整案件狀態為已回覆。",
+          msg: '調整案件狀態為已回覆。',
           id: question_id,
           updatedField: { ...updateFiled, close_admin_name: null }
         });
@@ -793,9 +822,9 @@ router.put(
 );
 //加入或移除收藏
 router.put(
-  "/updateQuestionFavorite",
+  '/updateQuestionFavorite',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "favorite");
+    return checkPermission(req, res, next, 'service', 'favorite');
   },
   async (req, res) => {
     const { qId, action } = req.body;
@@ -803,13 +832,13 @@ router.put(
 
     if (question.id) {
       const result =
-        action === "add"
+        action === 'add'
           ? await QuestionsModel.addToFavorite(req.user.uid, qId, 1)
           : await QuestionsModel.RemoveFavorite(req.user.uid, qId);
 
       //console.log(result);
       if (result.affectedRows === 1) {
-        res.json({ question_id: qId, is_favorite: action === "add" ? 1 : 0 });
+        res.json({ question_id: qId, is_favorite: action === 'add' ? 1 : 0 });
       } else {
         res.status(500).json({ msg: `更改收藏狀態失敗(${result.error})` });
       }
@@ -820,22 +849,22 @@ router.put(
 );
 //
 
-router.get("/statistics", auth, async (req, res) => {
+router.get('/statistics', auth, async (req, res) => {
   const sYYYYMM = req.query.yyyymm;
   //console.log(req.query);
-  const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "ants");
-  const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, "cs_master");
+  const antsHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, 'ants');
+  const csHandleP = QuestionsModel.getStatisticsQrCount(sYYYYMM, 'cs_master');
   const qCountP = QuestionsModel.getStatisticsQCount(sYYYYMM);
   //cs 後送處理量
 
   const csHandleAllocationP = QuestionsModel.getStatisticsQAllocationCount(
     sYYYYMM,
-    "cs_master"
+    'cs_master'
   );
 
   const antsHandleAllocationP = QuestionsModel.getStatisticsQAllocationRequestCount(
     sYYYYMM,
-    "ants"
+    'ants'
   );
 
   const question_type = SERVICE_CONFIG.question_type;
@@ -868,10 +897,10 @@ router.get("/statistics", auth, async (req, res) => {
         res.json({ reason });
       }
     )
-    .catch(err => console.log("get statistics data error: ", err));
+    .catch(err => console.log('get statistics data error: ', err));
 });
 
-router.get("/list_by_user/:question_id", auth, async (req, res) => {
+router.get('/list_by_user/:question_id', auth, async (req, res) => {
   const question_id = req.params.question_id;
   //console.log(" list_by_user question_id", question_id);
 
@@ -916,9 +945,9 @@ router.get("/list_by_user/:question_id", auth, async (req, res) => {
 });
 
 router.get(
-  "/stat_hourly_count",
+  '/stat_hourly_count',
   function(req, res, next) {
-    return checkPermission(req, res, next, "service", "read");
+    return checkPermission(req, res, next, 'service', 'read');
   },
   async (req, res) => {
     //console.log("sDate", req.query.sDate);
@@ -949,7 +978,7 @@ router.get(
           res.json({ reason });
         }
       )
-      .catch(err => console.log("get statistics data error: ", err));
+      .catch(err => console.log('get statistics data error: ', err));
   }
 );
 module.exports = router;

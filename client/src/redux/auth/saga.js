@@ -1,16 +1,16 @@
 // @flow
-import { Cookies } from "react-cookie";
-import axios from "axios";
-import { all, call, fork, put, takeEvery } from "redux-saga/effects";
+import { Cookies } from 'react-cookie';
+import axios from 'axios';
+import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
 
-import { fetchJSON } from "../../helpers/api";
+import { fetchJSON } from '../../helpers/api';
 
 import {
   LOGIN_USER,
   LOGOUT_USER,
   REGISTER_USER,
   FORGET_PASSWORD
-} from "./constants";
+} from './constants';
 
 import {
   loginUserSuccess,
@@ -19,7 +19,7 @@ import {
   registerUserFailed,
   forgetPasswordSuccess,
   forgetPasswordFailed
-} from "./actions";
+} from './actions';
 
 /**
  * Sets the session
@@ -27,8 +27,8 @@ import {
  */
 const setSession = user => {
   let cookies = new Cookies();
-  if (user) cookies.set("user", JSON.stringify(user), { path: "/" });
-  else cookies.remove("user", { path: "/" });
+  if (user) cookies.set('user', JSON.stringify(user), { path: '/' });
+  else cookies.remove('user', { path: '/' });
 };
 /**
  * Login the user
@@ -37,9 +37,9 @@ const setSession = user => {
 function* login({ payload: { username, password } }) {
   const options = {
     data: JSON.stringify({ account: username, password }),
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/auth"
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/auth'
   };
 
   try {
@@ -55,10 +55,10 @@ function* login({ payload: { username, password } }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       default:
         message = error;
@@ -74,9 +74,20 @@ function* login({ payload: { username, password } }) {
  */
 function* logout({ payload: { history } }) {
   try {
+    let cookies = new Cookies();
+    const user = cookies.get('user');
+
+    const options = {
+      data: JSON.stringify(user),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      url: '/api/auth/logout'
+    };
+
     setSession(null);
     yield call(() => {
-      history.push("/account/login");
+      axios(options);
+      history.push('/account/login');
     });
   } catch (error) {}
 }
@@ -87,21 +98,21 @@ function* logout({ payload: { history } }) {
 function* register({ payload: { fullname, email, password } }) {
   const options = {
     body: JSON.stringify({ fullname, email, password }),
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
   };
 
   try {
-    const response = yield call(fetchJSON, "/users/register", options);
+    const response = yield call(fetchJSON, '/users/register', options);
     yield put(registerUserSuccess(response));
   } catch (error) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error;
@@ -116,21 +127,21 @@ function* register({ payload: { fullname, email, password } }) {
 function* forgetPassword({ payload: { username } }) {
   const options = {
     body: JSON.stringify({ username }),
-    method: "POST",
-    headers: { "Content-Type": "application/json" }
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
   };
 
   try {
-    const response = yield call(fetchJSON, "/users/password-reset", options);
+    const response = yield call(fetchJSON, '/users/password-reset', options);
     yield put(forgetPasswordSuccess(response.message));
   } catch (error) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error;

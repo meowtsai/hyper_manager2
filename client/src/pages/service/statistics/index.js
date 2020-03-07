@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { connect } from "react-redux";
-import PropTypes from "prop-types";
-import { CSVLink } from "react-csv";
+import React, { Fragment, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { CSVLink } from 'react-csv';
+import { Link } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -19,11 +20,11 @@ import {
   Nav,
   NavItem,
   NavLink
-} from "reactstrap";
-import classnames from "classnames";
-import { getServiceStatistics } from "../../../redux/actions";
-import PageTitle from "../../../components/PageTitle";
-import Spinner from "../../../components/Spinner";
+} from 'reactstrap';
+import classnames from 'classnames';
+import { getServiceStatistics } from '../../../redux/actions';
+import PageTitle from '../../../components/PageTitle';
+import Spinner from '../../../components/Spinner';
 const ServiceStatistics = ({
   getServiceStatistics,
   antsHandleData,
@@ -37,31 +38,31 @@ const ServiceStatistics = ({
   error,
   user
 }) => {
-  const mainTitle = "客服案件統計";
-  const mainPath = "/service";
+  const mainTitle = '客服案件統計';
+  const mainPath = '/service';
 
-  const [gameId, setGameId] = useState("g78naxx2hmt");
-  const [gameName, setGameName] = useState("決戰平安京");
+  const [gameId, setGameId] = useState('all_game');
+  const [gameName, setGameName] = useState('全產品');
   const [yyyymm, setYyyymm] = useState(
     `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
       .toString()
-      .padStart(2, "0")}`
+      .padStart(2, '0')}`
   );
 
-  const [rptCondition, setRptCondition] = useState("all");
+  const [rptCondition, setRptCondition] = useState('all');
 
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState('1');
 
   const tabContents = [
     {
-      id: "1",
-      title: "提問單",
-      icon: "mdi mdi-home-variant"
+      id: '1',
+      title: '提問單',
+      icon: 'mdi mdi-home-variant'
     },
     {
-      id: "2",
-      title: "後送案件",
-      icon: "mdi mdi-account-circle"
+      id: '2',
+      title: '後送案件',
+      icon: 'mdi mdi-account-circle'
     }
   ];
 
@@ -76,9 +77,14 @@ const ServiceStatistics = ({
   };
 
   const onGameIDChange = gameid => {
-    if (gameid !== "" && gameid !== undefined && gameid !== null) {
+    //console.log(gameid);
+    if (gameid !== '' && gameid !== undefined && gameid !== null) {
       setGameId(gameid);
-      setGameName(allgames.filter(g => g.game_id === gameid)[0].game_name);
+      setGameName(
+        gameid === 'all_game'
+          ? '全產品'
+          : allgames.filter(g => g.game_id === gameid)[0].game_name
+      );
     }
   };
 
@@ -89,9 +95,9 @@ const ServiceStatistics = ({
   };
 
   if (loading) {
-    return <Spinner className="m-2" color="secondary" />;
+    return <Spinner className='m-2' color='secondary' />;
   }
-
+  let dates = [];
   let mmGroup = [];
   const dd = new Date();
   const mIndex = dd.getMonth();
@@ -100,7 +106,7 @@ const ServiceStatistics = ({
   // const mIndex = 0;
   // const yyyy = 2020;
 
-  mmGroup.push(`${yyyy}-${(mIndex + 1).toString().padStart(2, "0")}`);
+  mmGroup.push(`${yyyy}-${(mIndex + 1).toString().padStart(2, '0')}`);
 
   for (let index = 0; index < 5; index++) {
     let curY = yyyy;
@@ -110,36 +116,67 @@ const ServiceStatistics = ({
       curY = yyyy - 1;
     }
 
-    mmGroup.push(`${curY}-${curM.toString().padStart(2, "0")}`);
+    mmGroup.push(`${curY}-${curM.toString().padStart(2, '0')}`);
   }
+
+  const tidyUpMyData = game_id => {
+    let dates = [];
+    if (game_id === 'all_game') {
+      return qCountData
+        .reduce(function(prev, curr) {
+          if (dates.indexOf(curr.時間) < 0) {
+            dates.push(curr.時間);
+            return [...prev, { 時間: curr.時間, cnt: curr.cnt }];
+          } else {
+            let tmpData = prev.filter(r => r.時間 === curr.時間)[0];
+            return [
+              ...prev.filter(r => r.時間 !== curr.時間),
+              {
+                時間: curr.時間,
+                cnt: curr.cnt + tmpData.cnt
+              }
+            ];
+          }
+        }, [])
+        .sort((a, b) => {
+          if (a.時間 < b.時間) {
+            return -1;
+          }
+          if (a.時間 > b.時間) {
+            return 1;
+          }
+        });
+    } else {
+      return qCountData.filter(item => item.game_id === game_id);
+    }
+  };
 
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
-          { label: "客服", path: mainPath, active: false },
+          { label: '客服', path: mainPath, active: false },
           { label: mainTitle, path: mainPath, active: true }
         ]}
         title={mainTitle}
       />
-      <Row className="mt-2">
+      <Row className='mt-2'>
         <Col md={6} sm={6}>
           {allgames.length > 0 && (
-            <Form inline className="mb-2">
-              <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                <Label htmlFor="selGameId" className="mr-sm-2">
+            <Form inline className='mb-2'>
+              <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+                <Label htmlFor='selGameId' className='mr-sm-2'>
                   遊戲:
                 </Label>
                 <Input
-                  type="select"
-                  name="selGameId"
-                  id="selGameId"
-                  className="custom-select"
+                  type='select'
+                  name='selGameId'
+                  id='selGameId'
+                  className='custom-select'
                   value={gameId}
-                  onChange={e => onGameIDChange(e.target.value)}
-                >
-                  <option value="">選擇遊戲...</option>
-
+                  onChange={e => onGameIDChange(e.target.value)}>
+                  <option value=''>選擇遊戲...</option>
+                  <option value='all_game'>全產品</option>
                   {allgames.map(mItem => (
                     <option key={`game-` + mItem.game_id} value={mItem.game_id}>
                       {mItem.game_name}
@@ -148,23 +185,20 @@ const ServiceStatistics = ({
                 </Input>
               </FormGroup>
 
-              <ButtonGroup className="btn-group mb-2 ml-3">
+              <ButtonGroup className='btn-group mb-2 ml-3'>
                 <Button
-                  onClick={e => setRptCondition("all")}
-                  color={rptCondition === "all" ? "danger" : "light"}
-                >
+                  onClick={e => setRptCondition('all')}
+                  color={rptCondition === 'all' ? 'danger' : 'light'}>
                   by 日期 + 人員
                 </Button>
                 <Button
-                  onClick={e => setRptCondition("date")}
-                  color={rptCondition === "date" ? "danger" : "light"}
-                >
+                  onClick={e => setRptCondition('date')}
+                  color={rptCondition === 'date' ? 'danger' : 'light'}>
                   by 日期
                 </Button>
                 <Button
-                  onClick={e => setRptCondition("user")}
-                  color={rptCondition === "user" ? "danger" : "light"}
-                >
+                  onClick={e => setRptCondition('user')}
+                  color={rptCondition === 'user' ? 'danger' : 'light'}>
                   by 人員
                 </Button>
               </ButtonGroup>
@@ -172,19 +206,18 @@ const ServiceStatistics = ({
           )}
         </Col>
         <Col md={6} sm={6}>
-          <Form inline className="mb-2  float-right">
-            <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-              <Label htmlFor="selMonth" className="mr-sm-2">
+          <Form inline className='mb-2  float-right'>
+            <FormGroup className='mb-2 mr-sm-2 mb-sm-0'>
+              <Label htmlFor='selMonth' className='mr-sm-2'>
                 月份:
               </Label>
               <Input
-                type="select"
-                name="selMonth"
-                id="selMonth"
-                className="custom-select"
+                type='select'
+                name='selMonth'
+                id='selMonth'
+                className='custom-select'
                 value={yyyymm}
-                onChange={e => setYyyymm(e.target.value)}
-              >
+                onChange={e => setYyyymm(e.target.value)}>
                 {mmGroup.map(mItem => (
                   <option key={`yymm-` + mItem} value={mItem}>
                     {mItem}
@@ -194,10 +227,9 @@ const ServiceStatistics = ({
             </FormGroup>
 
             <Button
-              color="primary"
-              className="mb-2 mr-1"
-              onClick={onSearchClick}
-            >
+              color='primary'
+              className='mb-2 mr-1'
+              onClick={onSearchClick}>
               搜尋
             </Button>
           </Form>
@@ -205,28 +237,26 @@ const ServiceStatistics = ({
       </Row>
       <Row>
         <Col lg={12}>
-          <Nav tabs className="nav-bordered">
+          <Nav tabs className='nav-bordered'>
             {tabContents.map((tab, index) => {
               return (
                 <NavItem key={`tab_${index}`}>
                   <NavLink
-                    href="#"
+                    href='#'
                     className={classnames({
                       active: activeTab === tab.id
                     })}
                     onClick={() => {
                       toggle(tab.id);
-                    }}
-                  >
+                    }}>
                     <i
                       className={classnames(
                         tab.icon,
-                        "d-lg-none",
-                        "d-block",
-                        "mr-1"
-                      )}
-                    ></i>
-                    <span className="d-none d-lg-block">{tab.title}</span>
+                        'd-lg-none',
+                        'd-block',
+                        'mr-1'
+                      )}></i>
+                    <span className='d-none d-lg-block'>{tab.title}</span>
                   </NavLink>
                 </NavItem>
               );
@@ -235,28 +265,34 @@ const ServiceStatistics = ({
         </Col>
       </Row>
       <TabContent activeTab={activeTab}>
-        <TabPane tabId="1">
-          <Row className="mb-2">
+        <TabPane tabId='1'>
+          <Row className='mb-2'>
             <Col lg={4}>
               {qCountData.length > 0 && (
                 <CSVLink
-                  data={qCountData.filter(item => item.game_id === gameId)}
-                  headers={[
-                    { label: "日期", key: "時間" },
-                    { label: "數量", key: "cnt" },
-                    ...Object.keys(question_type).map(t => ({
-                      label: question_type[t],
-                      key: question_type[t]
-                    }))
-                  ]}
+                  data={tidyUpMyData(gameId)}
+                  headers={
+                    gameId === 'all_game'
+                      ? [
+                          { label: '日期', key: '時間' },
+                          { label: '數量', key: 'cnt' }
+                        ]
+                      : [
+                          { label: '日期', key: '時間' },
+                          { label: '數量', key: 'cnt' },
+                          ...Object.keys(question_type).map(t => ({
+                            label: question_type[t],
+                            key: question_type[t]
+                          }))
+                        ]
+                  }
                   filename={
                     gameName +
                     yyyymm +
-                    "提問單進件量" +
+                    '提問單進件量' +
                     new Date().getTime() +
-                    ".csv"
-                  }
-                >
+                    '.csv'
+                  }>
                   下載 csv檔案
                 </CSVLink>
               )}
@@ -264,8 +300,8 @@ const ServiceStatistics = ({
               {qCountData && (
                 <Card>
                   <CardBody>
-                    <h4 className="header-title">{gameName}-提問單進件量</h4>
-                    <Table className="mb-0" bordered size="sm">
+                    <h4 className='header-title'>{gameName}-提問單進件量</h4>
+                    <Table className='mb-0' bordered size='sm'>
                       <thead>
                         <tr>
                           <th>日期</th>
@@ -273,21 +309,22 @@ const ServiceStatistics = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {qCountData
-                          .filter(item => item.game_id === gameId)
-                          .map((item, index) => (
-                            <tr key={`q_${index}`}>
-                              <th>{item.時間}</th>
-                              <td>{item.cnt}</td>
-                            </tr>
-                          ))}
+                        {tidyUpMyData(gameId).map((item, index) => (
+                          <tr key={`q_${index}`}>
+                            <th>{item.時間}</th>
+                            <td>{item.cnt}</td>
+                          </tr>
+                        ))}
 
                         <tr>
                           <th>總計</th>
                           <td>
-                            {qCountData
-                              .filter(item => item.game_id === gameId)
-                              .reduce((a, b) => a + b.cnt, 0)}
+                            {(gameId === 'all_game'
+                              ? qCountData
+                              : qCountData.filter(
+                                  item => item.game_id === gameId
+                                )
+                            ).reduce((a, b) => a + b.cnt, 0)}
                           </td>
                         </tr>
                       </tbody>
@@ -318,8 +355,8 @@ const ServiceStatistics = ({
             </Col>
           </Row>
         </TabPane>
-        <TabPane tabId="2">
-          <Row className="mb-2">
+        <TabPane tabId='2'>
+          <Row className='mb-2'>
             <Col lg={4}>
               {statTable(
                 antsHandleAllocationData,
@@ -330,7 +367,7 @@ const ServiceStatistics = ({
                 {}
               )}
             </Col>
-            {(user.role === "admin" || user.role === "pm") && (
+            {(user.role === 'admin' || user.role === 'pm') && (
               <Col lg={4}>
                 {statTable(
                   csHandleAllocationData,
@@ -378,24 +415,62 @@ const statTable = (
   condition,
   question_type
 ) => {
-  const dataRaw = statData
-    .filter(d => d.game_id === gameId)
-    .map(d => ({
-      dt: d.時間,
-      admin_name: d.admin_name,
-      test_cnt: d.test_cnt,
-      cnt: d.cnt,
-      ...d
-    }));
+  let dates = [];
+
+  const dataRaw = (gameId === 'all_game'
+    ? statData
+        .reduce(function(prev, curr) {
+          if (dates.indexOf(curr.時間 + curr.admin_name) < 0) {
+            dates.push(curr.時間 + curr.admin_name);
+            //console.log(dates);
+            return [...prev, { ...curr }];
+          } else {
+            let tmpData = prev.filter(
+              r => r.時間 === curr.時間 && r.admin_name === curr.admin_name
+            )[0];
+            // console.log(prev);
+            // console.log('curr.時間', curr.時間);
+            // console.log('curr.admin_name', curr.admin_name);
+            return [
+              ...prev.filter(
+                r => r.admin_name !== curr.admin_name || r.時間 !== curr.時間
+              ),
+              {
+                ...curr,
+                test_cnt:
+                  Number.parseInt(curr.test_cnt) +
+                  Number.parseInt(tmpData.test_cnt),
+                cnt: Number.parseInt(curr.cnt) + Number.parseInt(tmpData.cnt)
+              }
+            ];
+          }
+        }, [])
+        .sort((a, b) => {
+          if (a.時間 < b.時間) {
+            return -1;
+          }
+          if (a.時間 > b.時間) {
+            return 1;
+          }
+        })
+    : statData.filter(d => d.game_id === gameId)
+  ).map(d => ({
+    dt: d.時間,
+    admin_name: d.admin_name,
+    admin_uid: d.admin_uid,
+    test_cnt: d.test_cnt,
+    cnt: d.cnt,
+    ...d
+  }));
 
   let itemSet = [];
   let cond =
-    condition === "all" ? "all" : condition === "date" ? "dt" : "admin_name";
+    condition === 'all' ? 'all' : condition === 'date' ? 'dt' : 'admin_name';
   //let cond = condition ======"date" ? "dt" : "admin_name";
-  const condLabel = condition === "all" ? "日期" : "人員";
+  const condLabel = condition === 'all' ? '日期' : '人員';
 
   const data =
-    cond === "all"
+    cond === 'all'
       ? dataRaw
       : dataRaw.reduce(function(prev, curr) {
           if (itemSet.indexOf(curr[cond]) < 0) {
@@ -423,28 +498,36 @@ const statTable = (
     <Fragment>
       <CSVLink
         data={dataRaw}
-        headers={[
-          { label: "日期", key: "dt" },
-          { label: "人員", key: "admin_name" },
-          { label: "數量", key: "cnt" },
-          { label: "測試", key: "test_cnt" },
-          ...Object.keys(question_type).map(t => ({
-            label: question_type[t],
-            key: question_type[t]
-          }))
-        ]}
-        filename={label + yyyymm + new Date().getTime() + ".csv"}
-      >
+        headers={
+          gameId === 'all_game'
+            ? [
+                { label: '日期', key: 'dt' },
+                { label: '人員', key: 'admin_name' },
+                { label: '數量', key: 'cnt' },
+                { label: '測試', key: 'test_cnt' }
+              ]
+            : [
+                { label: '日期', key: 'dt' },
+                { label: '人員', key: 'admin_name' },
+                { label: '數量', key: 'cnt' },
+                { label: '測試', key: 'test_cnt' },
+                ...Object.keys(question_type).map(t => ({
+                  label: question_type[t],
+                  key: question_type[t]
+                }))
+              ]
+        }
+        filename={label + yyyymm + new Date().getTime() + '.csv'}>
         下載 csv檔案
       </CSVLink>
 
       <Card>
         <CardBody>
-          <h4 className="header-title">{label} </h4>
-          <Table className="mb-0" bordered size="sm">
+          <h4 className='header-title'>{label} </h4>
+          <Table className='mb-0' bordered size='sm'>
             <thead>
               <tr>
-                {condition === "all" ? (
+                {condition === 'all' ? (
                   <Fragment>
                     <th>日期</th> <th>人員</th>
                   </Fragment>
@@ -458,14 +541,28 @@ const statTable = (
             <tbody>
               {data.map((item, index) => (
                 <tr key={`q_${index}`}>
-                  {condition === "all" ? (
+                  {condition === 'all' ? (
                     <Fragment>
                       <th>{item.dt}</th> <th>{item.admin_name}</th>
                     </Fragment>
                   ) : (
                     <th>{item[cond]}</th>
                   )}
-                  <td>{item.cnt}</td>
+                  <td>
+                    {gameId === 'all_game' &&
+                    condition === 'all' &&
+                    label.indexOf('後送') < 0 ? (
+                      <a
+                        className='text-info'
+                        href={`/service/questions/query?replyDate=${item.dt}&replyAdmin=${item.admin_uid}`}
+                        target='blank'>
+                        {' '}
+                        {item.cnt}
+                      </a>
+                    ) : (
+                      item.cnt
+                    )}{' '}
+                  </td>
                   {Object.keys(question_type).length !== 0 && (
                     <td>{item.test_cnt}</td>
                   )}
@@ -473,9 +570,9 @@ const statTable = (
               ))}
 
               <tr>
-                {condition === "all" ? (
+                {condition === 'all' ? (
                   <Fragment>
-                    <th colSpan="2">總計</th>
+                    <th colSpan='2'>總計</th>
                   </Fragment>
                 ) : (
                   <th>總計</th>

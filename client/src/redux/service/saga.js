@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { all, fork, put, takeEvery } from "redux-saga/effects";
+import { all, fork, put, takeEvery } from 'redux-saga/effects';
 import {
   GET_QUESTIONS,
   UPDATE_QUESTION_STATUS,
@@ -18,8 +18,9 @@ import {
   FAVORITE_QUESTION_ACTION,
   ADD_QUESTION_TO_BATCH,
   REMOVE_QUESTION_FROM_BATCH,
-  ADD_MULTIPLE_QUESTIONS_TO_BATCH
-} from "./constants";
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH,
+  ADD_USER_ACTION_LOG
+} from './constants';
 
 import {
   getQuestionsSuccess,
@@ -55,7 +56,7 @@ import {
   removeQuestionFromBatchFailed,
   addMultipleQuestionsToBatchSuccess,
   addMultipleQuestionsToBatchFailed
-} from "./actions";
+} from './actions';
 
 /**
  * Get Servers list by provided gameid
@@ -64,8 +65,8 @@ import {
 function* getQuestionsData({ payload: condition }) {
   //console.log("getQuestionsData condition", condition);
   const options = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/getList`,
     data: condition
   };
@@ -79,10 +80,10 @@ function* getQuestionsData({ payload: condition }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       default:
         message = error;
@@ -94,25 +95,25 @@ function* getQuestionsData({ payload: condition }) {
 function* getCurrentQuestionData({ payload: question_id }) {
   //console.log("getCurrentQuestionData question_id", question_id);
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/view/${question_id}`
   };
 
   try {
     const response = yield axios(options);
-    console.log("getCurrentQuestionData", response.data);
+    console.log('getCurrentQuestionData', response.data);
     yield put(getCurrentQuestionSuccess(response.data));
   } catch (error) {
-    console.log(" getCurrentQuestionData error ", error);
+    console.log(' getCurrentQuestionData error ', error);
     // console.log(' error.status ', error.response.status);
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       default:
         message = error;
@@ -123,8 +124,8 @@ function* getCurrentQuestionData({ payload: question_id }) {
 
 function* getQuestionsByUserData({ payload: question_id }) {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/list_by_user/${question_id}`
   };
 
@@ -137,10 +138,10 @@ function* getQuestionsByUserData({ payload: question_id }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       default:
         message = error.response.msg;
@@ -151,8 +152,8 @@ function* getQuestionsByUserData({ payload: question_id }) {
 function* getTestData({ payload: condition }) {
   //console.log("getQuestionsData condition", condition);
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/test`
   };
 
@@ -165,10 +166,10 @@ function* getTestData({ payload: condition }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       default:
         message = error;
@@ -179,8 +180,8 @@ function* getTestData({ payload: condition }) {
 
 function* getOverview() {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/overview`
   };
 
@@ -193,10 +194,10 @@ function* getOverview() {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "沒有權限";
+        message = '沒有權限';
         break;
       default:
         message = error;
@@ -207,8 +208,8 @@ function* getOverview() {
 
 function* getServiceStat({ payload: { yyyymm } }) {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/statistics?yyyymm=${yyyymm}`
   };
 
@@ -221,10 +222,10 @@ function* getServiceStat({ payload: { yyyymm } }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "沒有權限";
+        message = '沒有權限';
         break;
       default:
         message = error.response.data.msg;
@@ -234,8 +235,8 @@ function* getServiceStat({ payload: { yyyymm } }) {
 }
 function* getServiceStatByHour({ payload: { sDate } }) {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/stat_hourly_count?sDate=${sDate}`
   };
 
@@ -248,10 +249,10 @@ function* getServiceStatByHour({ payload: { sDate } }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "沒有權限";
+        message = '沒有權限';
         break;
       default:
         message = error.response.data.msg;
@@ -267,8 +268,8 @@ function* updateType({ payload }) {
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/updateQuestionType`
   };
 
@@ -281,10 +282,10 @@ function* updateType({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -301,14 +302,14 @@ function* allocateQuestion({ payload }) {
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: aField,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/${
       allocateStatus === 2
-        ? "finish_allocate_json"
+        ? 'finish_allocate_json'
         : allocateStatus === 3
-        ? "request_allocate_json"
-        : "allocate_json"
+        ? 'request_allocate_json'
+        : 'allocate_json'
     }`
   };
 
@@ -319,10 +320,10 @@ function* allocateQuestion({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -339,9 +340,9 @@ function* addQuestionToBatch({ payload }) {
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/batch/add_to_batch"
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/batch/add_to_batch'
   };
 
   try {
@@ -364,8 +365,8 @@ function* removeQuestionFromBatch({ payload }) {
   //question_id = payload;
 
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/batch/remove_from_batch/${payload}`
   };
 
@@ -387,8 +388,8 @@ function* replyQuestion({ payload }) {
   //console.log("replyQuestion", payload);
   const options = {
     data: payload,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/modify_reply_json`
   };
 
@@ -399,10 +400,10 @@ function* replyQuestion({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -416,16 +417,16 @@ function* closeQuestion({ payload }) {
   const { question_id, closeType } = payload;
   const options = {
     data: question_id,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/${
       closeType === 7
-        ? "reserved_question"
+        ? 'reserved_question'
         : closeType === 4
-        ? "close_question"
+        ? 'close_question'
         : closeType === 1
-        ? "restored_question"
-        : "cancel_reserved_question"
+        ? 'restored_question'
+        : 'cancel_reserved_question'
     }`
   };
 
@@ -436,10 +437,10 @@ function* closeQuestion({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -455,8 +456,8 @@ function* updateStatus({ payload }) {
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/updateQuestionStatus`
   };
 
@@ -469,10 +470,10 @@ function* updateStatus({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -489,8 +490,8 @@ function* updateQuestionFavorite({ payload }) {
   //e { type: 'UPDATE_TYPE', payload: { qId: 305834, newType: '4' }
   const options = {
     data: payload,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/updateQuestionFavorite`
   };
 
@@ -502,10 +503,10 @@ function* updateQuestionFavorite({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data.msg;
@@ -516,8 +517,8 @@ function* updateQuestionFavorite({ payload }) {
 
 function* getServiceConfig() {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/questions/config`
   };
 
@@ -542,9 +543,9 @@ function* getServiceConfig() {
 function* addIdsToBatch({ payload: { batch_id, ids } }) {
   const options = {
     data: { batch_id, ids },
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/batch/batch_add_to_batch"
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/batch/batch_add_to_batch'
   };
   try {
     const response = yield axios(options);
@@ -560,6 +561,21 @@ function* addIdsToBatch({ payload: { batch_id, ids } }) {
   }
 }
 
+/**
+ * add a log when user execute a function
+ */
+function* logUserAction({ payload: { act, func, desc } }) {
+  console.log('logUserAction', act);
+  const options = {
+    data: { act, func, desc },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/admin_users/log_action'
+  };
+  try {
+    yield axios(options);
+  } catch (error) {}
+}
 export function* watchGetData(): any {
   yield takeEvery(GET_QUESTIONS, getQuestionsData);
 }
@@ -619,6 +635,10 @@ export function* watchRemoveQuestionFromBatch(): any {
 export function* watchAddMultiToBatch(): any {
   yield takeEvery(ADD_MULTIPLE_QUESTIONS_TO_BATCH, addIdsToBatch);
 }
+export function* watchUserActionLog(): any {
+  yield takeEvery(ADD_USER_ACTION_LOG, logUserAction);
+}
+
 function* serviceSaga(): any {
   yield all([
     fork(watchGetData),
@@ -637,7 +657,8 @@ function* serviceSaga(): any {
     fork(watchAddQuestionToBatch),
     fork(watchRemoveQuestionFromBatch),
     fork(watchAddMultiToBatch),
-    fork(watchStatDataByHour)
+    fork(watchStatDataByHour),
+    fork(watchUserActionLog)
   ]);
 }
 export default serviceSaga;

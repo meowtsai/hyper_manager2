@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from 'react';
 import {
   Row,
   Col,
@@ -20,15 +20,15 @@ import {
   DropdownMenu,
   DropdownItem,
   UncontrolledButtonDropdown
-} from "reactstrap";
-import classNames from "classnames";
-import { connect } from "react-redux";
-import SimpleMDEReact from "react-simplemde-editor";
-import UserRelaventData from "./UserRelaventData";
-import "easymde/dist/easymde.min.css";
-import "moment/locale/zh-tw";
-import * as showdown from "showdown";
-import { vipRankingOptions } from "../../vip/whale_users/whaleOptConfig";
+} from 'reactstrap';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import SimpleMDEReact from 'react-simplemde-editor';
+import UserRelaventData from './UserRelaventData';
+import 'easymde/dist/easymde.min.css';
+import 'moment/locale/zh-tw';
+import * as showdown from 'showdown';
+import { vipRankingOptions } from '../../vip/whale_users/whaleOptConfig';
 
 import {
   getCurrentQuestion,
@@ -44,19 +44,20 @@ import {
   getQuestionsByUser,
   favorQuestion,
   addQuestionToBatch,
-  removeQuestionFromBatch
-} from "../../../redux/actions";
-import PageTitle from "../../../components/PageTitle";
-import Moment from "react-moment";
-import moment from "moment";
-import PropTypes from "prop-types";
-import Spinner from "../../../components/Spinner";
-import AllocationList from "./AllocationList";
+  removeQuestionFromBatch,
+  addUserActionLog
+} from '../../../redux/actions';
+import PageTitle from '../../../components/PageTitle';
+import Moment from 'react-moment';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import Spinner from '../../../components/Spinner';
+import AllocationList from './AllocationList';
 
-const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
+const ReplyInfo = ({ reply, pic_plus, num, modifyReply, imageClickLog }) => {
   const [modal, setModal] = useState(false);
   const [replyContent, setReplyContent] = useState(
-    reply.content.replace(/<br \/>/g, "")
+    reply.content.replace(/<br \/>/g, '')
   );
 
   const confirmUpdate = reply_id => {
@@ -67,46 +68,48 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
   return (
     <Card>
       <CardBody
-        className={classNames("text-dark", [
-          `bg-${reply.is_official === "1" ? "official" : "light"}`
-        ])}
-      >
-        <CardTitle tag="h5">
+        className={classNames('text-dark', [
+          `bg-${reply.is_official === '1' ? 'official' : 'light'}`
+        ])}>
+        <CardTitle tag='h5'>
           NO {num}.
-          {reply.is_official === "1" ? `${reply.admin_uname} 回覆` : "再次提問"}
+          {reply.is_official === '1' ? `${reply.admin_uname} 回覆` : '再次提問'}
         </CardTitle>
-        <CardSubtitle tag="h6">
-          <Moment format="YYYY-MM-DD HH:mm:ss">{reply.create_time}</Moment>
+        <CardSubtitle tag='h6'>
+          <Moment format='YYYY-MM-DD HH:mm:ss'>{reply.create_time}</Moment>
         </CardSubtitle>
         <hr />
 
         <CardText
-          className="card-text"
+          className='card-text'
           dangerouslySetInnerHTML={{
             __html: new showdown.Converter().makeHtml(reply.content)
-          }}
-        ></CardText>
+          }}></CardText>
 
         {pic_plus.length > 0 &&
-          pic_plus.map(pic => (
+          pic_plus.map((pic, i) => (
             <a
               href={pic.pic_path}
-              target="_blank"
-              rel="noopener noreferrer"
-              key={`pic_${pic.id}`}
-            >
+              target='_blank'
+              rel='noopener noreferrer'
+              key={`pic_${pic.id}`}>
               <img
-                alt="玩家圖片"
+                onContextMenuCapture={e => {
+                  e.preventDefault();
+                  return false;
+                }}
+                onClick={e => imageClickLog(`回覆NO.${num}圖${i + 1}`)}
+                alt='玩家圖片'
                 key={`repic-${pic_plus.id}`}
                 src={pic.pic_path}
-                style={{ maxWidth: "200px" }}
+                style={{ maxWidth: '200px' }}
               />
             </a>
           ))}
 
-        <CardText className="mt-4">
-          {reply.is_official.toString() === "1" && (
-            <Button color="dark" onClick={e => setModal(!modal)}>
+        <CardText className='mt-4'>
+          {reply.is_official.toString() === '1' && (
+            <Button color='dark' onClick={e => setModal(!modal)}>
               編輯
             </Button>
           )}
@@ -123,10 +126,10 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={e => confirmUpdate(reply.id)}>
+            <Button color='primary' onClick={e => confirmUpdate(reply.id)}>
               確認修改
-            </Button>{" "}
-            <Button color="secondary" onClick={e => setModal(!modal)}>
+            </Button>{' '}
+            <Button color='secondary' onClick={e => setModal(!modal)}>
               取消
             </Button>
           </ModalFooter>
@@ -136,14 +139,24 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply }) => {
   );
 };
 
-const PicInfo = ({ pic_path }) => {
+const PicInfo = ({ pic_path, clickLog }) => {
   if (!pic_path) return null;
   return (
-    <a href={pic_path} target="_blank" rel="noopener noreferrer">
-      <img src={pic_path} style={{ maxWidth: "200px" }} alt="玩家圖檔" />
+    <a href={pic_path} target='_blank' rel='noopener noreferrer'>
+      <img
+        onContextMenuCapture={e => {
+          e.preventDefault();
+          return false;
+        }}
+        onClick={clickLog}
+        src={pic_path}
+        style={{ maxWidth: '200px' }}
+        alt='玩家圖檔'
+      />
     </a>
   );
 };
+
 // QuestionInfo
 const QuestionInfo = ({
   question = {},
@@ -151,28 +164,29 @@ const QuestionInfo = ({
   question_type,
   pic_plus,
   updateQuestionType,
-  vip
+  vip,
+  imageClickLog
 }) => {
   const [errors, setErrors] = useState({});
 
   let allocateMark;
-  if (question.allocate_status.toString() === "1") {
+  if (question.allocate_status.toString() === '1') {
     allocateMark = (
-      <span className="text-warning">
-        <i className="mdi mdi-hand"></i> 已後送給{question.allocate_user_name}
+      <span className='text-warning'>
+        <i className='mdi mdi-hand'></i> 已後送給{question.allocate_user_name}
       </span>
     );
-  } else if (question.allocate_status.toString() === "2") {
+  } else if (question.allocate_status.toString() === '2') {
     allocateMark = (
-      <span className="text-success">
-        <i className="mdi mdi-hand-okay"></i>
+      <span className='text-success'>
+        <i className='mdi mdi-hand-okay'></i>
         {question.allocate_user_name}後送處理完畢
       </span>
     );
-  } else if (question.allocate_status.toString() === "3") {
+  } else if (question.allocate_status.toString() === '3') {
     allocateMark = (
-      <span className="text-danger">
-        <i className="mdi mdi-alert-box-outline"></i>
+      <span className='text-danger'>
+        <i className='mdi mdi-alert-box-outline'></i>
         {question.allocate_user_name}請求額外資訊
       </span>
     );
@@ -181,43 +195,43 @@ const QuestionInfo = ({
   let allocateResultMark;
   if (question.allocate_result) {
     allocateResultMark = question.allocate_result
-      .split("<br>")
+      .split('<br>')
       .map((text, index) => (
-        <span key={`al-${index}`} className="text-secondary small">
+        <span key={`al-${index}`} className='text-secondary small'>
           {text} <br />
         </span>
       ));
   }
 
   let isReadMark;
-  if (question.status !== "1" && question.status !== "0") {
+  if (question.status !== '1' && question.status !== '0') {
     isReadMark =
-      question.is_read === "0" ? (
-        <span className="text-secondary">(未讀)</span>
+      question.is_read === '0' ? (
+        <span className='text-secondary'>(未讀)</span>
       ) : (
-        <span className="text-success">(已讀)</span>
+        <span className='text-success'>(已讀)</span>
       );
   }
 
   let statusColor;
   let statusText;
-  if (question.status === "1") {
-    statusColor = "danger-lighten";
+  if (question.status === '1') {
+    statusColor = 'danger-lighten';
     statusText = question_status[question.status];
-  } else if (question.status === "2") {
-    statusColor = "info-lighten";
+  } else if (question.status === '2') {
+    statusColor = 'info-lighten';
     statusText = question_status[question.status];
-  } else if (question.status === "4") {
-    statusColor = "success-lighten";
+  } else if (question.status === '4') {
+    statusColor = 'success-lighten';
     statusText = `${
-      question.system_closed === "1"
-        ? "系統"
+      question.system_closed === '1'
+        ? '系統'
         : question.close_admin_uid
-        ? ""
-        : "玩家"
+        ? ''
+        : '玩家'
     } ${question_status[question.status]}`;
-  } else if (question.status === "7") {
-    statusColor = "secondary-lighten";
+  } else if (question.status === '7') {
+    statusColor = 'secondary-lighten';
     statusText = question_status[question.status];
   }
 
@@ -228,15 +242,15 @@ const QuestionInfo = ({
 
   return (
     <React.Fragment>
-      <Table hover responsive bordered className="mb-2 mt-2">
+      <Table hover responsive bordered className='mb-2 mt-2'>
         <tbody>
           <tr>
             <th>
-              <span className="font-weight-bold text-nowrap">案件狀態：</span>
+              <span className='font-weight-bold text-nowrap'>案件狀態：</span>
             </th>
 
-            <td colSpan="3">
-              <Badge color={statusColor} className="mr-1">
+            <td colSpan='3'>
+              <Badge color={statusColor} className='mr-1'>
                 {statusText}
               </Badge>
 
@@ -244,8 +258,8 @@ const QuestionInfo = ({
               {allocateMark}
               <div>{allocateResultMark}</div>
 
-              {question.allocate_status.toString() === "1" && (
-                <div className="text-info font-12">請至原站台處理後送</div>
+              {question.allocate_status.toString() === '1' && (
+                <div className='text-info font-12'>請至原站台處理後送</div>
               )}
 
               {/* {(question.allocate_status.toString() === "1" ||
@@ -289,21 +303,19 @@ const QuestionInfo = ({
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">提問類型：</span>
+              <span className='font-weight-bold '>提問類型：</span>
             </th>
-            <td colSpan="3">
+            <td colSpan='3'>
               <Input
-                type="select"
-                name="sel_type"
-                className=" m-0 p-0"
+                type='select'
+                name='sel_type'
+                className=' m-0 p-0'
                 value={question.type}
-                onChange={e => onTypeChange(question.id, e.target.value)}
-              >
+                onChange={e => onTypeChange(question.id, e.target.value)}>
                 {Object.keys(question_type).map(typeKey => (
                   <option
                     key={`type-${typeKey}-${question.id}`}
-                    value={typeKey}
-                  >
+                    value={typeKey}>
                     {question_type[typeKey]}
                   </option>
                 ))}
@@ -312,134 +324,144 @@ const QuestionInfo = ({
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">遊戲名稱：</span>
+              <span className='font-weight-bold '>遊戲名稱：</span>
             </th>
             <td>{question.game_name}</td>
             <th>
-              <span className="font-weight-bold ">伺服器：</span>
+              <span className='font-weight-bold '>伺服器：</span>
             </th>
             <td>{question.server_name}</td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">原廠uid：</span>
+              <span className='font-weight-bold '>原廠uid：</span>
             </th>
 
-            <td colSpan="3">
-              {question.partner_uid}{" "}
+            <td colSpan='3'>
+              {question.partner_uid}{' '}
               {vip && (
                 <span
                   className={`mr-1 badge badge-${
                     vipRankingOptions.filter(
                       ranking => ranking.value === vip
                     )[0].color
-                  }-lighten badge-pill`}
-                >
+                  }-lighten badge-pill`}>
                   {vipRankingOptions.filter(ranking => ranking.value === vip)[0]
-                    .label || ""}
+                    .label || ''}
                 </span>
               )}
             </td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">角色名稱：</span>
+              <span className='font-weight-bold '>角色名稱：</span>
             </th>
             <td>
               {question.character_name
-                .replace("&gt;", ">")
-                .replace("&lt;", "<")}
-              {question.is_in_game === "0" && (
-                <Badge color="success-lighten" className="mr-1">
+                .replace('&gt;', '>')
+                .replace('&lt;', '<')}
+              {question.is_in_game === '0' && (
+                <Badge color='success-lighten' className='mr-1'>
                   玩家填寫
                 </Badge>
               )}
             </td>
             <th>
-              <span className="font-weight-bold ">原廠角色id：</span>
+              <span className='font-weight-bold '>原廠角色id：</span>
             </th>
             <td>{question.in_game_id}</td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">提問日期：</span>
+              <span className='font-weight-bold '>提問日期：</span>
             </th>
 
-            <td colSpan="3">
-              <Moment format="YYYY-MM-DD HH:mm:ss">
+            <td colSpan='3'>
+              <Moment format='YYYY-MM-DD HH:mm:ss'>
                 {question.create_time}
               </Moment>
             </td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold">提問內容：</span>
+              <span className='font-weight-bold'>提問內容：</span>
             </th>
-            <td colSpan="3">
+            <td colSpan='3'>
               <p
                 dangerouslySetInnerHTML={{
                   __html: question.content
-                }}
-              ></p>
+                }}></p>
             </td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold">附圖：</span>
+              <span className='font-weight-bold'>附圖：</span>
             </th>
-            <td colSpan="3">
-              <PicInfo pic_path={question.pic_path1} />
-              <PicInfo pic_path={question.pic_path2} />
-              <PicInfo pic_path={question.pic_path3} />
+            <td colSpan='3'>
+              <PicInfo
+                clickLog={e => imageClickLog('圖1')}
+                pic_path={question.pic_path1}
+              />
+              <PicInfo
+                clickLog={e => imageClickLog('圖2')}
+                pic_path={question.pic_path2}
+              />
+              <PicInfo
+                clickLog={e => imageClickLog('圖3')}
+                pic_path={question.pic_path3}
+              />
 
               {pic_plus
                 .filter(pic => pic.reply_id === 0)
-                .map(pic => (
-                  <PicInfo key={`pic-${pic.id}`} pic_path={pic.pic_path} />
+                .map((pic, i) => (
+                  <PicInfo
+                    key={`pic-${pic.id}`}
+                    clickLog={e => imageClickLog(`圖${i + 4}`)}
+                    pic_path={pic.pic_path}
+                  />
                 ))}
             </td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">聯絡電話：</span>
+              <span className='font-weight-bold '>聯絡電話：</span>
             </th>
             <td>{question.phone}</td>
             <th>
-              <span className="font-weight-bold ">mail：</span>
+              <span className='font-weight-bold '>mail：</span>
             </th>
             <td>{question.email}</td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold ">ip</span>
+              <span className='font-weight-bold '>ip</span>
             </th>
             <td>
               {question.ip} <br />
               <a
-                target="_blank"
+                target='_blank'
                 href={`https://whatismyipaddress.com/ip/${question.ip}`}
-                rel="noopener noreferrer"
-              >
+                rel='noopener noreferrer'>
                 查看ip資訊
               </a>
             </td>
             <th>
-              <span className="font-weight-bold ">國家：</span>
+              <span className='font-weight-bold '>國家：</span>
             </th>
             <td>{question.country}</td>
           </tr>
           <tr>
             <th>
-              <span className="font-weight-bold">備註：</span>
+              <span className='font-weight-bold'>備註：</span>
             </th>
-            <td colSpan="3">{question.note}</td>
+            <td colSpan='3'>{question.note}</td>
           </tr>
-          {(question.status === "4" || question.status === "7") && (
+          {(question.status === '4' || question.status === '7') && (
             <tr>
               <th>
-                <span className="font-weight-bold">結案人員：</span>
+                <span className='font-weight-bold'>結案人員：</span>
               </th>
-              <td colSpan="3">{question.close_admin_name}</td>
+              <td colSpan='3'>{question.close_admin_name}</td>
             </tr>
           )}
         </tbody>
@@ -477,12 +499,13 @@ const SingleQuestionPage = ({
   favorQuestion,
   history,
   addQuestionToBatch,
-  removeQuestionFromBatch
+  removeQuestionFromBatch,
+  addUserActionLog
 }) => {
   //console.log("updateOKMessage", updateOKMessage);
-  moment.locale("zh-tw");
-  const mainTitle = "客服案件檢視";
-  const mainPath = "/service";
+  moment.locale('zh-tw');
+  const mainTitle = '客服案件檢視';
+  const mainPath = '/service';
   const question_id = match.params.question_id
     ? match.params.question_id
     : null;
@@ -492,7 +515,7 @@ const SingleQuestionPage = ({
   
   
     ***龍邑客服中心敬上***`;
-  const [finishAllocateNote, setFinishAllocateNote] = useState("");
+  const [finishAllocateNote, setFinishAllocateNote] = useState('');
 
   const [reply, setReply] = useState(replyDefaultTemplate);
 
@@ -512,7 +535,7 @@ const SingleQuestionPage = ({
     if (updateOKMessage !== undefined && updateOKMessage !== null) {
       timeOutId = setTimeout(() => {
         setReply(replyDefaultTemplate);
-        setFinishAllocateNote("");
+        setFinishAllocateNote('');
         clearMessage();
       }, 2000);
     }
@@ -530,7 +553,7 @@ const SingleQuestionPage = ({
     ) {
       timeOutId = setTimeout(() => {
         setReply(replyDefaultTemplate);
-        setFinishAllocateNote("");
+        setFinishAllocateNote('');
         clearAllocationMessage();
       }, 2000);
     }
@@ -540,7 +563,7 @@ const SingleQuestionPage = ({
   }, [allocateUpdateOKMessage]);
 
   if (loading) {
-    return <Spinner className="m-2" color="secondary" />;
+    return <Spinner className='m-2' color='secondary' />;
   }
 
   const onReplySubmit = () => {
@@ -592,50 +615,57 @@ const SingleQuestionPage = ({
   };
 
   const onRemoveFavor = () => {
-    favorQuestion(current.question.id, "remove");
+    favorQuestion(current.question.id, 'remove');
   };
   const onAddFavor = () => {
-    favorQuestion(current.question.id, "add");
+    favorQuestion(current.question.id, 'add');
+  };
+
+  const imageClickLog = img_id => {
+    // console.log('call imageClickLog', current.question.id, img_id);
+    addUserActionLog(
+      'view_image',
+      `${current.question.game_name},${current.question.id}`,
+      `檢視提問單 #${current.question.id} ${img_id}`
+    );
   };
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
-          { label: "客服", path: mainPath, active: false },
+          { label: '客服', path: mainPath, active: false },
           { label: mainTitle, path: mainPath, active: true }
         ]}
         title={mainTitle}
       />
       {current.question && (
         <Fragment>
-          <Row className="mb-2">
+          <Row className='mb-2'>
             <Col sm={6}>
               {error && (
-                <Alert color="danger" isOpen={error ? true : false}>
+                <Alert color='danger' isOpen={error ? true : false}>
                   <div>{error}</div>
                 </Alert>
               )}
 
               {updateOKMessage && (
-                <Alert color="success" isOpen={updateOKMessage ? true : false}>
+                <Alert color='success' isOpen={updateOKMessage ? true : false}>
                   <div>{updateOKMessage}</div>
                 </Alert>
               )}
               {allocateUpdateOKMessage && (
                 <Alert
-                  color="success"
-                  isOpen={allocateUpdateOKMessage ? true : false}
-                >
+                  color='success'
+                  isOpen={allocateUpdateOKMessage ? true : false}>
                   <div>{allocateUpdateOKMessage}</div>
                 </Alert>
               )}
 
               {current.q_batch_info.length > 0 && (
                 <Alert
-                  color="warning"
-                  isOpen={current.q_batch_info.length > 0 ? true : false}
-                >
-                  <i className="dripicons-basket mr-1"></i>
+                  color='warning'
+                  isOpen={current.q_batch_info.length > 0 ? true : false}>
+                  <i className='dripicons-basket mr-1'></i>
                   <strong>鎖定中</strong> 本提問單目前由
                   {current.q_batch_info[0].admin_name}鎖定中, 可以按下方的
                   <strong>🔒</strong>
@@ -650,32 +680,29 @@ const SingleQuestionPage = ({
                       <Fragment>
                         {current.question.is_favorite ? (
                           <Button
-                            color="link"
-                            className="btn-icon text-warning"
-                            onClick={onRemoveFavor}
-                          >
+                            color='link'
+                            className='btn-icon text-warning'
+                            onClick={onRemoveFavor}>
                             ⭐
                           </Button>
                         ) : (
                           <Button
-                            color="link"
-                            className="btn-icon text-dark"
-                            onClick={onAddFavor}
-                          >
-                            <i className="mdi mdi-star-outline ml-1 mr-1"></i>
+                            color='link'
+                            className='btn-icon text-dark'
+                            onClick={onAddFavor}>
+                            <i className='mdi mdi-star-outline ml-1 mr-1'></i>
                           </Button>
                         )}
 
-                        {current.question.status !== "4" &&
-                          current.question.status !== "7" &&
+                        {current.question.status !== '4' &&
+                          current.question.status !== '7' &&
                           (current.q_batch_info.length === 0 ? (
                             <Fragment>
                               <UncontrolledButtonDropdown>
                                 <DropdownToggle
-                                  color="light"
-                                  size="sm"
-                                  caret
-                                ></DropdownToggle>
+                                  color='light'
+                                  size='sm'
+                                  caret></DropdownToggle>
                                 <DropdownMenu>
                                   <DropdownItem header>加入批次</DropdownItem>
                                   {current.tasks.length > 0 ? (
@@ -687,15 +714,14 @@ const SingleQuestionPage = ({
                                       )
                                       .map(task => (
                                         <DropdownItem
-                                          className="text-info"
+                                          className='text-info'
                                           key={`taskkey-${task.id}`}
                                           onClick={e =>
                                             addQuestionToBatch(
                                               current.question.id,
                                               task.id
                                             )
-                                          }
-                                        >
+                                          }>
                                           🛒 {task.id} - {task.title}
                                         </DropdownItem>
                                       ))
@@ -709,13 +735,12 @@ const SingleQuestionPage = ({
                             </Fragment>
                           ) : (
                             <span
-                              color="link"
-                              className="btn-icon font-13"
-                              style={{ cursor: "pointer" }}
+                              color='link'
+                              className='btn-icon font-13'
+                              style={{ cursor: 'pointer' }}
                               onClick={e =>
                                 removeQuestionFromBatch(current.question.id)
-                              }
-                            >
+                              }>
                               🔒
                             </span>
                           ))}
@@ -734,6 +759,7 @@ const SingleQuestionPage = ({
                     setFinishAllocateNote={setFinishAllocateNote}
                     updateQuestionType={updateQuestionType}
                     vip={vip}
+                    imageClickLog={imageClickLog}
                   />
                   <UserRelaventData data={user_history} />
                   {current.replies.length > 0 &&
@@ -746,6 +772,7 @@ const SingleQuestionPage = ({
                           pic => pic.reply_id === reply.id
                         )}
                         modifyReply={onModifyReplySubmit}
+                        imageClickLog={imageClickLog}
                       />
                     ))}
                 </CardBody>
@@ -755,7 +782,7 @@ const SingleQuestionPage = ({
             <Col sm={6}>
               <Card>
                 <CardBody>
-                  {current.question.allocate_status.toString() !== "1" && (
+                  {current.question.allocate_status.toString() !== '1' && (
                     <AllocationList
                       q_id={current.question.id}
                       q_status={current.question.status}
@@ -776,62 +803,57 @@ const SingleQuestionPage = ({
             current.q_batch_info[0].admin_uid === user.uid) && (
             <Row>
               <Col sm={12}>
-                {current.question.status === "4" ? (
+                {current.question.status === '4' ? (
                   <button
-                    type="button"
-                    className="float-right btn btn-danger m-1"
-                    onClick={onRestoreSubmit}
-                  >
-                    <i className="mdi mdi-restore"></i> 調回處理中
+                    type='button'
+                    className='float-right btn btn-danger m-1'
+                    onClick={onRestoreSubmit}>
+                    <i className='mdi mdi-restore'></i> 調回處理中
                   </button>
                 ) : (
-                  <div className="reply_form">
+                  <div className='reply_form'>
                     回覆
                     <SimpleMDEReact id={1} onChange={setReply} value={reply} />
                     <hr />
                     <button
-                      type="button"
-                      className="btn btn-primary m-1"
-                      onClick={onReplySubmit}
-                    >
-                      <i className="mdi mdi-check"></i> 確認送出
+                      type='button'
+                      className='btn btn-primary m-1'
+                      onClick={onReplySubmit}>
+                      <i className='mdi mdi-check'></i> 確認送出
                     </button>
-                    {current.question.status === "2" &&
-                      current.question.allocate_status !== "1" &&
+                    {current.question.status === '2' &&
+                      current.question.allocate_status !== '1' &&
                       (allocation
                         ? allocation.allocate_status === 4 ||
                           allocation.allocate_status === 3
                         : true) && (
                         <Fragment>
                           <button
-                            type="button"
-                            className="float-right btn btn-danger m-1"
-                            onClick={onCloseSubmit}
-                          >
-                            <i className="dripicons-archive"></i> 立即結案
+                            type='button'
+                            className='float-right btn btn-danger m-1'
+                            onClick={onCloseSubmit}>
+                            <i className='dripicons-archive'></i> 立即結案
                           </button>
                           <button
-                            type="button"
-                            className="float-right btn btn-warning m-1"
-                            onClick={onReserveSubmit}
-                          >
-                            <i className="mdi mdi-timer"></i> 預約結案
+                            type='button'
+                            className='float-right btn btn-warning m-1'
+                            onClick={onReserveSubmit}>
+                            <i className='mdi mdi-timer'></i> 預約結案
                           </button>
                         </Fragment>
                       )}
-                    {current.question.status === "7" && (
+                    {current.question.status === '7' && (
                       <Fragment>
                         <button
-                          type="button"
-                          className="float-right btn btn-success m-1"
-                          onClick={onCancelReserveSubmit}
-                        >
-                          <i className="mdi mdi-timer-off"></i> 取消預約
+                          type='button'
+                          className='float-right btn btn-success m-1'
+                          onClick={onCancelReserveSubmit}>
+                          <i className='mdi mdi-timer-off'></i> 取消預約
                         </button>
-                        <Badge color="warning" className="float-right mr-1">
+                        <Badge color='warning' className='float-right mr-1'>
                           將在
                           {moment(current.question.system_closed_start)
-                            .add(5, "days")
+                            .add(5, 'days')
                             .fromNow()}
                           自動結案
                         </Badge>
@@ -887,5 +909,6 @@ export default connect(mapStateToProps, {
   updateQuestionType,
   favorQuestion,
   addQuestionToBatch,
-  removeQuestionFromBatch
+  removeQuestionFromBatch,
+  addUserActionLog
 })(SingleQuestionPage);

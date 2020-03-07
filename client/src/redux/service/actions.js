@@ -50,8 +50,9 @@ import {
   REMOVE_QUESTION_FROM_BATCH_FAILED,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
-  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED
-} from "./constants";
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED,
+  ADD_USER_ACTION_LOG
+} from './constants';
 
 type ServiceAction = { type: string, payload: {} | string };
 
@@ -334,4 +335,13 @@ export const addMultipleQuestionsToBatchFailed = (
 ): ServiceAction => ({
   type: ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED,
   payload: errors
+});
+
+export const addUserActionLog = (
+  act: string,
+  func: string,
+  desc: string
+): ServiceAction => ({
+  type: ADD_USER_ACTION_LOG,
+  payload: { act, func, desc }
 });

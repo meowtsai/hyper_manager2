@@ -151,7 +151,8 @@ const SerialRecordsHome = ({
                   ...item,
                   dt: moment(item.dt).format('YYYY-MM-DD HH:mm:ss'),
 
-                  server: serversOption[item.server]
+                  server: serversOption.filter(s => s.value === item.server)[0]
+                    .label
                 }))}
                 headers={csvHeaders}
                 filename={fileName + '.csv'}>

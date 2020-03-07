@@ -1,6 +1,6 @@
-const { db1, db2 } = require("../config/db");
-const { isEmpty } = require("../utils/helper");
-const question_type = require("../config/service").question_type;
+const { db1, db2 } = require('../config/db');
+const { isEmpty } = require('../utils/helper');
+const question_type = require('../config/service').question_type;
 
 const QuestionsModel = {
   getAll: async (allow_games, uid, condition) => {
@@ -9,6 +9,8 @@ const QuestionsModel = {
       gameId,
       beginTime,
       endTime,
+      replyTimeBegin,
+      replyTimeEnd,
       type,
       email,
       phone,
@@ -16,7 +18,8 @@ const QuestionsModel = {
       character_name,
       check_id,
       content,
-      id
+      id,
+      queryAdmin
     } = condition;
 
     //console.log("getAll condition", condition);
@@ -24,14 +27,14 @@ const QuestionsModel = {
     //gameId,
     //beginTime,
     //endTime
-    let limitedStatusCondition = "";
+    let limitedStatusCondition = '';
     let limitRowCount = 15000;
-    let limitedCondition = "";
-    let joinRepliesTable = "";
+    let limitedCondition = '';
+    let joinRepliesTable = '';
     if (status) {
-      if (status !== "favorite" && status !== "hidden") {
+      if (status !== 'favorite' && status !== 'hidden') {
         limitedStatusCondition = `q.status=${status}`;
-        if (status.toString() === "4") {
+        if (status.toString() === '4') {
           limitedStatusCondition += " or q.status='7' ";
 
           if (Object.keys(condition).length === 1) {
@@ -41,36 +44,59 @@ const QuestionsModel = {
         limitedStatusCondition = `(${limitedStatusCondition})`;
       } else {
         //$this->DB2->where("q.id in(select question_id from question_favorites where admin_uid={$_SESSION['admin_uid']})", null, false);
-        if (status === "favorite") {
+        if (status === 'favorite') {
           limitedCondition = ` q.id in(select question_id from question_favorites where admin_uid='${uid}')`;
-        } else if (status === "hidden") {
+        } else if (status === 'hidden') {
           limitedCondition = ` q.status='0' or  (g.game_id in('N5','Ma71','Ma71tw','MA81','MA74') and q.status='1')`;
         }
       }
     }
 
     if (gameId) {
-      if (limitedStatusCondition !== "") {
-        limitedCondition += " and ";
+      if (limitedStatusCondition !== '') {
+        limitedCondition += ' and ';
       }
       limitedCondition += `g.game_id='${gameId}'`;
     }
 
     if (beginTime && endTime) {
-      if (limitedStatusCondition !== "" || limitedCondition !== "") {
-        limitedCondition += " and ";
+      if (limitedStatusCondition !== '' || limitedCondition !== '') {
+        limitedCondition += ' and ';
       }
       limitedCondition += `q.create_time between '${beginTime}' and '${endTime}'`;
     }
 
-    if (content) {
-      if (limitedStatusCondition !== "" || limitedCondition !== "") {
-        limitedCondition += " and ";
+    if (content || queryAdmin || replyTimeBegin) {
+      if (content) {
+        if (limitedStatusCondition !== '' || limitedCondition !== '') {
+          limitedCondition += ' and ';
+        }
+        limitedCondition += `(q.content like '%${content}%' or qr.content like '%${content}%')`;
       }
-      limitedCondition += `(q.content like '%${content}%' or qr.content like '%${content}%')`;
+
+      if (queryAdmin) {
+        if (limitedStatusCondition !== '' || limitedCondition !== '') {
+          limitedCondition += ' and ';
+        }
+        limitedCondition += `(qr.admin_uid = '${queryAdmin}')`;
+      }
+
+      if (replyTimeBegin) {
+        if (limitedStatusCondition !== '' || limitedCondition !== '') {
+          limitedCondition += ' and ';
+        }
+        limitedCondition += `(qr.create_time >= '${replyTimeBegin}')`;
+      }
+
+      if (replyTimeEnd) {
+        if (limitedStatusCondition !== '' || limitedCondition !== '') {
+          limitedCondition += ' and ';
+        }
+        limitedCondition += `(qr.create_time <= '${replyTimeEnd}')`;
+      }
 
       joinRepliesTable =
-        " left join question_replies qr on q.id=qr.question_id ";
+        ' left join question_replies qr on q.id=qr.question_id ';
 
       //question_replies qr", "q.id=qr.question_id", "left
     }
@@ -85,39 +111,38 @@ const QuestionsModel = {
       id
     }).forEach(itemKey => {
       if (condition[itemKey]) {
-        if (limitedStatusCondition !== "" || limitedCondition !== "") {
-          limitedCondition += " and ";
+        if (limitedStatusCondition !== '' || limitedCondition !== '') {
+          limitedCondition += ' and ';
         }
         limitedCondition += `q.${itemKey} ='${condition[itemKey]}'`;
       }
     });
 
-    //console.log("QuestionsModel getAll", allow_games);
+    // console.log('QuestionsModel getAll', allow_games);
 
     const where_allow_games =
-      allow_games === "all_game"
-        ? ""
-        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+      allow_games === 'all_game'
+        ? ''
+        : " and g.game_id in('" + allow_games.split(',').join("','") + "')";
 
-    // console.log("joinRepliesTable", joinRepliesTable);
-    // console.log("limitedStatusCondition", limitedStatusCondition);
+    //console.log('joinRepliesTable', joinRepliesTable);
+    //console.log('limitedStatusCondition', limitedStatusCondition);
     // console.log("limitedCondition", limitedCondition);
     // console.log("where_allow_games", where_allow_games);
+    const finalSql = `  select distinct q.*, g.game_id, g.name as game_name, au.name as admin_uname, gi.name as server_name,
+    (select count(*) from question_favorites where question_id=q.id and category=1 and admin_uid=?) as is_favorite,
+    (select count(*) from batch_questions where question_id=q.id and batch_id in(select id from batch_tasks where status=1)) as is_batch
+    from questions q  
+    left join servers gi on gi.server_id=q.server_id
+    left join games g on g.game_id=gi.game_id
+    left join admin_users au on au.uid=q.admin_uid
+    ${joinRepliesTable}
+    where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit ${limitRowCount}
+  `;
+    //console.log(finalSql);
     return await db2
       .promise()
-      .query(
-        `  select distinct q.*, g.game_id, g.name as game_name, au.name as admin_uname, gi.name as server_name,
-        (select count(*) from question_favorites where question_id=q.id and category=1 and admin_uid=?) as is_favorite,
-        (select count(*) from batch_questions where question_id=q.id and batch_id in(select id from batch_tasks where status=1)) as is_batch
-        from questions q  
-        left join servers gi on gi.server_id=q.server_id
-        left join games g on g.game_id=gi.game_id
-        left join admin_users au on au.uid=q.admin_uid
-        ${joinRepliesTable}
-        where  ${limitedStatusCondition}  ${limitedCondition} ${where_allow_games}  order by id desc limit ${limitRowCount}
-      `,
-        [uid]
-      )
+      .query(finalSql, [uid])
       .then(([rows, fields]) => {
         if (rows.length > 0) {
           //console.log("QuestionsModel getall", rows.length);
@@ -126,7 +151,10 @@ const QuestionsModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch(err => {
+        console.log(err);
+        return { error: err.message };
+      });
   },
   getAllocateList: async (adminUid = 0, allocateStatus = 1) => {
     //console.log("findOne", account);
@@ -198,12 +226,12 @@ const QuestionsModel = {
     //console.log("questions findByIdAndUpdate", id, newRecord);
     return await db1
       .promise()
-      .query("UPDATE questions SET ? WHERE id=?", [newRecord, id])
+      .query('UPDATE questions SET ? WHERE id=?', [newRecord, id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "更新失敗" };
+          return { error: '更新失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -230,9 +258,9 @@ const QuestionsModel = {
   },
   getOverviewData: async (allow_games, type) => {
     const where_allow_games =
-      allow_games === "all_game"
-        ? ""
-        : " and s.game_id in('" + allow_games.split(",").join("','") + "')";
+      allow_games === 'all_game'
+        ? ''
+        : " and s.game_id in('" + allow_games.split(',').join("','") + "')";
     //console.log("where_allow_games", where_allow_games);
     //and s.game_id in('G103','g66naxx2tw','g78naxx2hmt','g83tw','g83twpc','G93','h35naxx1hmt','h38na','H54','h55naxx2tw','L20na','LRE')
 
@@ -247,7 +275,7 @@ SUM(case when status='2' then 1 else 0 end) as 'status_process',
 SUM(case when status='4' then 1 else 0 end) as 'status_done', 
 SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
  from questions q where 1=1  ${
-   type.toString() === "1" ? "and q.create_time>=CURDATE()" : ""
+   type.toString() === '1' ? 'and q.create_time>=CURDATE()' : ''
  } ${where_allow_games}
       `
       )
@@ -263,9 +291,9 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
 
   getAllocateOverview: async allow_games => {
     const where_allow_games =
-      allow_games === "all_game"
-        ? ""
-        : " and s.game_id in('" + allow_games.split(",").join("','") + "')";
+      allow_games === 'all_game'
+        ? ''
+        : " and s.game_id in('" + allow_games.split(',').join("','") + "')";
 
     return await db2
       .promise()
@@ -335,7 +363,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
     return await db2
       .promise()
       .query(
-        `select g.game_id, g.name as game_name, au.name as admin_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間', 
+        `select g.game_id, g.name as game_name,qr.admin_uid, au.name as admin_name, DATE_FORMAT(qr.create_time, '%Y-%m-%d') as '時間', 
         SUM(case when type='t' then 1 else 0 end) as 'test_cnt',
         SUM(case when type<>'t' then 1 else 0 end) as 'cnt',
         ${Object.keys(question_type)
@@ -343,7 +371,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
             t =>
               `SUM(case when type='${t}' then 1 else 0 end) as '${question_type[t]}'`
           )
-          .join(",")}
+          .join(',')}
        
         from questions q
         left join question_replies qr on q.id=qr.question_id
@@ -353,7 +381,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         left join admin_users au on au.uid=qr.admin_uid
         where DATE_FORMAT(qr.create_time,'%Y-%m') = ?
         and au.role=?
-        group by game_id, game_name, au.name, DATE_FORMAT(qr.create_time,'%Y-%m-%d') order by DATE_FORMAT(qr.create_time,'%Y-%m-%d') `,
+        group by game_id, game_name,qr.admin_uid ,au.name, DATE_FORMAT(qr.create_time,'%Y-%m-%d') order by DATE_FORMAT(qr.create_time,'%Y-%m-%d') `,
         [yyyymm, role]
       )
       .then(([rows, fields]) => {
@@ -375,7 +403,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
             t =>
               `SUM(case when type='${t}' then 1 else 0 end) as '${question_type[t]}'`
           )
-          .join(",")}
+          .join(',')}
         from questions q
         LEFT JOIN servers gi
         ON gi.server_id=q.server_id
@@ -448,20 +476,20 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
       .catch(err => ({ error: err.message }));
   },
   getListByUserShort: async ({ partner_uid, phone, email }) => {
-    let condition = "";
+    let condition = '';
 
     if (!isEmpty(partner_uid)) {
       condition = "  partner_uid='" + partner_uid + "'";
     }
     if (!isEmpty(phone)) {
       if (!isEmpty(condition)) {
-        condition += " or ";
+        condition += ' or ';
       }
       condition += " phone='" + phone + "'";
     }
     if (!isEmpty(email)) {
       if (!isEmpty(condition)) {
-        condition += " or ";
+        condition += ' or ';
       }
       condition += " email='" + email + "'";
     }
@@ -475,7 +503,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         `select id,content, create_time,g.name as game_name, g.game_id as game_id from questions q
         LEFT JOIN servers gi ON gi.server_id=q.server_id
         LEFT JOIN games g ON g.game_id=gi.game_id
-         where ${condition} order by id desc limit 20`
+         where ${condition} order by id desc`
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {
@@ -489,7 +517,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
   addToFavorite: async (admin_uid, question_id, category = 1) => {
     return await db1
       .promise()
-      .query("insert into question_favorites set ?", {
+      .query('insert into question_favorites set ?', {
         question_id,
         admin_uid,
         category
@@ -498,7 +526,7 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "新增失敗" };
+          return { error: '新增失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -507,14 +535,14 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
     return await db1
       .promise()
       .query(
-        "DELETE FROM question_favorites WHERE admin_uid=? and question_id=?",
+        'DELETE FROM question_favorites WHERE admin_uid=? and question_id=?',
         [admin_uid, question_id]
       )
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "刪除失敗" };
+          return { error: '刪除失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -522,21 +550,21 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
   batchUpdate: async (q_ids, updateField) => {
     return await db1
       .promise()
-      .query("UPDATE questions SET ? WHERE id in(?)", [updateField, q_ids])
+      .query('UPDATE questions SET ? WHERE id in(?)', [updateField, q_ids])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "更新失敗" };
+          return { error: '更新失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
   },
   getReportCountByHour: async (allow_games, sDate) => {
     const where_allow_games =
-      allow_games === "all_game"
-        ? ""
-        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+      allow_games === 'all_game'
+        ? ''
+        : " and g.game_id in('" + allow_games.split(',').join("','") + "')";
     return await db2
       .promise()
       .query(
@@ -560,9 +588,9 @@ SUM(case when status='7' then 1 else 0 end) as 'status_tobeclosed'
   },
   getReplyCountByHour: async (allow_games, sDate) => {
     const where_allow_games =
-      allow_games === "all_game"
-        ? ""
-        : " and g.game_id in('" + allow_games.split(",").join("','") + "')";
+      allow_games === 'all_game'
+        ? ''
+        : " and g.game_id in('" + allow_games.split(',').join("','") + "')";
     return await db2
       .promise()
       .query(
