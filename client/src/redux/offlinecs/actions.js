@@ -38,8 +38,11 @@ import {
   ADD_CPL_ATTACHMENT_FAILED,
   DELETE_CPL_ATTACHMENT,
   DELETE_CPL_ATTACHMENT_SUCCESS,
-  DELETE_CPL_ATTACHMENT_FAILED
-} from "./constants";
+  DELETE_CPL_ATTACHMENT_FAILED,
+  DELETE_GOV_LETTER,
+  DELETE_GOV_LETTER_SUCCESS,
+  DELETE_GOV_LETTER_FAILED
+} from './constants';
 
 type OfflineCsAction = { type: string, payload: {} | string };
 
@@ -138,6 +141,27 @@ export const deleteCplCaseSuccess = (result: {}): OfflineCsAction => ({
 
 export const deleteCplCaseFailed = (errors: {} | string): OfflineCsAction => ({
   type: DELETE_CPL_FAILED,
+  payload: errors
+});
+
+export const deleteGovLetter = (
+  dataType: string,
+  id: string,
+  history: {}
+): OfflineCsAction => ({
+  type: DELETE_GOV_LETTER,
+  payload: { dataType, id, history }
+});
+
+export const deleteGovLetterSuccess = (result: {}): OfflineCsAction => ({
+  type: DELETE_GOV_LETTER_SUCCESS,
+  payload: result
+});
+
+export const deleteGovLetterFailed = (
+  errors: {} | string
+): OfflineCsAction => ({
+  type: DELETE_GOV_LETTER_FAILED,
   payload: errors
 });
 

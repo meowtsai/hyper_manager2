@@ -15,6 +15,9 @@ import {
   DELETE_CPL,
   DELETE_CPL_SUCCESS,
   DELETE_CPL_FAILED,
+  DELETE_GOV_LETTER,
+  DELETE_GOV_LETTER_SUCCESS,
+  DELETE_GOV_LETTER_FAILED,
   MOVE_CPL,
   MOVE_CPL_SUCCESS,
   MOVE_CPL_FAILED,
@@ -39,7 +42,7 @@ import {
   DELETE_CPL_ATTACHMENT,
   DELETE_CPL_ATTACHMENT_SUCCESS,
   DELETE_CPL_ATTACHMENT_FAILED
-} from "./constants";
+} from './constants';
 
 const INIT_STATE = {
   records: [],
@@ -77,6 +80,7 @@ const OfflineCS = (state: State = INIT_STATE, action: OfflineCsAction) => {
     case DELETE_CPL_REF:
     case ADD_CPL_ATTACHMENT:
     case DELETE_CPL_ATTACHMENT:
+    case DELETE_GOV_LETTER:
       return { ...state, loading: true };
     case MOVE_CPL_SUCCESS:
       return {
@@ -137,7 +141,7 @@ const OfflineCS = (state: State = INIT_STATE, action: OfflineCsAction) => {
         currentRecord: {
           ...state.currentRecord,
           mediations:
-            action.payload.act === "add"
+            action.payload.act === 'add'
               ? [...state.currentRecord.mediations, action.payload.mediation]
               : [
                   ...state.currentRecord.mediations.filter(
@@ -190,7 +194,7 @@ const OfflineCS = (state: State = INIT_STATE, action: OfflineCsAction) => {
         currentRecord: {
           ...state.currentRecord,
           replies:
-            action.payload.act === "add"
+            action.payload.act === 'add'
               ? [...state.currentRecord.replies, action.payload.reply]
               : [
                   ...state.currentRecord.replies.filter(

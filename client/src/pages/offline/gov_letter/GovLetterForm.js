@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect } from 'react';
 import {
   Row,
   Col,
@@ -11,19 +11,20 @@ import {
   FormFeedback,
   Button,
   Alert
-} from "reactstrap";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import moment from "moment";
-import PropTypes from "prop-types";
-import PageTitle from "../../../components/PageTitle";
-import Spinner from "../../../components/Spinner";
+} from 'reactstrap';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import PageTitle from '../../../components/PageTitle';
+import Spinner from '../../../components/Spinner';
 import {
   getServiceConfig,
   getServersByGameId,
   editRecord,
-  getCurrentRecord
-} from "../../../redux/actions";
+  getCurrentRecord,
+  deleteGovLetter
+} from '../../../redux/actions';
 const GovLetterForm = ({
   match,
   getServiceConfig,
@@ -36,38 +37,39 @@ const GovLetterForm = ({
   history,
   loading,
   getCurrentRecord,
-  currentRecord
+  currentRecord,
+  deleteGovLetter
 }) => {
   //console.log("server", servers)
   const record_id = match.params.record_id ? match.params.record_id : null;
-  const act_title = record_id ? "編輯" : "新增";
-  const [o_letter_id, setOLetterId] = useState("");
-  const [contact, setContact] = useState("");
+  const act_title = record_id ? '編輯' : '新增';
+  const [o_letter_id, setOLetterId] = useState('');
+  const [contact, setContact] = useState('');
   const [o_letter_date, setOLetterDate] = useState(
-    moment().format("YYYY-MM-DD")
+    moment().format('YYYY-MM-DD')
   );
   const [deadline, setDeadline] = useState(
     moment()
-      .add(15, "days")
-      .format("YYYY-MM-DD")
+      .add(15, 'days')
+      .format('YYYY-MM-DD')
   );
   const [status, setStatus] = useState(1);
-  const [close_date, setCloseDate] = useState("");
-  const [gameId, setGameId] = useState("");
-  const [serverId, setServerId] = useState("");
-  const [roleName, setRoleName] = useState("");
-  const [note, setNote] = useState("");
+  const [close_date, setCloseDate] = useState('');
+  const [gameId, setGameId] = useState('');
+  const [serverId, setServerId] = useState('');
+  const [roleName, setRoleName] = useState('');
+  const [note, setNote] = useState('');
   const [errors, setErrors] = useState({});
-  const [file01, setFile01] = useState("");
-  const [file02, setFile02] = useState("");
-  const [file03, setFile03] = useState("");
-  const [file_path, setFile_path] = useState("");
-  const [file_path2, setFile_path2] = useState("");
-  const [file_path3, setFile_path3] = useState("");
+  const [file01, setFile01] = useState('');
+  const [file02, setFile02] = useState('');
+  const [file03, setFile03] = useState('');
+  const [file_path, setFile_path] = useState('');
+  const [file_path2, setFile_path2] = useState('');
+  const [file_path3, setFile_path3] = useState('');
 
   useEffect(() => {
     if (record_id) {
-      getCurrentRecord("govletter", record_id, history);
+      getCurrentRecord('govletter', record_id, history);
     }
     getServiceConfig();
     //getCSMaster();
@@ -80,13 +82,13 @@ const GovLetterForm = ({
       setGameId(currentRecord.game_id);
       getServersByGameId(currentRecord.game_id);
       setContact(currentRecord.contact);
-      setCloseDate(moment(currentRecord.close_date).format("YYYY-MM-DD"));
+      setCloseDate(moment(currentRecord.close_date).format('YYYY-MM-DD'));
       setOLetterId(currentRecord.o_letter_id);
-      setOLetterDate(moment(currentRecord.o_letter_date).format("YYYY-MM-DD"));
-      setDeadline(moment(currentRecord.deadline).format("YYYY-MM-DD"));
+      setOLetterDate(moment(currentRecord.o_letter_date).format('YYYY-MM-DD'));
+      setDeadline(moment(currentRecord.deadline).format('YYYY-MM-DD'));
       setServerId(currentRecord.server_id);
       setRoleName(currentRecord.role_name);
-      setNote(currentRecord.note.replace(/<br\s*[\/]?>/gi, ""));
+      setNote(currentRecord.note.replace(/<br\s*[\/]?>/gi, ''));
       setStatus(currentRecord.status);
       setFile_path(currentRecord.file_path);
       setFile_path2(currentRecord.file_path2);
@@ -126,32 +128,32 @@ const GovLetterForm = ({
 
     let formData = new FormData();
 
-    formData.append("o_letter_id", o_letter_id);
-    formData.append("o_letter_date", o_letter_date);
-    formData.append("contact", contact);
-    formData.append("note", note);
-    formData.append("deadline", deadline);
-    formData.append("status", status);
-    formData.append("game_id", gameId);
-    formData.append("server_id", serverId);
-    formData.append("role_name", roleName);
+    formData.append('o_letter_id', o_letter_id);
+    formData.append('o_letter_date', o_letter_date);
+    formData.append('contact', contact);
+    formData.append('note', note);
+    formData.append('deadline', deadline);
+    formData.append('status', status);
+    formData.append('game_id', gameId);
+    formData.append('server_id', serverId);
+    formData.append('role_name', roleName);
 
-    if (close_date !== "") {
+    if (close_date !== '') {
       //record.close_date=close_date;
-      formData.append("close_date", close_date);
+      formData.append('close_date', close_date);
     }
 
-    if (file01 !== "") {
+    if (file01 !== '') {
       //record.close_date=close_date;
       //console.log("file01",file01[0])
       formData.append(`attachment01`, file01[0]);
     }
-    if (file02 !== "") {
+    if (file02 !== '') {
       //record.close_date=close_date;
       //console.log("file02",file02[0])
       formData.append(`attachment02`, file02[0]);
     }
-    if (file03 !== "") {
+    if (file03 !== '') {
       //record.close_date=close_date;
       //console.log("file03",file03[0])
       formData.append(`attachment03`, file03[0]);
@@ -159,54 +161,63 @@ const GovLetterForm = ({
 
     if (record_id) {
       //record.id = record_id;
-      formData.append("id", record_id);
+      formData.append('id', record_id);
     }
 
     //console.log("formData", formData);
-    editRecord("govletter", formData);
+    editRecord('govletter', formData);
   };
 
   if (affectedId > 0) {
     return (
-      <Alert color="success" isOpen={affectedId > 0 ? true : false}>
+      <Alert color='success' isOpen={affectedId > 0 ? true : false}>
         <div>{`公函 # ${affectedId} ${act_title} 成功!`} </div>
       </Alert>
     );
   }
 
   if (loading) {
-    return <Spinner className="m-2" color="secondary" />;
+    return <Spinner className='m-2' color='secondary' />;
   }
+
+  const onDelete = e => {
+    const deleteConfirm = window.confirm(
+      `您確定要刪除編號${record_id}這筆公函嗎?`
+    );
+    if (deleteConfirm) {
+      deleteGovLetter('gov', record_id, history);
+    }
+  };
 
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
           {
-            label: "線下客服",
-            path: "/offline/gov_letter/home",
+            label: '線下客服',
+            path: '/offline/gov_letter/home',
             active: false
           },
           {
-            label: "公函",
-            path: "/offline/gov_letter/home",
+            label: '公函',
+            path: '/offline/gov_letter/home',
             active: false
           },
           {
             label: act_title,
-            path: "/offline/gov_letter/create",
+            path: '/offline/gov_letter/create',
             active: true
           }
         ]}
         title={`${act_title}公函`}
       />
-      <Row className="mb-2">
+      <Row className='mb-2'>
         <Col lg={6}>
           <Card>
             <CardBody>
-              <h4 className="mb-3 header-title">請填寫公函紀錄</h4>
+              <h4 className='mb-3 header-title'>請填寫公函紀錄</h4>
               {errors.msg && (
-                <Alert color="danger" isOpen={errors.msg ? true : false}>
+                <Alert color='danger' isOpen={errors.msg ? true : false}>
                   <div>{errors.msg}</div>
                 </Alert>
               )}
@@ -214,14 +225,14 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="o_letter_id">發文字號</Label>
+                      <Label for='o_letter_id'>發文字號</Label>
                       <Input
-                        type="text"
-                        name="o_letter_id"
-                        id="o_letter_id"
+                        type='text'
+                        name='o_letter_id'
+                        id='o_letter_id'
                         value={o_letter_id}
                         onChange={e => setOLetterId(e.target.value)}
-                        placeholder="例:南市警麻偵字第1080399920號"
+                        placeholder='例:南市警麻偵字第1080399920號'
                         invalid={errors.o_letter_id ? true : false}
                       />
 
@@ -230,14 +241,14 @@ const GovLetterForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="contact">承辦人姓名</Label>
+                      <Label for='contact'>承辦人姓名</Label>
                       <Input
-                        type="text"
-                        name="contact"
-                        id="contact"
+                        type='text'
+                        name='contact'
+                        id='contact'
                         value={contact}
                         onChange={e => setContact(e.target.value)}
-                        placeholder="例:偵查佐郭揮勝"
+                        placeholder='例:偵查佐郭揮勝'
                         invalid={errors.contact ? true : false}
                       />
                       <FormFeedback>{errors.contact}</FormFeedback>
@@ -247,14 +258,14 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="o_letter_date">發文日期</Label>
+                      <Label for='o_letter_date'>發文日期</Label>
                       <Input
-                        type="date"
-                        name="o_letter_date"
-                        id="o_letter_date"
+                        type='date'
+                        name='o_letter_date'
+                        id='o_letter_date'
                         value={o_letter_date}
                         onChange={e => setOLetterDate(e.target.value)}
-                        placeholder="請選擇發文日期"
+                        placeholder='請選擇發文日期'
                         invalid={errors.o_letter_date ? true : false}
                       />
 
@@ -263,12 +274,12 @@ const GovLetterForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="deadline">回文期限</Label>
+                      <Label for='deadline'>回文期限</Label>
                       <Input
-                        type="date"
-                        name="deadline"
-                        id="deadline"
-                        placeholder="選擇回文期限"
+                        type='date'
+                        name='deadline'
+                        id='deadline'
+                        placeholder='選擇回文期限'
                         value={deadline}
                         onChange={e => setDeadline(e.target.value)}
                         invalid={errors.deadline ? true : false}
@@ -281,18 +292,17 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="status">狀態</Label>
+                      <Label for='status'>狀態</Label>
                       <Input
-                        type="select"
-                        name="status"
-                        id="status"
-                        className="custom-select"
+                        type='select'
+                        name='status'
+                        id='status'
+                        className='custom-select'
                         value={status}
-                        onChange={e => setStatus(e.target.value)}
-                      >
-                        <option value="">狀態...</option>
-                        <option value="1">1-處理中</option>
-                        <option value="4">4-已結案</option>
+                        onChange={e => setStatus(e.target.value)}>
+                        <option value=''>狀態...</option>
+                        <option value='1'>1-處理中</option>
+                        <option value='4'>4-已結案</option>
                       </Input>
 
                       <FormFeedback>{errors.status}</FormFeedback>
@@ -300,12 +310,12 @@ const GovLetterForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="close_date">結案日期</Label>
+                      <Label for='close_date'>結案日期</Label>
                       <Input
-                        type="date"
-                        name="close_date"
-                        id="close_date"
-                        placeholder="選擇結案日期"
+                        type='date'
+                        name='close_date'
+                        id='close_date'
+                        placeholder='選擇結案日期'
                         value={close_date}
                         onChange={e => setCloseDate(e.target.value)}
                         invalid={errors.close_date ? true : false}
@@ -317,24 +327,22 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="gameId">遊戲</Label>
+                      <Label for='gameId'>遊戲</Label>
                       <Input
-                        type="select"
-                        name="gameId"
-                        id="gameId"
+                        type='select'
+                        name='gameId'
+                        id='gameId'
                         value={gameId}
                         onChange={e => onGameChange(e.target.value)}
-                        invalid={errors.gameId ? true : false}
-                      >
+                        invalid={errors.gameId ? true : false}>
                         <option>請選擇遊戲</option>
                         {games.map(game => (
                           <option
-                            key={"g-" + game.game_id}
-                            value={game.game_id}
-                          >
-                            {" "}
-                            {game.game_id} - {game.game_name}{" "}
-                            {game.is_active === 1 ? "" : "(停)"}
+                            key={'g-' + game.game_id}
+                            value={game.game_id}>
+                            {' '}
+                            {game.game_id} - {game.game_name}{' '}
+                            {game.is_active === 1 ? '' : '(停)'}
                           </option>
                         ))}
                       </Input>
@@ -343,24 +351,22 @@ const GovLetterForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="gameId">伺服器</Label>
+                      <Label for='gameId'>伺服器</Label>
                       <Input
-                        type="select"
-                        name="serverId"
-                        id="serverId"
+                        type='select'
+                        name='serverId'
+                        id='serverId'
                         value={serverId}
                         onChange={e => setServerId(e.target.value)}
-                        invalid={errors.serverId ? true : false}
-                      >
+                        invalid={errors.serverId ? true : false}>
                         <option>請選擇伺服器</option>
                         {servers
-                          .filter(server => server.server_status === "public")
+                          .filter(server => server.server_status === 'public')
                           .map(server => (
                             <option
-                              key={"g-" + server.server_id}
-                              value={server.server_id}
-                            >
-                              {" "}
+                              key={'g-' + server.server_id}
+                              value={server.server_id}>
+                              {' '}
                               {server.server_id} - {server.server_name}
                             </option>
                           ))}
@@ -372,14 +378,14 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtRoleName">角色名稱</Label>
+                      <Label for='txtRoleName'>角色名稱</Label>
                       <Input
-                        type="text"
-                        name="txtRoleName"
-                        id="txtRoleName"
+                        type='text'
+                        name='txtRoleName'
+                        id='txtRoleName'
                         value={roleName}
                         onChange={e => setRoleName(e.target.value)}
-                        placeholder="請填寫角色名稱"
+                        placeholder='請填寫角色名稱'
                         invalid={errors.roleName ? true : false}
                       />
 
@@ -390,16 +396,16 @@ const GovLetterForm = ({
                 </Row>
 
                 <FormGroup>
-                  <Label for="txtNote">備註記事</Label>
+                  <Label for='txtNote'>備註記事</Label>
 
                   <Input
-                    type="textarea"
-                    name="txtNote"
-                    id="txtNote"
-                    rows="5"
+                    type='textarea'
+                    name='txtNote'
+                    id='txtNote'
+                    rows='5'
                     value={note}
                     onChange={e => setNote(e.target.value)}
-                    placeholder="詳細事由"
+                    placeholder='詳細事由'
                     invalid={errors.note ? true : false}
                   />
 
@@ -408,24 +414,23 @@ const GovLetterForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="file01">相關檔案1</Label>
+                      <Label for='file01'>相關檔案1</Label>
 
                       {file_path && (
                         <div>
                           <a
-                            target="blank"
-                            rel="noopener noreferrer"
-                            href={file_path}
-                          >
+                            target='blank'
+                            rel='noopener noreferrer'
+                            href={file_path}>
                             公函檔案1
                           </a>
                         </div>
                       )}
 
                       <Input
-                        type="file"
-                        name="file01"
-                        id="file01"
+                        type='file'
+                        name='file01'
+                        id='file01'
                         onChange={e => {
                           setFile01(e.target.files);
                         }}
@@ -435,22 +440,21 @@ const GovLetterForm = ({
                       )}
                     </FormGroup>
                     <FormGroup>
-                      <Label for="file02">相關檔案2</Label>
+                      <Label for='file02'>相關檔案2</Label>
                       {file_path2 && (
                         <div>
                           <a
-                            target="blank"
-                            rel="noopener noreferrer"
-                            href={file_path2}
-                          >
+                            target='blank'
+                            rel='noopener noreferrer'
+                            href={file_path2}>
                             公函檔案2
                           </a>
                         </div>
                       )}
                       <Input
-                        type="file"
-                        name="file02"
-                        id="file02"
+                        type='file'
+                        name='file02'
+                        id='file02'
                         onChange={e => {
                           setFile02(e.target.files);
                         }}
@@ -460,22 +464,21 @@ const GovLetterForm = ({
                       )}
                     </FormGroup>
                     <FormGroup>
-                      <Label for="file03">相關檔案3</Label>
+                      <Label for='file03'>相關檔案3</Label>
                       {file_path3 && (
                         <div>
                           <a
-                            target="blank"
-                            rel="noopener noreferrer"
-                            href={file_path3}
-                          >
+                            target='blank'
+                            rel='noopener noreferrer'
+                            href={file_path3}>
                             公函檔案3
                           </a>
                         </div>
                       )}
                       <Input
-                        type="file"
-                        name="file03"
-                        id="file03"
+                        type='file'
+                        name='file03'
+                        id='file03'
                         onChange={e => {
                           setFile03(e.target.files);
                         }}
@@ -488,14 +491,16 @@ const GovLetterForm = ({
                 </Row>
 
                 <Link
-                  className="btn btn-secondary mr-2"
-                  to="/offline/gov_letter/home"
-                >
+                  className='btn btn-secondary mr-2'
+                  to='/offline/gov_letter/home'>
                   取消
                 </Link>
 
-                <Button color="primary" type="submit">
+                <Button color='primary' type='submit'>
                   確認送出
+                </Button>
+                <Button color='danger' type='button' onClick={onDelete}>
+                  刪除紀錄
                 </Button>
               </Form>
             </CardBody>
@@ -525,5 +530,6 @@ export default connect(mapStateToProps, {
   getServiceConfig,
   getServersByGameId,
   editRecord,
-  getCurrentRecord
+  getCurrentRecord,
+  deleteGovLetter
 })(GovLetterForm);

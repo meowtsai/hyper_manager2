@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from "react";
+import React, { useEffect, useState, Fragment } from 'react';
 import {
   Row,
   Col,
@@ -11,19 +11,20 @@ import {
   Input,
   FormFeedback,
   Alert
-} from "reactstrap";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import moment from "moment";
-import PropTypes from "prop-types";
-import PageTitle from "../../../components/PageTitle";
+} from 'reactstrap';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import PageTitle from '../../../components/PageTitle';
 import {
   getServiceConfig,
   getServersByGameId,
   getAdminUsers,
   editRecord,
-  getCurrentRecord
-} from "../../../redux/actions";
+  getCurrentRecord,
+  deleteGovLetter
+} from '../../../redux/actions';
 
 const PersonalVisitForm = ({
   affectedId,
@@ -38,37 +39,38 @@ const PersonalVisitForm = ({
   getServersByGameId,
   getAdminUsers,
   editRecord,
-  getCurrentRecord
+  getCurrentRecord,
+  deleteGovLetter
 }) => {
   const record_id = match.params.record_id ? match.params.record_id : null;
-  const act_title = record_id ? "編輯" : "新增";
+  const act_title = record_id ? '編輯' : '新增';
 
-  const [clientName, setClientName] = useState("");
+  const [clientName, setClientName] = useState('');
   const [visitTime, setVisitTime] = useState(
-    moment().format("YYYY-MM-DDTHH:mm")
+    moment().format('YYYY-MM-DDTHH:mm')
   );
-  const [gameId, setGameId] = useState("");
-  const [serverId, setServerId] = useState("");
-  const [roleName, setRoleName] = useState("");
-  const [roleId, setRoleId] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [cause, setCause] = useState("");
-  const [note, setNote] = useState("");
+  const [gameId, setGameId] = useState('');
+  const [serverId, setServerId] = useState('');
+  const [roleName, setRoleName] = useState('');
+  const [roleId, setRoleId] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [cause, setCause] = useState('');
+  const [note, setNote] = useState('');
 
-  const [refQId, setRefQId] = useState("");
-  const [caseMember, setCaseMember] = useState("");
+  const [refQId, setRefQId] = useState('');
+  const [caseMember, setCaseMember] = useState('');
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    console.log("record_id", record_id);
+    console.log('record_id', record_id);
     if (record_id) {
-      getCurrentRecord("pv", record_id, history);
+      getCurrentRecord('pv', record_id, history);
     }
     getServiceConfig();
 
-    getAdminUsers("cs_master");
+    getAdminUsers('cs_master');
 
     // eslint-disable-next-line
   }, []);
@@ -86,7 +88,7 @@ const PersonalVisitForm = ({
       setGameId(currentRecord.game_id);
       getServersByGameId(currentRecord.game_id);
       setClientName(currentRecord.client_name);
-      setVisitTime(moment(currentRecord.visit_time).format("YYYY-MM-DDTHH:mm"));
+      setVisitTime(moment(currentRecord.visit_time).format('YYYY-MM-DDTHH:mm'));
 
       setPhone(currentRecord.client_phone);
       setEmail(currentRecord.client_email);
@@ -118,94 +120,103 @@ const PersonalVisitForm = ({
     e.preventDefault();
     let formData = new FormData();
     if (clientName) {
-      formData.append("client_name", clientName);
+      formData.append('client_name', clientName);
     }
 
     if (visitTime) {
-      formData.append("visit_time", visitTime);
+      formData.append('visit_time', visitTime);
     }
     if (phone) {
-      formData.append("client_phone", phone);
+      formData.append('client_phone', phone);
     }
 
     if (note) {
-      formData.append("note", note);
+      formData.append('note', note);
     }
     if (gameId) {
-      formData.append("game_id", gameId);
+      formData.append('game_id', gameId);
     }
-    formData.append("client_email", email);
+    formData.append('client_email', email);
     if (serverId) {
-      formData.append("server_id", serverId);
+      formData.append('server_id', serverId);
     }
     if (roleName) {
-      formData.append("role_name", roleName);
+      formData.append('role_name', roleName);
     }
     if (cause) {
-      formData.append("cause", cause);
+      formData.append('cause', cause);
     }
     if (refQId) {
-      formData.append("ref_q_id", refQId);
+      formData.append('ref_q_id', refQId);
     }
     if (caseMember) {
-      formData.append("admin_uid", caseMember);
+      formData.append('admin_uid', caseMember);
     }
 
     //{"client_name": "蔡湜梵", "visit_time": "2019-09-05T14:27", "client_phone": "926568279", "client_email": "shihfan.tsai@gmail.com","note": "ssss", "cause":"test my cause", "admin_uid":112}
 
     if (record_id) {
-      formData.append("id", record_id);
+      formData.append('id', record_id);
     }
 
     //console.log("record", record);
-    editRecord("pv", formData);
+    editRecord('pv', formData);
+  };
+
+  const onDelete = e => {
+    const deleteConfirm = window.confirm(
+      `您確定要刪除編號${record_id}這筆親訪紀錄嗎?`
+    );
+    if (deleteConfirm) {
+      deleteGovLetter('pv', record_id, history);
+    }
   };
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
           {
-            label: "線下客服",
-            path: "/offline/personal_visit/home",
+            label: '線下客服',
+            path: '/offline/personal_visit/home',
             active: false
           },
           {
-            label: "親訪",
-            path: "/offline/personal_visit/home",
+            label: '親訪',
+            path: '/offline/personal_visit/home',
             active: false
           },
           {
             label: act_title,
-            path: "/offline/personal_visit/create",
+            path: '/offline/personal_visit/create',
             active: true
           }
         ]}
         title={`${act_title}親訪`}
       />
 
-      <Row className="mb-2">
+      <Row className='mb-2'>
         <Col lg={6}>
           {affectedId > 0 && (
-            <Alert color={"success"}>
+            <Alert color={'success'}>
               <strong> {act_title} 成功 - </strong> 紀錄 - {affectedId} 已經
               {act_title}完成。
             </Alert>
           )}
           <Card>
             <CardBody>
-              <h4 className="mb-3 header-title">請填寫親訪表單內容</h4>
+              <h4 className='mb-3 header-title'>請填寫親訪表單內容</h4>
               <Form onSubmit={formSubmit}>
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtClientName">親訪人姓名</Label>
+                      <Label for='txtClientName'>親訪人姓名</Label>
                       <Input
-                        type="text"
-                        name="txtClientName"
-                        id="txtClientName"
+                        type='text'
+                        name='txtClientName'
+                        id='txtClientName'
                         value={clientName}
                         onChange={e => setClientName(e.target.value)}
-                        placeholder="請填寫來訪玩家姓名"
+                        placeholder='請填寫來訪玩家姓名'
                         invalid={errors.clientName ? true : false}
                       />
 
@@ -214,12 +225,12 @@ const PersonalVisitForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="visitTime">親訪時間</Label>
+                      <Label for='visitTime'>親訪時間</Label>
                       <Input
-                        type="datetime-local"
-                        name="visitTime"
-                        id="visitTime"
-                        placeholder="選擇親訪時間"
+                        type='datetime-local'
+                        name='visitTime'
+                        id='visitTime'
+                        placeholder='選擇親訪時間'
                         value={visitTime}
                         onChange={e => setVisitTime(e.target.value)}
                         invalid={errors.visitTime ? true : false}
@@ -232,14 +243,14 @@ const PersonalVisitForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtPhone">電話</Label>
+                      <Label for='txtPhone'>電話</Label>
                       <Input
-                        type="text"
-                        name="txtPhone"
-                        id="txtPhone"
+                        type='text'
+                        name='txtPhone'
+                        id='txtPhone'
                         value={phone}
                         onChange={e => setPhone(e.target.value)}
-                        placeholder="填寫玩家連絡電話,手機"
+                        placeholder='填寫玩家連絡電話,手機'
                         invalid={errors.phone ? true : false}
                       />
 
@@ -248,14 +259,14 @@ const PersonalVisitForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtEmail">Email</Label>
+                      <Label for='txtEmail'>Email</Label>
                       <Input
-                        type="text"
-                        name="txtEmail"
-                        id="txtEmail"
+                        type='text'
+                        name='txtEmail'
+                        id='txtEmail'
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        placeholder="玩家Email"
+                        placeholder='玩家Email'
                         invalid={errors.email ? true : false}
                       />
 
@@ -266,24 +277,22 @@ const PersonalVisitForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="gameId">遊戲</Label>
+                      <Label for='gameId'>遊戲</Label>
                       <Input
-                        type="select"
-                        name="gameId"
-                        id="gameId"
+                        type='select'
+                        name='gameId'
+                        id='gameId'
                         value={gameId}
                         onChange={e => onGameChange(e.target.value)}
-                        invalid={errors.gameId ? true : false}
-                      >
+                        invalid={errors.gameId ? true : false}>
                         <option>請選擇遊戲</option>
                         {games
                           .filter(game => game.is_active === 1)
                           .map(game => (
                             <option
-                              key={"g-" + game.game_id}
-                              value={game.game_id}
-                            >
-                              {" "}
+                              key={'g-' + game.game_id}
+                              value={game.game_id}>
+                              {' '}
                               {game.game_id} - {game.game_name}
                             </option>
                           ))}
@@ -293,24 +302,22 @@ const PersonalVisitForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="gameId">伺服器</Label>
+                      <Label for='gameId'>伺服器</Label>
                       <Input
-                        type="select"
-                        name="serverId"
-                        id="serverId"
+                        type='select'
+                        name='serverId'
+                        id='serverId'
                         value={serverId}
                         onChange={e => setServerId(e.target.value)}
-                        invalid={errors.serverId ? true : false}
-                      >
+                        invalid={errors.serverId ? true : false}>
                         <option>請選擇伺服器</option>
                         {servers
-                          .filter(server => server.server_status === "public")
+                          .filter(server => server.server_status === 'public')
                           .map(server => (
                             <option
-                              key={"g-" + server.server_id}
-                              value={server.server_id}
-                            >
-                              {" "}
+                              key={'g-' + server.server_id}
+                              value={server.server_id}>
+                              {' '}
                               {server.server_id} - {server.server_name}
                             </option>
                           ))}
@@ -322,14 +329,14 @@ const PersonalVisitForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtRoleName">角色名稱</Label>
+                      <Label for='txtRoleName'>角色名稱</Label>
                       <Input
-                        type="text"
-                        name="txtRoleName"
-                        id="txtRoleName"
+                        type='text'
+                        name='txtRoleName'
+                        id='txtRoleName'
                         value={roleName}
                         onChange={e => setRoleName(e.target.value)}
-                        placeholder="請填寫角色名稱"
+                        placeholder='請填寫角色名稱'
                         invalid={errors.roleName ? true : false}
                       />
 
@@ -338,14 +345,14 @@ const PersonalVisitForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtRoleId">角色ID</Label>
+                      <Label for='txtRoleId'>角色ID</Label>
                       <Input
-                        type="text"
-                        name="txtRoleId"
-                        id="txtRoleId"
+                        type='text'
+                        name='txtRoleId'
+                        id='txtRoleId'
                         value={roleId}
                         onChange={e => setRoleId(e.target.value)}
-                        placeholder="請填寫角色ID"
+                        placeholder='請填寫角色ID'
                         invalid={errors.roleId ? true : false}
                       />
 
@@ -356,14 +363,14 @@ const PersonalVisitForm = ({
                 <Row form>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="refQId">回報單編號</Label>
+                      <Label for='refQId'>回報單編號</Label>
                       <Input
-                        type="text"
-                        name="refQId"
-                        id="refQId"
+                        type='text'
+                        name='refQId'
+                        id='refQId'
                         value={refQId}
                         onChange={e => setRefQId(e.target.value)}
-                        placeholder="相關提問單編號"
+                        placeholder='相關提問單編號'
                         invalid={errors.refQId ? true : false}
                       />
 
@@ -372,14 +379,14 @@ const PersonalVisitForm = ({
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="txtCause">親訪原因</Label>
+                      <Label for='txtCause'>親訪原因</Label>
                       <Input
-                        type="text"
-                        name="txtCause"
-                        id="txtCause"
+                        type='text'
+                        name='txtCause'
+                        id='txtCause'
                         value={cause}
                         onChange={e => setCause(e.target.value)}
-                        placeholder="簡述玩家親訪原因"
+                        placeholder='簡述玩家親訪原因'
                         invalid={errors.cause ? true : false}
                       />
 
@@ -388,16 +395,16 @@ const PersonalVisitForm = ({
                   </Col>
                 </Row>
                 <FormGroup>
-                  <Label for="txtNote">詳細事由</Label>
+                  <Label for='txtNote'>詳細事由</Label>
 
                   <Input
-                    type="textarea"
-                    name="txtNote"
-                    id="txtNote"
-                    rows="5"
+                    type='textarea'
+                    name='txtNote'
+                    id='txtNote'
+                    rows='5'
                     value={note}
                     onChange={e => setNote(e.target.value)}
-                    placeholder="詳細事由"
+                    placeholder='詳細事由'
                     invalid={errors.note ? true : false}
                   />
 
@@ -423,19 +430,18 @@ const PersonalVisitForm = ({
                   </Col> */}
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="caseMember">負責專員</Label>
+                      <Label for='caseMember'>負責專員</Label>
                       <Input
-                        type="select"
-                        name="caseMember"
-                        id="caseMember"
+                        type='select'
+                        name='caseMember'
+                        id='caseMember'
                         value={caseMember}
                         onChange={e => setCaseMember(e.target.value)}
-                        invalid={errors.caseMember ? true : false}
-                      >
+                        invalid={errors.caseMember ? true : false}>
                         <option>請選擇</option>
                         {cs_master.map(cs => (
-                          <option key={"cs-" + cs.uid} value={cs.uid}>
-                            {" "}
+                          <option key={'cs-' + cs.uid} value={cs.uid}>
+                            {' '}
                             {cs.uid} - {cs.name}
                           </option>
                         ))}
@@ -446,14 +452,16 @@ const PersonalVisitForm = ({
                 </Row>
 
                 <Link
-                  className="btn btn-secondary mr-2"
-                  to="/offline/personal_visit/home"
-                >
+                  className='btn btn-secondary mr-2'
+                  to='/offline/personal_visit/home'>
                   取消
                 </Link>
 
-                <Button color="primary" type="submit">
+                <Button color='primary' type='submit'>
                   確認送出
+                </Button>
+                <Button color='danger' type='button' onClick={onDelete}>
+                  刪除紀錄
                 </Button>
               </Form>
             </CardBody>
@@ -482,5 +490,6 @@ export default connect(mapStateToProps, {
   getServersByGameId,
   getAdminUsers,
   editRecord,
-  getCurrentRecord
+  getCurrentRecord,
+  deleteGovLetter
 })(PersonalVisitForm);

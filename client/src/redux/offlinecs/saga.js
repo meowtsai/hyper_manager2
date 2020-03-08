@@ -1,13 +1,14 @@
 // @flow
 
-import axios from "axios";
-import { all, fork, put, takeEvery } from "redux-saga/effects";
+import axios from 'axios';
+import { all, fork, put, takeEvery } from 'redux-saga/effects';
 import {
   GET_GOV_DATA,
   EDIT_RECORD,
   GET_CURRENT,
   EDIT_CPL_REPLY,
   DELETE_CPL,
+  DELETE_GOV_LETTER,
   MOVE_CPL,
   EDIT_CPL_MEDIATION,
   DELETE_CPL_REPLY,
@@ -16,7 +17,7 @@ import {
   DELETE_CPL_REF,
   ADD_CPL_ATTACHMENT,
   DELETE_CPL_ATTACHMENT
-} from "./constants";
+} from './constants';
 
 import {
   getOfflineCsDataSuccess,
@@ -44,8 +45,10 @@ import {
   addCplAttachmentFailed,
   addCplAttachmentSuccess,
   deleteCplAttachmentSuccess,
-  deleteCplAttachmentFailed
-} from "./actions";
+  deleteCplAttachmentFailed,
+  deleteGovLetterFailed,
+  deleteGovLetterSuccess
+} from './actions';
 
 /**
  * Get dashboard summary data
@@ -53,10 +56,10 @@ import {
  */
 function* getData({ payload: type }) {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/${
-      type === "govletter" ? "gov_list" : type === "pv" ? "pv_list" : "cpl_case"
+      type === 'govletter' ? 'gov_list' : type === 'pv' ? 'pv_list' : 'cpl_case'
     }`
   };
 
@@ -69,10 +72,10 @@ function* getData({ payload: type }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       case 403:
         message = error.response.data;
@@ -93,14 +96,14 @@ function* editRecord({ payload }) {
 
   const options = {
     data: record,
-    method: "POST",
-    headers: { "Content-Type": "multipart/form-data" },
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
     url: `/api/offline_cs/${
-      dataType === "govletter"
-        ? "gov_list"
-        : dataType === "pv"
-        ? "pv_list"
-        : "cpl_case"
+      dataType === 'govletter'
+        ? 'gov_list'
+        : dataType === 'pv'
+        ? 'pv_list'
+        : 'cpl_case'
     }`
   };
 
@@ -113,10 +116,10 @@ function* editRecord({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -129,13 +132,13 @@ function* editRecord({ payload }) {
  * edit(add or modify) gov letter record
  */
 function* moveCplRecord({ payload }) {
-  console.log("moveCplRecord *****", payload);
+  console.log('moveCplRecord *****', payload);
   const { id, record } = payload;
   //record: { status, close_date }
   const options = {
     data: record,
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/move_case/${id}`
   };
 
@@ -148,10 +151,10 @@ function* moveCplRecord({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -166,8 +169,8 @@ function* moveCplRecord({ payload }) {
 function* editCplReply({ payload }) {
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/reply`
   };
 
@@ -178,10 +181,10 @@ function* editCplReply({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -196,8 +199,8 @@ function* editCplReply({ payload }) {
 function* editCplMediation({ payload }) {
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/mediation`
   };
 
@@ -208,10 +211,10 @@ function* editCplMediation({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -227,15 +230,15 @@ function* getCurrentRecord({ payload }) {
   //console.log('getCurrentRecord payload ', payload);
   const { dataType, record_id } = payload;
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
 
     url: `/api/offline_cs/${
-      dataType === "govletter"
-        ? "gov_list"
-        : dataType === "pv"
-        ? "pv_list"
-        : "cpl_case"
+      dataType === 'govletter'
+        ? 'gov_list'
+        : dataType === 'pv'
+        ? 'pv_list'
+        : 'cpl_case'
     }/detail/${record_id}`
   };
 
@@ -248,10 +251,10 @@ function* getCurrentRecord({ payload }) {
     let message;
     switch (error.response.status) {
       case 500:
-        message = "內部伺服器發生錯誤";
+        message = '內部伺服器發生錯誤';
         break;
       case 401:
-        message = "帳號或密碼錯誤";
+        message = '帳號或密碼錯誤';
         break;
       case 400:
         message = error.response.data.msg;
@@ -269,8 +272,8 @@ function* getCurrentRecord({ payload }) {
 function* editCplRef({ payload }) {
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/ref`
   };
 
@@ -281,10 +284,10 @@ function* editCplRef({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -299,8 +302,8 @@ function* editCplRef({ payload }) {
 function* addCplAttach({ payload }) {
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "multipart/form-data" },
+    method: 'POST',
+    headers: { 'Content-Type': 'multipart/form-data' },
     url: `/api/offline_cs/cpl_case/attachment/add`
   };
 
@@ -311,10 +314,10 @@ function* addCplAttach({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -326,8 +329,8 @@ function* addCplAttach({ payload }) {
 function* deleteCplRef({ payload }) {
   const options = {
     data: payload,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/ref/remove`
   };
 
@@ -338,10 +341,10 @@ function* deleteCplRef({ payload }) {
     let message;
     switch (error.status) {
       case 500:
-        message = "Internal Server Error";
+        message = 'Internal Server Error';
         break;
       case 401:
-        message = "Invalid credentials";
+        message = 'Invalid credentials';
         break;
       default:
         message = error.response.data;
@@ -352,14 +355,14 @@ function* deleteCplRef({ payload }) {
 
 function* delCplCase({ payload: { id, history } }) {
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/${id}`
   };
 
   try {
     const response = yield axios(options);
-    history.push("/offline/cpl_case/home");
+    history.push('/offline/cpl_case/home');
     yield put(deleteCplCaseSuccess(response.data));
   } catch (error) {
     let message;
@@ -367,11 +370,30 @@ function* delCplCase({ payload: { id, history } }) {
     yield put(deleteCplCaseFailed(message));
   }
 }
+function* delGovLetter({ payload: { dataType, id, history } }) {
+  const options = {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/offline_cs/${dataType === 'pv' ? 'pv_list' : 'gov_letter'}/${id}`
+  };
+
+  try {
+    const response = yield axios(options);
+    history.push(
+      `/offline/${dataType === 'pv' ? 'personal_visit' : 'gov_letter'}/home`
+    );
+    yield put(deleteGovLetterSuccess(response.data));
+  } catch (error) {
+    let message;
+    message = error.response.data.msg;
+    yield put(deleteGovLetterFailed(message));
+  }
+}
 
 function* delCplCaseReply({ payload: id }) {
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/reply/${id}`
   };
 
@@ -387,8 +409,8 @@ function* delCplCaseReply({ payload: id }) {
 
 function* delCplCaseAttachment({ payload: id }) {
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/attachment/${id}`
   };
 
@@ -403,8 +425,8 @@ function* delCplCaseAttachment({ payload: id }) {
 }
 function* delCplMd({ payload: id }) {
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
     url: `/api/offline_cs/cpl_case/mediation/${id}`
   };
 
@@ -437,6 +459,9 @@ export function* watchEditCplMediation(): any {
 
 export function* watchDeleteCpl(): any {
   yield takeEvery(DELETE_CPL, delCplCase);
+}
+export function* watchdelGovLetter(): any {
+  yield takeEvery(DELETE_GOV_LETTER, delGovLetter);
 }
 
 export function* watchDeleteCplReply(): any {
@@ -478,7 +503,8 @@ function* offlineCsSaga(): any {
     fork(watchEditCplRef),
     fork(watchDeleteCplRef),
     fork(watchAddCplAttach),
-    fork(watchDelCplAttach)
+    fork(watchDelCplAttach),
+    fork(watchdelGovLetter)
   ]);
 }
 

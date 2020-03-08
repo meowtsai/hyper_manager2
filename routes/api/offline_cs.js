@@ -471,6 +471,57 @@ router.delete(
     }
   }
 );
+
+router.delete(
+  '/gov_letter/:id',
+  function(req, res, next) {
+    return checkPermission(req, res, next, 'cpl_case', 'modify');
+  },
+  async (req, res) => {
+    const record_id = req.params.id;
+    const delResult = await GovLetterModel.findAndRemove(record_id);
+    //console.log("delResult",delResult)
+
+    if (delResult.error) {
+      return res.status(500).json({ msg: delResult.error });
+    }
+
+    if (delResult.affectedRows === 1) {
+      res.json({
+        msg: '紀錄已經刪除。',
+        updatedField: record_id
+      });
+    } else {
+      res.status(500).json({ msg: '紀錄刪除失敗' });
+    }
+  }
+);
+
+router.delete(
+  '/pv_list/:id',
+  function(req, res, next) {
+    return checkPermission(req, res, next, 'cpl_case', 'modify');
+  },
+  async (req, res) => {
+    const record_id = req.params.id;
+    const delResult = await PVModel.findAndRemove(record_id);
+    //console.log("delResult",delResult)
+
+    if (delResult.error) {
+      return res.status(500).json({ msg: delResult.error });
+    }
+
+    if (delResult.affectedRows === 1) {
+      res.json({
+        msg: '紀錄已經刪除。',
+        updatedField: record_id
+      });
+    } else {
+      res.status(500).json({ msg: '紀錄刪除失敗' });
+    }
+  }
+);
+
 router.put(
   '/cpl_case/move_case/:record_id',
   function(req, res, next) {

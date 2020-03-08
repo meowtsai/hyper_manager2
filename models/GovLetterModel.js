@@ -1,4 +1,4 @@
-const { db1, db2 } = require("../config/db");
+const { db1, db2 } = require('../config/db');
 
 const GovLetterModel = {
   getAll: async () => {
@@ -26,7 +26,7 @@ const GovLetterModel = {
     //console.log("findOne", account);
     return await db2
       .promise()
-      .query("SELECT * FROM gov_letters WHERE id=?", [id])
+      .query('SELECT * FROM gov_letters WHERE id=?', [id])
       .then(([rows, fields]) => {
         if (rows.length > 0) {
           return rows[0];
@@ -40,7 +40,7 @@ const GovLetterModel = {
     //console.log("findOne", account);
     return await db2
       .promise()
-      .query("SELECT o_letter_id  FROM gov_letters WHERE o_letter_id=?", [
+      .query('SELECT o_letter_id  FROM gov_letters WHERE o_letter_id=?', [
         letter_id
       ])
       .then(([rows, fields]) => {
@@ -55,12 +55,12 @@ const GovLetterModel = {
   save: async pv_record => {
     return await db1
       .promise()
-      .query("INSERT into gov_letters SET ?", pv_record)
+      .query('INSERT into gov_letters SET ?', pv_record)
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "新增失敗" };
+          return { error: '新增失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -68,26 +68,26 @@ const GovLetterModel = {
   findByIdAndUpdate: async (id, pv_record) => {
     return await db1
       .promise()
-      .query("UPDATE gov_letters SET ? WHERE id=?", [pv_record, id])
+      .query('UPDATE gov_letters SET ? WHERE id=?', [pv_record, id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "更新失敗" };
+          return { error: '更新失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
   },
 
-  findAndRemove: async pv_id => {
+  findAndRemove: async gv_id => {
     return await db1
       .promise()
-      .query("DELETE FROM gov_letters WHERE id=?", [pv_id.id])
+      .query('DELETE FROM gov_letters WHERE id=?', [gv_id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "刪除失敗" };
+          return { error: '刪除失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
