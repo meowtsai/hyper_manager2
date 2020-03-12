@@ -5,8 +5,11 @@ import {
   GET_USERS_FAILED,
   GET_USER_TASKS,
   GET_USER_TASKS_SUCCESS,
-  GET_USER_TASKS_FAILED
-} from "./constants";
+  GET_USER_TASKS_FAILED,
+  GET_USER_LOGS,
+  GET_USER_LOGS_SUCCESS,
+  GET_USER_LOGS_FAILED
+} from './constants';
 
 type AdminUserAction = { type: string, payload: {} | string };
 
@@ -36,5 +39,19 @@ export const getUserTasksSuccess = (tasks: {}): AdminUserAction => ({
 
 export const getUserTasksFailed = (error: string): AdminUserAction => ({
   type: GET_USER_TASKS_FAILED,
+  payload: error
+});
+
+export const getUserLogs = ({ date_begin, date_end }): AdminUserAction => ({
+  type: GET_USER_LOGS,
+  payload: { date_begin, date_end }
+});
+export const getUserLogsSuccess = (logs: []): AdminUserAction => ({
+  type: GET_USER_LOGS_SUCCESS,
+  payload: logs
+});
+
+export const getUserLogsFailed = (error: string): AdminUserAction => ({
+  type: GET_USER_LOGS_FAILED,
   payload: error
 });

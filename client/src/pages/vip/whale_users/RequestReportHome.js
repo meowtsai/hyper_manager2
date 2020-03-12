@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Row, Col, Card, CardBody, Table } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 import { CSVLink } from 'react-csv';
 import { getVipGames, getVipRequests } from '../../../redux/actions';
 import PageTitle from '../../../components/PageTitle';

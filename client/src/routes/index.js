@@ -101,6 +101,8 @@ const PresetMessageHome = React.lazy(() =>
   import('../pages/platform/preset_messages/index')
 );
 
+const UserLogsHome = React.lazy(() => import('../pages/platform/logs/index'));
+
 //offline cs
 const CplCaseHome = React.lazy(() =>
   import('../pages/offline/cpl_case/CplCaseHome')
@@ -672,6 +674,12 @@ const platformRoutesSub = {
       path: '/platform/preset_messages',
       name: '自訂快速回覆',
       component: PresetMessageHome,
+      route: PrivateRoute
+    },
+    {
+      path: '/platform/action_history',
+      name: '後台操作紀錄',
+      component: UserLogsHome,
       route: PrivateRoute
     }
   ]

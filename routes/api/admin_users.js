@@ -30,6 +30,19 @@ router.get('/getUserTasks', auth, async (req, res) => {
   res.json(userTasks);
 });
 
+router.get('/getUserLogs', auth, async (req, res) => {
+  //console.log("req.user", req.user);
+  const { date_begin, date_end } = req.query;
+  const condition = { admin_uid: req.user.uid, date_begin, date_end };
+  // const condition = {
+  //   admin_uid: 112,
+  //   date_begin: '2020-03-11',
+  //   date_end: '2020-03-12'
+  // };
+  const userLogs = await LogAdminActionsModel.getListBySpecification(condition);
+  res.json(userLogs);
+});
+
 router.post(
   '/log_action',
   function(req, res, next) {

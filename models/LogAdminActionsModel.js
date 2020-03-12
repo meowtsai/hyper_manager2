@@ -11,14 +11,14 @@
 // | create_time | datetime    | NO   |     | NULL    |                |
 // +-------------+-------------+------+-----+---------+----------------+
 
-const { db1, db2 } = require("../config/db");
+const { db1, db2 } = require('../config/db');
 
 const LogAdminActionsModel = {
   getAll: async () => {
     //console.log("findOne", account);
     return await db2
       .promise()
-      .query("select * from log_admin_actions order by id desc")
+      .query('select * from log_admin_actions order by id desc')
       .then(([rows, fields]) => {
         if (rows.length > 0) {
           return rows;
@@ -32,7 +32,7 @@ const LogAdminActionsModel = {
     //console.log("findOne", account);
     return await db2
       .promise()
-      .query("select * from log_admin_actions where id=?", [id])
+      .query('select * from log_admin_actions where id=?', [id])
       .then(([rows, fields]) => {
         if (rows.length > 0) {
           return rows[0];
@@ -45,12 +45,12 @@ const LogAdminActionsModel = {
   save: async log => {
     return await db1
       .promise()
-      .query("insert into log_admin_actions set ?", log)
+      .query('insert into log_admin_actions set ?', log)
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "新增失敗" };
+          return { error: '新增失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -58,12 +58,12 @@ const LogAdminActionsModel = {
   findByIdAndUpdate: async (id, event) => {
     return await db1
       .promise()
-      .query("Update log_admin_actions set ? where id=?", [event, id])
+      .query('Update log_admin_actions set ? where id=?', [event, id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "更新失敗" };
+          return { error: '更新失敗' };
         }
       })
       .catch(err => ({ error: err.message }));
@@ -72,7 +72,7 @@ const LogAdminActionsModel = {
   findAndRemove: async event => {
     return await db1
       .promise()
-      .query("Delete from log_admin_actions where id=?", [event.id])
+      .query('Delete from log_admin_actions where id=?', [event.id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           //$this->DB1->set("role", "")->where("role", $role)->update("admin_users");
@@ -80,7 +80,24 @@ const LogAdminActionsModel = {
 
           return rows;
         } else {
-          return { error: "刪除失敗" };
+          return { error: '刪除失敗' };
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
+  getListBySpecification: async ({ admin_uid, date_begin, date_end }) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query(
+        'select * from log_admin_actions where admin_uid=? and create_time between ? and ? order by id desc',
+        [admin_uid, date_begin, date_end]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return null;
         }
       })
       .catch(err => ({ error: err.message }));
