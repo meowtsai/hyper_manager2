@@ -45,7 +45,8 @@ const UserLogsHome = ({ logs = [], loading, error, getUserLogs }) => {
     login_success: '登入',
     view_question: '檢視提問單',
     view_image: '開圖',
-    logout: '登出'
+    logout: '登出',
+    question_reply: '編輯回覆'
   };
 
   const columns = [
@@ -72,22 +73,33 @@ const UserLogsHome = ({ logs = [], loading, error, getUserLogs }) => {
       text: '備註',
       filter: textFilter(),
       formatter: (cellContent, row) => {
-        return (
-          <Fragment>
-            {row.action === 'view_question' || row.action === 'view_image'
-              ? `遊戲: ${cellContent.split(',')[0]} \n 單號: ${
-                  cellContent.split(',')[1]
-                }`
-              : cellContent}
-          </Fragment>
-        );
+        let function_display;
+        switch (row.action) {
+          case 'view_question':
+          case 'view_image':
+            function_display = `遊戲: ${cellContent.split(',')[0]} \n 單號: ${
+              cellContent.split(',')[1]
+            }`;
+            break;
+          case 'question_reply':
+            function_display = '更新';
+            break;
+          default:
+            function_display = cellContent;
+            break;
+        }
+
+        return <Fragment>{function_display}</Fragment>;
       },
       sort: true
     },
     {
       dataField: 'desc',
       text: '說明',
-      filter: textFilter()
+      filter: textFilter(),
+      headerStyle: (column, colIndex) => {
+        return { width: '450px' };
+      }
     },
 
     {
