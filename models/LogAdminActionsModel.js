@@ -101,6 +101,27 @@ const LogAdminActionsModel = {
         }
       })
       .catch(err => ({ error: err.message }));
+  },
+  getListByRole: async ({ role, date_begin, date_end }) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query(
+        `select a.*, b.name as admin_name from log_admin_actions a left join admin_users b
+        on a.admin_uid = b.uid
+        where b.role=? 
+        and a.create_time between ? and ? 
+        order by a.admin_uid, id`,
+        [role, date_begin, date_end]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return null;
+        }
+      })
+      .catch(err => ({ error: err.message }));
   }
 };
 

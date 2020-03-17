@@ -82,7 +82,12 @@ const UserLogsHome = ({ logs = [], loading, error, getUserLogs }) => {
             }`;
             break;
           case 'question_reply':
-            function_display = '更新';
+            function_display =
+              cellContent.split(',').length > 1
+                ? `遊戲: ${cellContent.split(',')[0]} \n 單號: ${
+                    cellContent.split(',')[1]
+                  }`
+                : '更新';
             break;
           default:
             function_display = cellContent;

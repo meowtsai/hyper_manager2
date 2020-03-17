@@ -62,7 +62,7 @@ const ReplyInfo = ({ reply, pic_plus, num, modifyReply, imageClickLog }) => {
 
   const confirmUpdate = reply_id => {
     //console.log("confirmUpdate", reply.id);
-    modifyReply(reply_id, replyContent);
+    modifyReply(reply_id, replyContent, num);
     setModal(!modal);
   };
   return (
@@ -574,11 +574,13 @@ const SingleQuestionPage = ({
     replyQuestion(replyField);
   };
 
-  const onModifyReplySubmit = (replyId, replyContent) => {
+  const onModifyReplySubmit = (replyId, replyContent, reply_num) => {
     const replyField = {
       id: replyId,
       question_id: current.question.id,
-      content: replyContent
+      content: replyContent,
+      game_name: current.question.game_name,
+      reply_num
     };
     //console.log("onModifyReplySubmit", replyField);
     replyQuestion(replyField);

@@ -27,3 +27,4 @@ yarn-error.log*
 
 /tmp_note
 /routes/api/test.js
+*.csv

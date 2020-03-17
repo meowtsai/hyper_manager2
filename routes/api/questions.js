@@ -490,7 +490,7 @@ router.put(
     return checkPermission(req, res, next, 'service', 'modify');
   },
   async (req, res) => {
-    const { id, question_id, content } = req.body;
+    const { id, question_id, content, game_name, reply_num } = req.body;
     if (helper.isEmpty(content)) {
       return res.status(400).json({ msg: '請輸入回覆內容。' });
     }
@@ -520,7 +520,8 @@ router.put(
         admin_uid: req.user.uid,
         ip: req.clientIp,
         action: 'question_reply',
-        function: 'update',
+        //function: 'update',
+        function: `${game_name},${question_id} - No.${reply_num}`,
         desc: `編輯回覆 #${id} ${reply.content} => ${data.content}`,
         create_time: new Date()
       };
