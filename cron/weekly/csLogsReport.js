@@ -79,7 +79,7 @@ getRpt({
         )},${action_text},${qid},${game_text},${desc}\n`;
       }
 
-      fs.writeFileSync(filename, finalResult);
+      fs.writeFileSync(`${directoryPath}/${filename}`, finalResult);
 
       // done
       //4. send mail
