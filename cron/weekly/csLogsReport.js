@@ -79,45 +79,40 @@ getRpt({
         )},${action_text},${qid},${game_text},${desc}\n`;
       }
 
-      fs.appendFile(filename, finalResult, function(err) {
-        if (err) {
-          // append failed
-          console.log('failed', err);
-        } else {
-          // done
-          //4. send mail
-          //if (process.env.NODE_ENV != "development") {
+      fs.writeFileSync(filename, finalResult);
 
-          const nodemailer = require('nodemailer');
-          const smtp_server = require('../../config/default')['smtp_server'];
-          const report_receivers = require('../../config/service')[
-            'report_receivers'
-          ];
-          let transporter = nodemailer.createTransport(smtp_server);
+      // done
+      //4. send mail
+      //if (process.env.NODE_ENV != "development") {
 
-          let mailOptions = {
-            from: '"龍邑自動回覆系統" <no-reply@longeplay.com.tw>', // sender address
-            to: report_receivers, // list of receivers
-            subject: `蟻力後台操作紀錄週報表(${sDate} - ${eDate}) ${moment().format(
-              'YYYY-MM-DD HH:mm:ss'
-            )}`, // Subject line
-            text: '附件是上周操作紀錄報表, 請查收．\n\n龍邑技術部',
-            attachments: [
-              {
-                path: `${directoryPath}/${filename}`
-              }
-            ]
-          };
+      const nodemailer = require('nodemailer');
+      const smtp_server = require('../../config/default')['smtp_server'];
+      const report_receivers = require('../../config/service')[
+        'report_receivers'
+      ];
+      let transporter = nodemailer.createTransport(smtp_server);
 
-          transporter.sendMail(mailOptions);
+      let mailOptions = {
+        from: '"龍邑自動回覆系統" <no-reply@longeplay.com.tw>', // sender address
+        to: report_receivers, // list of receivers
+        subject: `蟻力後台操作紀錄週報表(${sDate} - ${eDate}) ${moment().format(
+          'YYYY-MM-DD HH:mm:ss'
+        )}`, // Subject line
+        text: '附件是上周操作紀錄報表, 請查收．\n\n龍邑技術部',
+        attachments: [
+          {
+            path: `${directoryPath}/${filename}`
+          }
+        ]
+      };
 
-          //console.log("Message sent: %s", info.messageId);
+      transporter.sendMail(mailOptions);
 
-          /// EMAIL /////
+      //console.log("Message sent: %s", info.messageId);
 
-          // console.log('done');
-        }
-      });
+      /// EMAIL /////
+
+      // console.log('done');
     }
   })
   .catch(e => {
@@ -134,4 +129,4 @@ getRpt({
   });
 setTimeout(function() {
   process.exit();
-}, 30000);
+}, 20000);
