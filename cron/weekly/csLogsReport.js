@@ -6,7 +6,7 @@ const sDate = moment()
   .subtract(7, 'days')
   .format('YYYY-MM-DD');
 const eDate = moment()
-  .subtract(1, 'days')
+  .subtract(0, 'days')
   .format('YYYY-MM-DD');
 const path = require('path');
 
@@ -59,7 +59,16 @@ getRpt({
             qid = item.function.split(',')[1];
             break;
           case 'question_reply':
-            desc = '';
+            if (item.function.split(',').length > 1) {
+              game_text = item.function.split(',')[0];
+              qid = item.function.split(',')[1];
+              desc = `${item.admin_name} 在 ${moment(item.create_time).format(
+                'YYYY-MM-DD HH:mm:ss'
+              )} 編輯提問單回覆#${qid}`;
+            } else {
+              desc = '';
+            }
+
             break;
           default:
             game_text = '';
@@ -92,7 +101,7 @@ getRpt({
             subject: `蟻力後台操作紀錄週報表(${sDate} - ${eDate}) ${moment().format(
               'YYYY-MM-DD HH:mm:ss'
             )}`, // Subject line
-            text: '附件是上周操作紀錄報表, 請查收．\n龍邑技術部',
+            text: '附件是上周操作紀錄報表, 請查收．\n\n龍邑技術部',
             attachments: [
               {
                 path: `${directoryPath}/${filename}`
@@ -106,7 +115,7 @@ getRpt({
 
           /// EMAIL /////
 
-          console.log('done');
+          // console.log('done');
         }
       });
     }
@@ -119,6 +128,10 @@ getRpt({
       } else {
         // done
         console.log('done');
+        process.exit();
       }
     });
   });
+setTimeout(function() {
+  process.exit();
+}, 30000);
