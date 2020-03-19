@@ -6,7 +6,7 @@ const sDate = moment()
   .subtract(7, 'days')
   .format('YYYY-MM-DD');
 const eDate = moment()
-  .subtract(0, 'days')
+  .subtract(1, 'days')
   .format('YYYY-MM-DD');
 const path = require('path');
 
