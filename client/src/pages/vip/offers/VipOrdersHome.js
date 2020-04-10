@@ -7,7 +7,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory, {
   PaginationProvider,
   PaginationTotalStandalone,
-  PaginationListStandalone
+  PaginationListStandalone,
 } from 'react-bootstrap-table2-paginator';
 import PageTitle from '../../../components/PageTitle';
 import { getVipOrders, deleteVipWireReport } from '../../../redux/actions';
@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import VipOrderExpandRow from './VipOrderExpandRow';
 import filterFactory, {
   textFilter,
-  selectFilter
+  selectFilter,
 } from 'react-bootstrap-table2-filter';
 
 const VipOrdersHome = ({
@@ -30,7 +30,7 @@ const VipOrdersHome = ({
   records,
   loading,
   error,
-  deleteVipWireReport
+  deleteVipWireReport,
 }) => {
   const [arrangedData, setArrangedData] = useState([]);
 
@@ -60,6 +60,18 @@ const VipOrdersHome = ({
     }
   };
 
+  const filterByEmailOrPhone = (filterVal, data) => {
+    //console.log("filterVal", filterVal);
+    if (filterVal) {
+      return data.filter(
+        (item) =>
+          item.phone.indexOf(filterVal) > -1 ||
+          item.email.indexOf(filterVal) > -1
+      );
+    }
+    return data;
+  };
+
   if (loading) {
     return <Spinner className='m-2' color='secondary' />;
   }
@@ -78,6 +90,7 @@ const VipOrdersHome = ({
   const csvHeaders = [
     { label: '訂單號', key: 'report_id' },
     { label: '玩家建單日期時間', key: 'create_time' },
+    { label: '遊戲', key: 'game_name' },
     { label: '伺服器', key: 'server_name' },
     { label: '角色ID', key: 'role_id' },
     { label: '角色名稱', key: 'char_name' },
@@ -95,7 +108,7 @@ const VipOrdersHome = ({
     { label: '發票號碼', key: 'invoice_id' },
     { label: '虛寶內容', key: 'credits' },
     { label: '訂單狀態', key: 'report_status' },
-    { label: '處理人員', key: 'admin_name' }
+    { label: '處理人員', key: 'admin_name' },
   ];
 
   const customTotal = (from, to, size) => (
@@ -118,21 +131,25 @@ const VipOrdersHome = ({
           </small>
         );
       },
-      footer: ''
+      footer: '',
     },
     {
-      dataField: 'phone',
-      text: '聯繫電話',
-      filter: textFilter(),
-      sort: true,
-      footer: ''
-    },
-    {
-      dataField: 'email',
-      text: 'EMAIL',
-      filter: textFilter(),
-      sort: true,
-      footer: ''
+      dataField: 'contact_info',
+      isDummyField: true,
+      filter: textFilter({
+        placeholder: 'email 或手機',
+        onFilter: filterByEmailOrPhone,
+      }),
+      text: '聯繫資訊',
+      formatter: (cell, row) => {
+        return (
+          <React.Fragment>
+            <div>📧 {row.email}</div>
+            <div>📱 {row.phone}</div>
+          </React.Fragment>
+        );
+      },
+      footer: '',
     },
     {
       dataField: 'product_id',
@@ -146,9 +163,23 @@ const VipOrdersHome = ({
           </div>
         );
       },
-      footer: ''
+      footer: '',
     },
-
+    {
+      dataField: 'game_id',
+      text: '遊戲',
+      filter: selectFilter({
+        options: { g66naxx2tw: '明日之後', h55naxx2tw: '第五人格' },
+      }),
+      formatter: (cellContent, row) => {
+        return (
+          <div>
+            <strong>{row.game_name} </strong>
+          </div>
+        );
+      },
+      footer: '',
+    },
     {
       dataField: 'server_name',
       text: '伺服器',
@@ -160,7 +191,7 @@ const VipOrdersHome = ({
           </div>
         );
       },
-      footer: ''
+      footer: '',
     },
     {
       dataField: 'char_name',
@@ -168,7 +199,7 @@ const VipOrdersHome = ({
       filter: textFilter(),
       formatter: (cellContent, row) => {
         const opt = vipRankingOptions.filter(
-          opt => opt.value === row.vip_ranking
+          (opt) => opt.value === row.vip_ranking
         )[0];
         const ranking_badge = opt ? (
           <span className={`mr-1 badge badge-${opt.color}-lighten badge-pill`}>
@@ -187,19 +218,19 @@ const VipOrdersHome = ({
         );
       },
 
-      footer: ''
+      footer: '',
     },
 
     {
       dataField: 'wire_amount',
       text: '金額',
-      footer: columnData => columnData.reduce((acc, item) => acc + item, 0)
+      footer: (columnData) => columnData.reduce((acc, item) => acc + item, 0),
     },
     {
       dataField: 'report_status',
       text: '狀態',
       filter: selectFilter({
-        options: reportStatusOptions
+        options: reportStatusOptions,
       }),
       formatter: (cellContent, row) => {
         return (
@@ -208,14 +239,14 @@ const VipOrdersHome = ({
               className={classNames('badge', {
                 'badge-secondary': row.report_status === '1',
                 'badge-success': row.report_status === '4',
-                'badge-danger': row.report_status === '2'
+                'badge-danger': row.report_status === '2',
               })}>
               {reportStatusOptions[cellContent]}
             </span>
           </Fragment>
         );
       },
-      footer: ''
+      footer: '',
     },
     {
       dataField: 'invoice_option',
@@ -224,12 +255,12 @@ const VipOrdersHome = ({
         return { width: '100px' };
       },
       filter: selectFilter({
-        options: invoiceOptions
+        options: invoiceOptions,
       }),
       formatter: (cellContent, row) => {
         return invoiceOptions[cellContent];
       },
-      footer: ''
+      footer: '',
     },
 
     {
@@ -254,12 +285,12 @@ const VipOrdersHome = ({
           </Fragment>
         );
       },
-      footer: ''
+      footer: '',
     },
     {
       dataField: 'admin_name',
       filter: textFilter(),
-      text: '處理人'
+      text: '處理人',
     },
     {
       dataField: 'action',
@@ -281,30 +312,30 @@ const VipOrdersHome = ({
             {row.report_status === '1' && (
               <a
                 className='action-icon text-danger'
-                onClick={e => deleteClick(e, row.report_id)}>
+                onClick={(e) => deleteClick(e, row.report_id)}>
                 <i className='mdi mdi-trash-can-outline'></i>
               </a>
             )}
           </React.Fragment>
         );
       },
-      footer: ''
-    }
+      footer: '',
+    },
   ];
 
-  const handleSearchClick = e => {
+  const handleSearchClick = (e) => {
     //console.log(inStockDateFilter);
     e.preventDefault();
     setSearchActivated(true);
     setArrangedData(
       records.filter(
-        row =>
+        (row) =>
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') >= beginTime &&
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') <= endTime
       )
     );
   };
-  const clearSearch = e => {
+  const clearSearch = (e) => {
     //console.log(inStockDateFilter);
     setSearchActivated(false);
     e.preventDefault();
@@ -316,7 +347,7 @@ const VipOrdersHome = ({
       <PageTitle
         breadCrumbItems={[
           { label: 'VIP', path: '/wire_report/list', active: false },
-          { label: mainTitle, path: '/vip/wire_report/list', active: true }
+          { label: mainTitle, path: '/vip/wire_report/list', active: true },
         ]}
         title={mainTitle}
       />
@@ -332,7 +363,7 @@ const VipOrdersHome = ({
                 name='create_time_begin'
                 id='create_time_begin'
                 value={moment(beginTime).format('YYYY-MM-DDTHH:mm')}
-                onChange={e => {
+                onChange={(e) => {
                   if (
                     moment(e.target.value).format('YYYY-MM-DDTHH:mm') !==
                     'Invalid date'
@@ -347,7 +378,7 @@ const VipOrdersHome = ({
                 name='create_time_end'
                 id='create_time_end'
                 value={moment(endTime).format('YYYY-MM-DDTHH:mm')}
-                onChange={e => {
+                onChange={(e) => {
                   if (
                     moment(e.target.value).format('YYYY-MM-DDTHH:mm') !==
                     'Invalid date'
@@ -359,14 +390,14 @@ const VipOrdersHome = ({
                 className={`btn btn-sm ml-2 btn-${
                   searchActivated ? 'primary' : 'secondary'
                 }`}
-                onClick={e => handleSearchClick(e)}>
+                onClick={(e) => handleSearchClick(e)}>
                 搜尋
               </button>
               <button
                 className={`btn btn-sm ml-2 btn-${
                   searchActivated ? 'secondary' : 'primary'
                 }`}
-                onClick={e => clearSearch(e)}>
+                onClick={(e) => clearSearch(e)}>
                 清除條件
               </button>
             </FormGroup>
@@ -375,7 +406,7 @@ const VipOrdersHome = ({
           <Form inline className='mb-2 mt-2'>
             {arrangedData.length > 0 && (
               <CSVLink
-                data={arrangedData.map(item => ({
+                data={arrangedData.map((item) => ({
                   ...item,
                   create_time: moment(item.create_time).format(
                     'YYYY-MM-DD HH:mm:ss'
@@ -390,7 +421,7 @@ const VipOrdersHome = ({
                     moment(item.invoice_date).format('YYYY-MM-DD') !==
                     'Invalid date'
                       ? moment(item.invoice_date).format('YYYY-MM-DD')
-                      : ''
+                      : '',
                 }))}
                 headers={csvHeaders}
                 filename={fileName + '.csv'}>
@@ -408,7 +439,7 @@ const VipOrdersHome = ({
               custom: true,
               totalSize: arrangedData.length,
               sizePerPage: 100,
-              paginationTotalRenderer: customTotal
+              paginationTotalRenderer: customTotal,
             })}>
             {({ paginationProps, paginationTableProps }) => (
               <div>
@@ -424,8 +455,8 @@ const VipOrdersHome = ({
                   defaultSorted={[
                     {
                       dataField: 'create_time',
-                      order: 'desc'
-                    }
+                      order: 'desc',
+                    },
                   ]}
                   wrapperClasses='table-responsive'
                   rowClasses='text-dark m-0 font-13'
@@ -446,13 +477,13 @@ VipOrdersHome.propTypes = {
   getVipOrders: PropTypes.func.isRequired,
   records: PropTypes.array,
   loading: PropTypes.bool.isRequired,
-  error: PropTypes.object
+  error: PropTypes.object,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   records: state.VipOffers.vip_orders_list,
   loading: state.VipOffers.loading,
-  error: state.VipOffers.error
+  error: state.VipOffers.error,
 });
 
 export default connect(mapStateToProps, { getVipOrders, deleteVipWireReport })(
