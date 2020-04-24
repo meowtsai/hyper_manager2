@@ -1,7 +1,7 @@
-const { db1, db2 } = require("../config/db");
+const { db1, db2 } = require('../config/db');
 
 const VipOffersModel = {
-  findOne: async report_id => {
+  findOne: async (report_id) => {
     return await db2
       .promise()
       .query(
@@ -18,13 +18,13 @@ const VipOffersModel = {
           return null;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getOffersList: async () => {
     return await db2
       .promise()
       .query(
-        "select a.product_id,a.title, a.product_desc,a.price,a.gold,a.free_golds, a.game_id, g.name as game_name from vip_products a left join games g on a.game_id =g.game_id;"
+        'select a.product_id,a.title, a.product_desc,a.price,a.gold,a.free_golds, a.game_id, g.name as game_name from vip_products a left join games g on a.game_id =g.game_id;'
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {
@@ -33,13 +33,14 @@ const VipOffersModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getOrderList: async () => {
     return await db2
       .promise()
       .query(
-        `select a.* , g.name as game_name, si.name as server_name, vp.title, vp.price,vp.gold, vp.free_golds, b.name as admin_name
+        `select a.* , g.name as game_name, si.name as server_name, vp.title, vp.price,vp.gold, 
+        vp.free_golds, b.name as admin_name, (select vip_ranking from whale_users where whale_users.char_in_game_id=a.role_id and whale_users.site=a.game_id) as vip_ranking
         from vip_wire_report a left join games g on a.game_id =g.game_id
         left join servers si on a.server_id =si.server_id
         left join vip_products vp on vp.product_id=a.product_id
@@ -54,13 +55,13 @@ const VipOffersModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findProdsByGameId: async game_id => {
+  findProdsByGameId: async (game_id) => {
     return await db2
       .promise()
       .query(
-        "select a.product_id,a.title, a.product_desc,a.price,a.gold,a.free_golds, a.game_id, g.name as game_name from vip_products a  join games g on a.game_id =g.game_id where a.game_id=?",
+        'select a.product_id,a.title, a.product_desc,a.price,a.gold,a.free_golds, a.game_id, g.name as game_name from vip_products a  join games g on a.game_id =g.game_id where a.game_id=?',
         [game_id]
       )
       .then(([rows, fields]) => {
@@ -70,37 +71,37 @@ const VipOffersModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findByIdAndUpdate: async (id, report) => {
     return await db1
       .promise()
-      .query("Update vip_wire_report set ? where id=?", [report, id])
+      .query('Update vip_wire_report set ? where id=?', [report, id])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "更新失敗" };
+          return { error: '更新失敗' };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findReportAndRemove: async report_id => {
+  findReportAndRemove: async (report_id) => {
     return await db1
       .promise()
       .query(
-        "Delete from vip_wire_report where report_id=? and report_status=1",
+        'Delete from vip_wire_report where report_id=? and report_status=1',
         [report_id]
       )
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
           return rows;
         } else {
-          return { error: "刪除失敗" };
+          return { error: '刪除失敗' };
         }
       })
-      .catch(err => ({ error: err.message }));
-  }
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 // CREATE TABLE `vip_wire_report` (

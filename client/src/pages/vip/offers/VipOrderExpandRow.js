@@ -1,20 +1,20 @@
-import React from "react";
-import { Row, Col, Table } from "reactstrap";
-import Moment from "react-moment";
-import moment from "moment";
-import { reportStatusOptions, invoiceOptions } from "./vipOptions";
+import React from 'react';
+import { Row, Col, Table } from 'reactstrap';
+import Moment from 'react-moment';
+import moment from 'moment';
+import { reportStatusOptions, invoiceOptions } from './vipOptions';
 const VipOrderExpandRow = {
   showExpandColumn: true,
   expandByColumnOnly: true,
   onlyOneExpanding: true,
-  renderer: row => (
+  renderer: (row) => (
     <Row>
       <Col xl={6}>
-        <Table className="mb-0" sm={4} dark>
+        <Table className='mb-0' sm={4} dark>
           <tbody>
             <tr>
               <th>狀態</th>
-              <td colSpan="3">{reportStatusOptions[row.report_status]}</td>
+              <td colSpan='3'>{reportStatusOptions[row.report_status]}</td>
             </tr>
             <tr>
               <th>單號：</th>
@@ -25,15 +25,15 @@ const VipOrderExpandRow = {
             <tr>
               <th>填單時間：</th>
               <td>
-                {<Moment format="YYYY-MM-DD HH:mm">{row.create_time}</Moment>}
+                {<Moment format='YYYY-MM-DD HH:mm'>{row.create_time}</Moment>}
               </td>
               <th>上次更新：</th>
               <td>
-                {moment(row.update_time).format("YYYY-MM-DD") ===
-                "Invalid date" ? (
-                  ""
+                {moment(row.update_time).format('YYYY-MM-DD') ===
+                'Invalid date' ? (
+                  ''
                 ) : (
-                  <Moment format="YYYY-MM-DD">{row.update_time}</Moment>
+                  <Moment format='YYYY-MM-DD'>{row.update_time}</Moment>
                 )}
               </td>
             </tr>
@@ -74,7 +74,7 @@ const VipOrderExpandRow = {
               <td>{row.wire_name}</td>
               <th>匯款時間</th>
               <td>
-                {<Moment format="YYYY-MM-DD HH:mm">{row.wire_time}</Moment>}{" "}
+                {<Moment format='YYYY-MM-DD HH:mm'>{row.wire_time}</Moment>}{' '}
               </td>
             </tr>
             <tr>
@@ -85,24 +85,28 @@ const VipOrderExpandRow = {
             </tr>
             <tr>
               <th>方案</th>
-              <td colSpan="3">
+              <td colSpan='3'>
                 {row.product_id} - {row.title} * {row.qty}
               </td>
             </tr>
             <tr>
               <th>發票選項</th>
               <td>{invoiceOptions[row.invoice_option]}</td>
-              <th>寄送住址</th>
-              <td>{row.address}</td>
+              <th>收件人</th>
+              <td>{row.recipient}</td>
+            </tr>
+            <tr>
+              <th>寄送地址</th>
+              <td colSpan='3'>{row.address}</td>
             </tr>
             <tr>
               <th>發票日期</th>
               <td>
-                {moment(row.invoice_date).format("YYYY-MM-DD") ===
-                "Invalid date" ? (
-                  ""
+                {moment(row.invoice_date).format('YYYY-MM-DD') ===
+                'Invalid date' ? (
+                  ''
                 ) : (
-                  <Moment format="YYYY-MM-DD">{row.invoice_date}</Moment>
+                  <Moment format='YYYY-MM-DD'>{row.invoice_date}</Moment>
                 )}
               </td>
               <th>發票號碼</th>
@@ -110,28 +114,28 @@ const VipOrderExpandRow = {
             </tr>
 
             <tr>
-              <th className="text-nowrap">備註記事：</th>
-              <td colSpan="3">
+              <th className='text-nowrap'>備註記事：</th>
+              <td colSpan='3'>
                 {row.note &&
-                  row.note.split("\n").map((item, i) => {
+                  row.note.split('\n').map((item, i) => {
                     return <p key={i}>{item}</p>;
                   })}
               </td>
             </tr>
             <tr>
-              <th className="text-nowrap">網易訂單號：</th>
-              <td colSpan="3">{row.orderids}</td>
+              <th className='text-nowrap'>網易訂單號：</th>
+              <td colSpan='3'>{row.orderids}</td>
             </tr>
             <tr>
               <th>IP</th>
               <td>{row.ip}</td>
               <th>國家</th>
-              <td>{row.country !== null ? row.country : ""}</td>
+              <td>{row.country !== null ? row.country : ''}</td>
             </tr>
           </tbody>
         </Table>
       </Col>
     </Row>
-  )
+  ),
 };
 export default VipOrderExpandRow;

@@ -94,7 +94,6 @@ const VipOrdersHome = ({
     { label: '伺服器', key: 'server_name' },
     { label: '角色ID', key: 'role_id' },
     { label: '角色名稱', key: 'char_name' },
-    { label: 'Role ID', key: 'char_in_game_id' },
     { label: 'VIP等級', key: 'vip_ranking' },
     { label: '匯款銀行', key: 'bank_name' },
     { label: '玩家匯款資訊(帳號末五碼)', key: 'wire_code' },
@@ -103,6 +102,7 @@ const VipOrdersHome = ({
     { label: '訂單金額', key: 'wire_amount' },
     { label: '備註', key: 'note' },
     { label: '發票選項', key: 'invoice_option' },
+    { label: '收件人', key: 'recipient' },
     { label: '寄送住址', key: 'address' },
     { label: '發票日期', key: 'invoice_date' },
     { label: '發票號碼', key: 'invoice_id' },
@@ -120,8 +120,14 @@ const VipOrdersHome = ({
   const columns = [
     {
       dataField: 'create_time',
-      text: '填單時間',
+      text: '時間',
+      hidden: true,
+    },
+    {
+      dataField: 'report_id',
+      text: '單號',
       sort: true,
+      filter: textFilter(),
       formatter: (cellContent, row) => {
         return (
           <small>
@@ -213,7 +219,7 @@ const VipOrdersHome = ({
             <strong style={{ color: 'blue' }}>{cellContent} </strong>
             {ranking_badge}
             <br />
-            GID: {row.role_id}
+            {row.role_id}
           </div>
         );
       },
@@ -297,7 +303,7 @@ const VipOrdersHome = ({
       isDummyField: true,
       classes: 'table-action',
       headerStyle: (column, colIndex) => {
-        return { width: '120px' };
+        return { width: '100px' };
       },
       text: '操作',
       formatter: (cell, row) => {

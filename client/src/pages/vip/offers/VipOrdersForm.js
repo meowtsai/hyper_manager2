@@ -66,6 +66,8 @@ const VipOrdersForm = ({
 
   const [invoice_option, setInvoiceOption] = useState('');
   const [address, setAddress] = useState('');
+  const [recipient, setRecipient] = useState('');
+
   const [invoice_id, setInvoiceId] = useState('');
   const [invoice_date, setInvoiceDate] = useState('');
 
@@ -112,6 +114,7 @@ const VipOrdersForm = ({
         currentReport.invoice_option ? currentReport.invoice_option : ''
       );
       setAddress(currentReport.address ? currentReport.address : '');
+      setRecipient(currentReport.recipient ? currentReport.recipient : '');
     }
   }, [currentReport]);
 
@@ -149,6 +152,7 @@ const VipOrdersForm = ({
       invoice_date: formatedInvoiceDate,
       invoice_option,
       address,
+      recipient,
     };
     //console.log("reportField", reportField);
     editVipWireReport(reportField);
@@ -504,7 +508,39 @@ const VipOrdersForm = ({
                   </Col>
                 </Row>
                 <Row form>
-                  <Col md={4}>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label htmlFor='invoice_date'>發票日期</Label>
+                      <Input
+                        type='date'
+                        name='invoice_date'
+                        id='invoice_date'
+                        value={moment(invoice_date).format('YYYY-MM-DD')}
+                        onChange={(e) => setInvoiceDate(e.target.value)}
+                        invalid={errors.invoice_date ? true : false}
+                      />
+
+                      <FormFeedback>{errors.invoice_date}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label htmlFor='invoice_id'>發票號碼</Label>
+                      <Input
+                        type='test'
+                        name='invoice_id'
+                        id='invoice_id'
+                        value={invoice_id}
+                        onChange={(e) => setInvoiceId(e.target.value)}
+                        invalid={errors.invoice_id ? true : false}
+                      />
+
+                      <FormFeedback>{errors.invoice_id}</FormFeedback>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col md={6}>
                     <FormGroup>
                       <Label htmlFor='report_status'>發票選項</Label>
                       <Input
@@ -525,34 +561,19 @@ const VipOrdersForm = ({
                       <FormFeedback>{errors.invoice_option}</FormFeedback>
                     </FormGroup>
                   </Col>
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormGroup>
-                      <Label htmlFor='invoice_date'>發票日期</Label>
-                      <Input
-                        type='date'
-                        name='invoice_date'
-                        id='invoice_date'
-                        value={moment(invoice_date).format('YYYY-MM-DD')}
-                        onChange={(e) => setInvoiceDate(e.target.value)}
-                        invalid={errors.invoice_date ? true : false}
-                      />
+                      <Label htmlFor='txtRecipient'>收件人</Label>
 
-                      <FormFeedback>{errors.invoice_date}</FormFeedback>
-                    </FormGroup>
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label htmlFor='invoice_id'>發票號碼</Label>
                       <Input
-                        type='test'
-                        name='invoice_id'
-                        id='invoice_id'
-                        value={invoice_id}
-                        onChange={(e) => setInvoiceId(e.target.value)}
-                        invalid={errors.invoice_id ? true : false}
+                        type='text'
+                        name='txtRecipient'
+                        id='txtRecipient'
+                        value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)}
+                        placeholder='收件人'
+                        invalid={errors.recipient ? true : false}
                       />
-
-                      <FormFeedback>{errors.invoice_id}</FormFeedback>
                     </FormGroup>
                   </Col>
                 </Row>
