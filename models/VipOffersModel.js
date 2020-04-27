@@ -40,7 +40,7 @@ const VipOffersModel = {
       .promise()
       .query(
         `select a.* , g.name as game_name, si.name as server_name, vp.title, vp.price,vp.gold, 
-        vp.free_golds, b.name as admin_name, (select vip_ranking from whale_users where whale_users.char_in_game_id=a.role_id and whale_users.site=a.game_id) as vip_ranking
+        vp.free_golds, b.name as admin_name
         from vip_wire_report a left join games g on a.game_id =g.game_id
         left join servers si on a.server_id =si.server_id
         left join vip_products vp on vp.product_id=a.product_id

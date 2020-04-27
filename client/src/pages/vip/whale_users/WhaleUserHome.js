@@ -9,7 +9,7 @@ import Spinner from '../../../components/Spinner';
 import {
   isAddedOptions,
   vipRankingOptions,
-  vipServiceOptions
+  vipServiceOptions,
 } from './whaleOptConfig';
 import {
   getVipGames,
@@ -17,7 +17,7 @@ import {
   putVip,
   clearVIPMessage,
   deleteVipServiceRequest,
-  addVipServiceRequest
+  addVipServiceRequest,
 } from '../../../redux/actions';
 import Moment from 'react-moment';
 import moment from 'moment';
@@ -25,13 +25,13 @@ import moment from 'moment';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, {
   textFilter,
-  selectFilter
+  selectFilter,
 } from 'react-bootstrap-table2-filter';
 //import paginationFactory from "react-bootstrap-table2-paginator";
 import paginationFactory, {
   PaginationProvider,
   PaginationTotalStandalone,
-  PaginationListStandalone
+  PaginationListStandalone,
 } from 'react-bootstrap-table2-paginator';
 
 import PropTypes from 'prop-types';
@@ -51,7 +51,7 @@ const WhaleUserHome = ({
   requestData,
   deleteVipServiceRequest,
   addVipServiceRequest,
-  history
+  history,
 }) => {
   const search = window.location.search;
   const params = new URLSearchParams(search);
@@ -66,13 +66,24 @@ const WhaleUserHome = ({
     setModal(!modal);
   };
 
+  const filterByRoleIdOrRoleNo = (filterVal, data) => {
+    //console.log("filterVal", filterVal);
+    if (filterVal) {
+      return data.filter(
+        (item) =>
+          item.char_in_game_id.indexOf(filterVal) > -1 ||
+          (item.role_id ? item.role_id.indexOf(filterVal) > -1 : false)
+      );
+    }
+    return data;
+  };
   const onAddRequestRecord = ({ type, code, note }) => {
     const record = {
       game_id: gameId,
       role_id: currentUser.char_in_game_id,
       service_type: type,
       request_code: code,
-      note
+      note,
     };
     addVipServiceRequest(record);
   };
@@ -89,18 +100,18 @@ const WhaleUserHome = ({
   useEffect(() => {
     //console.log("requestData effect", requestData.length);
     if (requestData.length > 0) {
-      const arr1 = requestData.map(d => d.role_id);
+      const arr1 = requestData.map((d) => d.role_id);
       //const arr1 = ["a"];
 
       const arr2 = vip_list
-        .filter(vip => {
+        .filter((vip) => {
           if (arr1.indexOf(vip.char_in_game_id) >= 0) {
             return false;
           } else {
             return true;
           }
         })
-        .map(v => v.char_in_game_id);
+        .map((v) => v.char_in_game_id);
       //console.log("requestData effect arr2", arr2.length);
       setReqRoleIDArray(arr2);
     }
@@ -131,7 +142,7 @@ const WhaleUserHome = ({
     };
   }, [updateOKMessage, error]);
 
-  const changeVIPGame = game_id => {
+  const changeVIPGame = (game_id) => {
     //console.log(game_id);
     if (game_id) {
       history.push(`/vip/whale_users?game_id=${game_id}`);
@@ -140,19 +151,19 @@ const WhaleUserHome = ({
     }
   };
 
-  const onLineAddChange = uid => {
+  const onLineAddChange = (uid) => {
     //console.log("onLineAddChange", gameId, uid);
     putVip(gameId, uid, 'LINE_ACTION');
   };
 
-  const onConfirmInactive = uid => {
+  const onConfirmInactive = (uid) => {
     console.log('onConfirmInactive', gameId, uid);
   };
 
-  const onEdit = char_in_game_id => {
+  const onEdit = (char_in_game_id) => {
     //console.log("onEdit", char_in_game_id);
     setCurrentUser(
-      vip_list.filter(vip => vip.char_in_game_id === char_in_game_id)[0] || {}
+      vip_list.filter((vip) => vip.char_in_game_id === char_in_game_id)[0] || {}
     );
 
     toggle();
@@ -169,7 +180,7 @@ const WhaleUserHome = ({
       headerSortingStyle,
       headerStyle: (column, colIndex) => {
         return { width: '100px' };
-      }
+      },
     },
     {
       dataField: 'vip_ranking',
@@ -179,9 +190,9 @@ const WhaleUserHome = ({
       },
       headerSortingStyle,
       sort: true,
-      formatter: cellContent => {
+      formatter: (cellContent) => {
         const opt = vipRankingOptions.filter(
-          opt => opt.value === cellContent
+          (opt) => opt.value === cellContent
         )[0];
 
         return opt ? (
@@ -193,8 +204,8 @@ const WhaleUserHome = ({
         );
       },
       filter: selectFilter({
-        options: vipRankingOptions
-      })
+        options: vipRankingOptions,
+      }),
     },
     {
       dataField: 'char_name',
@@ -219,15 +230,28 @@ const WhaleUserHome = ({
         ) : (
           ''
         );
-      }
+      },
     },
     {
       dataField: 'char_in_game_id',
       text: '角色ID',
-      filter: textFilter(),
+
+      filter: textFilter({
+        onFilter: filterByRoleIdOrRoleNo,
+      }),
       headerStyle: (column, colIndex) => {
         return { width: '100px' };
-      }
+      },
+      formatter: (cellContent, row) => {
+        return cellContent ? (
+          <Fragment>
+            {cellContent}
+            {row.role_id ? <div>{row.role_id}</div> : ''}
+          </Fragment>
+        ) : (
+          ''
+        );
+      },
     },
     {
       dataField: 'server_name',
@@ -235,7 +259,7 @@ const WhaleUserHome = ({
       filter: textFilter(),
       headerStyle: (column, colIndex) => {
         return { width: '100px' };
-      }
+      },
     },
     {
       dataField: 'country',
@@ -244,7 +268,7 @@ const WhaleUserHome = ({
       sort: true,
       headerStyle: (column, colIndex) => {
         return { width: '100px' };
-      }
+      },
     },
 
     {
@@ -260,7 +284,7 @@ const WhaleUserHome = ({
         ) : (
           ''
         );
-      }
+      },
     },
     {
       dataField: 'latest_topup_date',
@@ -275,7 +299,7 @@ const WhaleUserHome = ({
         ) : (
           ''
         );
-      }
+      },
     },
 
     {
@@ -289,16 +313,16 @@ const WhaleUserHome = ({
         var totalFormatter = new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'TWD',
-          minimumFractionDigits: 0
+          minimumFractionDigits: 0,
         });
         return <span>{totalFormatter.format(cellContent)}</span>;
-      }
+      },
     },
     {
       dataField: 'is_added',
       text: 'Line',
       filter: selectFilter({
-        options: isAddedOptions
+        options: isAddedOptions,
       }),
       headerStyle: (column, colIndex) => {
         return { width: '50px' };
@@ -312,7 +336,7 @@ const WhaleUserHome = ({
             </span>
           ) : null;
         return displayBlock;
-      }
+      },
     },
     {
       dataField: 'line_date',
@@ -329,7 +353,7 @@ const WhaleUserHome = ({
             </span>
           ) : null;
         return displayBlock;
-      }
+      },
     },
 
     {
@@ -346,7 +370,7 @@ const WhaleUserHome = ({
           </span>
         ) : null;
         return displayBlock;
-      }
+      },
     },
     {
       dataField: 'last_login',
@@ -359,8 +383,8 @@ const WhaleUserHome = ({
           </Moment>
         ) : null;
         return displayBlock;
-      }
-    }
+      },
+    },
     // {
     //   dataField: "action",
     //   isDummyField: true,
@@ -396,42 +420,42 @@ const WhaleUserHome = ({
     // }
   ];
 
-  const onDelReqeust = record_id => {
+  const onDelReqeust = (record_id) => {
     //console.log("onDelReqeust", record_id);
     deleteVipServiceRequest(record_id);
   };
 
-  const arr1 = requestData.map(d => d.role_id);
+  const arr1 = requestData.map((d) => d.role_id);
   //const arr1 = ["a"];
 
   const arr2 = vip_list
-    .filter(vip => {
+    .filter((vip) => {
       if (arr1.indexOf(vip.char_in_game_id) >= 0) {
         return false;
       } else {
         return true;
       }
     })
-    .map(v => v.char_in_game_id);
+    .map((v) => v.char_in_game_id);
 
   const expandRow = {
     showExpandColumn: true,
     expandByColumnOnly: true,
     nonExpandable: arr2,
 
-    renderer: row => {
+    renderer: (row) => {
       const reqData = requestData
-        .filter(data => data.role_id === row.char_in_game_id)
+        .filter((data) => data.role_id === row.char_in_game_id)
         .sort((a, b) => a.create_time > b.create_time);
 
       if (reqData.length > 0) {
         return (
           <Fragment>
             {' '}
-            {reqData.map(d => {
+            {reqData.map((d) => {
               const vsop =
                 vipServiceOptions.filter(
-                  vo => vo.type.toString() === d.service_type
+                  (vo) => vo.type.toString() === d.service_type
                 )[0] || {};
 
               return (
@@ -479,7 +503,7 @@ const WhaleUserHome = ({
       } else {
         return null;
       }
-    }
+    },
   };
 
   const customTotal = (from, to, size) => (
@@ -504,7 +528,8 @@ const WhaleUserHome = ({
     { label: '加入Line日期', key: 'line_date' },
     { label: '最後登入日期', key: 'last_login' },
     { label: '確認流失', key: 'inactive_confirm_date' },
-    { label: 'VIP級別', key: 'vip_ranking' }
+    { label: '角色id', key: 'role_id' },
+    { label: 'VIP級別', key: 'vip_ranking' },
   ];
 
   if (loading) {
@@ -524,7 +549,7 @@ const WhaleUserHome = ({
       <PageTitle
         breadCrumbItems={[
           { label: 'VIP', path: '/vip', active: false },
-          { label: '鯨魚用戶', path: '/vip/whale_users', active: true }
+          { label: '鯨魚用戶', path: '/vip/whale_users', active: true },
         ]}
         title={'VIP - 鯨魚用戶列表'}
       />
@@ -535,11 +560,11 @@ const WhaleUserHome = ({
               type='select'
               name='gameSelect'
               id='gameSelect'
-              onChange={e => changeVIPGame(e.target.value)}
+              onChange={(e) => changeVIPGame(e.target.value)}
               value={gameId}>
               <option value=''>==選擇遊戲==</option>
               {game_list.length > 0 &&
-                game_list.map(game => (
+                game_list.map((game) => (
                   <option key={`sel-${game.site}`} value={game.site}>
                     {game.name}
                   </option>
@@ -550,7 +575,7 @@ const WhaleUserHome = ({
           {vip_list.length > 0 && (
             <CSVLink
               data={vip_list
-                .map(vip => ({
+                .map((vip) => ({
                   ...vip,
                   line_date:
                     vip.line_date === null
@@ -578,9 +603,9 @@ const WhaleUserHome = ({
 
                   vip_ranking: vip.vip_ranking
                     ? vipRankingOptions.filter(
-                        ranking => ranking.value === vip.vip_ranking
+                        (ranking) => ranking.value === vip.vip_ranking
                       )[0].label
-                    : ''
+                    : '',
                 }))
                 .sort((a, b) => b.deposit_total - a.deposit_total)}
               headers={csvHeaders}
@@ -611,7 +636,7 @@ const WhaleUserHome = ({
               custom: true,
               totalSize: vip_list.length,
               sizePerPage: 100,
-              paginationTotalRenderer: customTotal
+              paginationTotalRenderer: customTotal,
             })}>
             {({ paginationProps, paginationTableProps }) => (
               <div>
@@ -628,8 +653,8 @@ const WhaleUserHome = ({
                   defaultSorted={[
                     {
                       dataField: 'deposit_total',
-                      order: 'desc'
-                    }
+                      order: 'desc',
+                    },
                   ]}
                   wrapperClasses='table-responsive'
                   rowClasses='text-dark m-0 font-13'
@@ -651,10 +676,10 @@ WhaleUserHome.propTypes = {
   getVip: PropTypes.func.isRequired,
   game_list: PropTypes.array,
   loading: PropTypes.bool.isRequired,
-  error: PropTypes.object
+  error: PropTypes.object,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   vip_list: state.VIP.vip_list,
   requestData: state.VIP.requestData,
   game_list: state.VIP.game_list,
@@ -662,7 +687,7 @@ const mapStateToProps = state => ({
   error: state.VIP.error,
   errors: state.VIP.errors,
   not_allowed: state.VIP.not_allowed,
-  updateOKMessage: state.VIP.updateOKMessage
+  updateOKMessage: state.VIP.updateOKMessage,
 });
 
 export default connect(mapStateToProps, {
@@ -671,5 +696,5 @@ export default connect(mapStateToProps, {
   putVip,
   clearVIPMessage,
   deleteVipServiceRequest,
-  addVipServiceRequest
+  addVipServiceRequest,
 })(WhaleUserHome);

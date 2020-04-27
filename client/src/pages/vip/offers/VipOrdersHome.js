@@ -219,7 +219,14 @@ const VipOrdersHome = ({
             <strong style={{ color: 'blue' }}>{cellContent} </strong>
             {ranking_badge}
             <br />
-            {row.role_id}
+            {opt ? (
+              <Link
+                to={`/vip/user_dashboard/${row.game_id}?user=${row.role_id}`}>
+                {row.role_id}
+              </Link>
+            ) : (
+              row.role_id
+            )}
           </div>
         );
       },
@@ -246,6 +253,8 @@ const VipOrdersHome = ({
                 'badge-secondary': row.report_status === '1',
                 'badge-success': row.report_status === '4',
                 'badge-danger': row.report_status === '2',
+                'badge-info': row.report_status === '5',
+                'badge-dark': row.report_status === '6',
               })}>
               {reportStatusOptions[cellContent]}
             </span>

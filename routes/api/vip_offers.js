@@ -121,7 +121,7 @@ router.put(
           record.vip_ranking =
             vip.vip_ranking === null ? 'NO_R' : vip.vip_ranking;
         } else {
-          record.vip_ranking = 'NOT_LISTED';
+          record.vip_ranking = null;
         }
       }
 
