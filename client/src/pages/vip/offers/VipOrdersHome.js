@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Row, Col, Form, Alert, Input, FormGroup } from 'reactstrap';
+import { Row, Col, Form, Alert, Input, FormGroup, Label } from 'reactstrap';
 import classNames from 'classnames';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory, {
@@ -38,6 +38,7 @@ const VipOrdersHome = ({
     moment().format('YYYY-MM-DDT00:00')
   );
   const [endTime, setEndTime] = useState(moment().format('YYYY-MM-DDT23:59'));
+  const [selectedGame, setSelectedGame] = useState('');
   const [searchActivated, setSearchActivated] = useState(false);
 
   const mainTitle = 'VIP 訂單列表';
@@ -172,27 +173,29 @@ const VipOrdersHome = ({
       footer: '',
     },
     {
-      dataField: 'game_id',
-      text: '遊戲',
-      filter: selectFilter({
-        options: { g66naxx2tw: '明日之後', h55naxx2tw: '第五人格' },
-      }),
-      formatter: (cellContent, row) => {
-        return (
-          <div>
-            <strong>{row.game_name} </strong>
-          </div>
-        );
-      },
-      footer: '',
-    },
-    {
       dataField: 'server_name',
       text: '伺服器',
       filter: textFilter(),
       formatter: (cellContent, row) => {
         return (
           <div>
+            {row.game_id === 'g66naxx2tw' ? (
+              <img
+                className='mr-1'
+                style={{ opacity: 0.7 }}
+                src='https://game.longeplay.com.tw/p/upload/pictures/8e43db062e94be5cebb5ad6e5ff9590f.png'
+                width='10'
+                alt='明日logo'
+              />
+            ) : (
+              <img
+                className='mr-1'
+                style={{ opacity: 0.7 }}
+                src='https://game.longeplay.com.tw/p/upload/pictures/b96dffcf093d677988b287a22e9db5a7.png'
+                width='10'
+                alt='第五logo'
+              />
+            )}
             <strong>{cellContent} </strong>
           </div>
         );
@@ -345,6 +348,7 @@ const VipOrdersHome = ({
     setArrangedData(
       records.filter(
         (row) =>
+          row.game_id === selectedGame &&
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') >= beginTime &&
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') <= endTime
       )
@@ -367,11 +371,20 @@ const VipOrdersHome = ({
         title={mainTitle}
       />
       <Row className='mb-2'>
-        <Col sm={8}>
+        <Col sm={12}>
           <Form inline>
             <FormGroup>
-              {' '}
-              建單時間:
+              <Label className='ml-1 mr-1'>遊戲</Label>
+              <Input
+                type='select'
+                name='gameSelect'
+                id='gameSelect'
+                onChange={(e) => setSelectedGame(e.target.value)}>
+                <option value=''>全遊戲</option>
+                <option value='g66naxx2tw'>明日之後</option>
+                <option value='h55naxx2tw'>第五人格</option>
+              </Input>{' '}
+              <Label className='ml-1 mr-1'>建單時間</Label>
               <Input
                 bsSize='sm'
                 type='datetime-local'
@@ -445,7 +458,6 @@ const VipOrdersHome = ({
             )}
           </Form>
         </Col>
-        <Col md={4} sm={4}></Col>
       </Row>
       <Row className='mb-2'>
         <Col lg={12}>
