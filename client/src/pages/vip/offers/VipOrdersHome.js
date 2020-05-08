@@ -348,7 +348,7 @@ const VipOrdersHome = ({
     setArrangedData(
       records.filter(
         (row) =>
-          row.game_id === selectedGame &&
+          (selectedGame !== '' ? row.game_id === selectedGame : true) &&
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') >= beginTime &&
           moment(row.create_time).format('YYYY-MM-DDTHH:mm') <= endTime
       )
