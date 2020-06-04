@@ -110,6 +110,8 @@ const VipOrdersHome = ({
     { label: '虛寶內容', key: 'credits' },
     { label: '訂單狀態', key: 'report_status' },
     { label: '處理人員', key: 'admin_name' },
+    { label: 'EMail', key: 'email' },
+    { label: '手機', key: 'phone' },
   ];
 
   const customTotal = (from, to, size) => (

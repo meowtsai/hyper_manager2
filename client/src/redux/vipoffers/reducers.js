@@ -17,18 +17,25 @@ import {
   EDIT_VIP_WIRE_REPORT_FAILED,
   DELETE_VIP_WIRE_REPORT,
   DELETE_VIP_WIRE_REPORT_SUCCESS,
-  DELETE_VIP_WIRE_REPORT_FAILED
-} from "./constants";
+  DELETE_VIP_WIRE_REPORT_FAILED,
+  GET_CURRENT_VIP_PRODUCT,
+  GET_CURRENT_VIP_PRODUCT_SUCCESS,
+  GET_CURRENT_VIP_PRODUCT_FAILED,
+  EDIT_VIP_PRODUCT,
+  EDIT_VIP_PRODUCT_SUCCESS,
+  EDIT_VIP_PRODUCT_FAILED,
+} from './constants';
 
 const INIT_STATE = {
   vip_offer_list: [],
   vip_orders_list: [],
   vip_prods: [],
   current_report: {},
+  current_product: {},
   loading: true,
   errors: {},
   updateOKMessage: null,
-  affectedRecord: null
+  affectedRecord: null,
 };
 
 type VipOfferAction = { type: string, payload: {} | string };
@@ -41,7 +48,7 @@ type State = {
   +value?: boolean,
   error?: string,
   errors?: {},
-  updateOKMessage?: string
+  updateOKMessage?: string,
 };
 
 const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
@@ -60,14 +67,22 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         loading: true,
         error: null,
         errors: {},
-        current_report: {}
+        current_report: {},
+      };
+    case GET_CURRENT_VIP_PRODUCT:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        errors: {},
+        current_product: {},
       };
     case GET_VIP_OFFERS_SUCCESS:
       return {
         ...state,
         vip_offer_list: action.payload,
         loading: false,
-        error: null
+        error: null,
       };
     case GET_VIP_ORDERS_SUCCESS:
       return {
@@ -75,19 +90,26 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         updateOKMessage: null,
         vip_orders_list: action.payload,
         loading: false,
-        error: null
+        error: null,
       };
     case GET_CURRENT_VIP_REPORT_SUCCESS:
       return {
         ...state,
         current_report: action.payload,
         loading: false,
-        error: null
+        error: null,
+      };
+    case GET_CURRENT_VIP_PRODUCT_SUCCESS:
+      return {
+        ...state,
+        current_product: action.payload,
+        loading: false,
+        error: null,
       };
     case GET_VIP_PRODS_BY_GAMEID_SUCCESS:
       return {
         ...state,
-        vip_prods: action.payload
+        vip_prods: action.payload,
       };
     case EDIT_VIP_WIRE_REPORT_SUCCESS:
       return {
@@ -95,23 +117,35 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         affectedRecord: action.payload.updatedField,
         current_report: {
           ...state.current_report,
-          ...action.payload.updatedField
+          ...action.payload.updatedField,
         },
         loading: false,
         error: null,
         errors: {},
-        updateOKMessage: "編輯成功!"
+        updateOKMessage: '編輯成功!',
+      };
+    case EDIT_VIP_PRODUCT_SUCCESS:
+      return {
+        ...state,
+        current_product: {
+          ...state.current_product,
+          ...action.payload.updatedField,
+        },
+        loading: false,
+        error: null,
+        errors: {},
+        updateOKMessage: '編輯成功!',
       };
     case DELETE_VIP_WIRE_REPORT_SUCCESS:
       return {
         ...state,
         vip_orders_list: state.vip_orders_list.filter(
-          report => report.report_id !== action.payload.updatedField
+          (report) => report.report_id !== action.payload.updatedField
         ),
         loading: false,
         error: null,
         errors: {},
-        updateOKMessage: action.payload.msg
+        updateOKMessage: action.payload.msg,
       };
     case EDIT_VIP_WIRE_REPORT_FAILED:
     case DELETE_VIP_WIRE_REPORT_FAILED:
@@ -119,18 +153,27 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         ...state,
         updateOKMessage: null,
         errors: action.payload,
-        loading: false
+        loading: false,
       };
     case GET_VIP_OFFERS_FAILED:
     case GET_VIP_ORDERS_FAILED:
     case GET_CURRENT_VIP_REPORT_FAILED:
+    case GET_CURRENT_VIP_PRODUCT_FAILED:
     case GET_VIP_PRODS_BY_GAMEID_FAILED:
       return {
         ...state,
         error: action.payload,
         loading: false,
-        updateOKMessage: null
+        updateOKMessage: null,
       };
+    case EDIT_VIP_PRODUCT_FAILED:
+      return {
+        ...state,
+        errors: action.payload,
+        loading: false,
+        updateOKMessage: null,
+      };
+
     case CLEAR_VIP_OFFERS_MESSAGE:
       return { ...state, error: null, loading: false };
     default:

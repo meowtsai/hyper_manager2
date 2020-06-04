@@ -25,7 +25,7 @@ router.get(
   },
   async (req, res) => {
     try {
-      const offer_list = await VipOffersModel.getOffersList();
+      const offer_list = await VipOffersModel.getProductsList();
       if (offer_list.error) {
         return res
           .status(500)
@@ -86,6 +86,104 @@ router.get(
       res.json(g);
     } else {
       res.status(400).json({ msg: '沒有這個紀錄' });
+    }
+  }
+);
+
+//get single product by its product id
+// /api/vip_offers/prods/:product_id
+router.get(
+  '/prods/:product_id',
+  function (req, res, next) {
+    return checkPermission(req, res, next, 'vip', 'read');
+  },
+  async (req, res) => {
+    const product_id = req.params.product_id;
+    const prod = await VipOffersModel.findProdById(product_id);
+    if (!prod.error) {
+      if (prod) {
+        res.json(prod);
+      } else {
+        res.status(400).json({ msg: '沒有這個紀錄' });
+      }
+    } else {
+      res.status(400).json({ msg: prod.error });
+    }
+  }
+);
+//新增一筆vip 方案內容
+//url: "/api/vip_offers/prods"
+router.post(
+  '/prods',
+  function (req, res, next) {
+    return checkPermission(req, res, next, 'vip', 'modify');
+  },
+  async (req, res) => {
+    const newEntry = req.body;
+
+    const validateResult = validateProductInput(newEntry);
+    if (!validateResult.isValid) {
+      return res.status(400).json(validateResult.errors);
+    }
+    //check if product id duplicates
+    const isDuplicate =
+      (await VipOffersModel.findProdById(newEntry.product_id)) === null
+        ? false
+        : true;
+
+    if (isDuplicate) {
+      return res.status(500).json({ msg: `新增失敗(產品編號重複)` });
+    }
+
+    const result = await VipOffersModel.createProduct(newEntry);
+
+    if (result.affectedRows === 1) {
+      res.json({
+        msg: '新增成功',
+        newRecord: newEntry,
+      });
+    } else {
+      return res.status(500).json({ msg: `新增失敗(${result.error})` });
+    }
+  }
+);
+
+//更新vip 方案內容
+//url: "/api/vip_offers/prods/update",
+router.put(
+  '/prods/update',
+  function (req, res, next) {
+    return checkPermission(req, res, next, 'vip', 'modify');
+  },
+  async (req, res) => {
+    const record = req.body;
+    const product = await VipOffersModel.findProdById(record.product_id);
+    if (product) {
+      const validateResult = validateProductInput(record);
+      if (!validateResult.isValid) {
+        return res.status(400).json(validateResult.errors);
+      }
+
+      delete record.product_id;
+
+      const updateMsg = await VipOffersModel.findProdByIdAndUpdate(
+        product.product_id,
+        record
+      );
+      if (!updateMsg.error) {
+        if (updateMsg.affectedRows === 1) {
+          res.json({
+            msg: '資訊已更新。',
+            updatedField: { ...record },
+          });
+        } else {
+          res.status(500).json({ msg: `產品資訊更新失敗(${updateMsg.error})` });
+        }
+      } else {
+        res.status(500).json({ msg: `更新失敗(${updateMsg.error})` });
+      }
+    } else {
+      return res.status(404).json({ msg: `沒有這個紀錄` });
     }
   }
 );
@@ -171,6 +269,47 @@ router.delete(
   }
 );
 
+router.delete(
+  '/prods/:product_id',
+  function (req, res, next) {
+    return checkPermission(req, res, next, 'vip', 'modify');
+  },
+  async (req, res) => {
+    const product_id = req.params.product_id;
+    //console.log('delete ', product_id);
+
+    //不可刪除目前上架中以及主表有關連到的商品
+    const product = await VipOffersModel.findProdById(product_id);
+    if (!product) {
+      return res.status(500).json({ msg: '沒有這個品項' });
+    }
+    if (product.is_active === '1') {
+      return res.status(500).json({ msg: '無法刪除，品項目前上架中' });
+    }
+
+    const undeletable = await VipOffersModel.checkIfExistInWireReport(
+      product_id
+    );
+    if (undeletable) {
+      return res.status(500).json({ msg: '無法刪除，品項已經關聯其他訂單' });
+    }
+
+    const delResult = await VipOffersModel.findProdAndRemove(product_id);
+
+    if (delResult.error) {
+      return res.status(500).json({ msg: delResult.error });
+    }
+
+    if (delResult.affectedRows === 1) {
+      res.json({
+        msg: '品項已經刪除。',
+        updatedField: product_id,
+      });
+    } else {
+      res.status(500).json({ msg: '品項刪除失敗' });
+    }
+  }
+);
 module.exports = router;
 
 const validateVipOrderUpdate = (data) => {
@@ -181,6 +320,41 @@ const validateVipOrderUpdate = (data) => {
 
   if (data.report_status === '2' && validator.isEmpty(data.orderids)) {
     errors.orderids = '請輸入單號';
+  }
+
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+};
+
+const validateProductInput = (data) => {
+  let errors = {};
+
+  data.product_id = !isEmpty(data.product_id) ? data.product_id : '';
+  data.title = !isEmpty(data.title) ? data.title : '';
+  data.game_id = !isEmpty(data.game_id) ? data.game_id : '';
+  data.price = !isEmpty(data.price) ? data.price : null;
+  data.gold = !isEmpty(data.gold) ? data.gold : null;
+
+  const { product_id, title, game_id, price, gold } = data;
+
+  if (!product_id || validator.isEmpty(product_id)) {
+    errors.product_id = '必須填寫產品ID。';
+  }
+
+  if (!title || validator.isEmpty(title)) {
+    errors.title = '必須填寫產品名稱或描述。';
+  }
+  if (!game_id || validator.isEmpty(game_id)) {
+    errors.game_id = '必須選擇遊戲。';
+  }
+
+  if (!price || !validator.isInt(price.toString())) {
+    errors.price = '必須選輸入商品價格。';
+  }
+  if (!gold || !validator.isInt(gold.toString())) {
+    errors.gold = '必須選輸入對應遊戲幣。';
   }
 
   return {

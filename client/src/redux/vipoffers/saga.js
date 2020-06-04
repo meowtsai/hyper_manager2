@@ -1,14 +1,16 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { all, fork, put, takeEvery } from "redux-saga/effects";
+import { all, fork, put, takeEvery } from 'redux-saga/effects';
 import {
   GET_VIP_OFFERS,
   GET_VIP_ORDERS,
   GET_CURRENT_VIP_REPORT,
   GET_VIP_PRODS_BY_GAMEID,
   EDIT_VIP_WIRE_REPORT,
-  DELETE_VIP_WIRE_REPORT
-} from "./constants";
+  DELETE_VIP_WIRE_REPORT,
+  GET_CURRENT_VIP_PRODUCT,
+  EDIT_VIP_PRODUCT,
+} from './constants';
 
 import {
   getVipOffersFailed,
@@ -22,14 +24,18 @@ import {
   editVipWireReportSuccess,
   editVipWireReportFailed,
   deleteVipWireReportSuccess,
-  deleteVipWireReportFailed
-} from "./actions";
+  deleteVipWireReportFailed,
+  getCurrentVipProductSuccess,
+  getCurrentVipProductFailed,
+  editVipProductFailed,
+  editVipProductSuccess,
+} from './actions';
 
 function* getVipOffers() {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/vip_offers/offer_list"
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/vip_offers/offer_list',
   };
 
   try {
@@ -44,9 +50,9 @@ function* getVipOffers() {
 
 function* getVipOrder() {
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/vip_offers/order_list"
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/vip_offers/order_list',
   };
 
   try {
@@ -67,9 +73,9 @@ function* getCurrentRecord({ payload }) {
   //console.log('getCurrentRecord payload ', payload);
   const { report_id } = payload;
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    url: `/api/vip_offers/detail/${report_id}`
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/vip_offers/detail/${report_id}`,
   };
 
   try {
@@ -92,9 +98,9 @@ function* getCurrentRecord({ payload }) {
 function* getProdsByGameId({ payload: gameId }) {
   //console.log('getServersByGameId', gameId);
   const options = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-    url: `/api/vip_offers/prods_list/${gameId}`
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/vip_offers/prods_list/${gameId}`,
   };
 
   try {
@@ -117,10 +123,10 @@ function* editRecord({ payload }) {
   const { record } = payload;
 
   const options = {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    url: "/api/vip_offers/wire_report/update",
-    data: record
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    url: '/api/vip_offers/wire_report/update',
+    data: record,
   };
 
   try {
@@ -139,11 +145,11 @@ function* editRecord({ payload }) {
 }
 
 function* delVIPWReport({ payload: record_id }) {
-  console.log("delVIPWReport", record_id);
+  //console.log('delVIPWReport', record_id);
   const options = {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    url: `/api/vip_offers/delete_wire_report/${record_id}`
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/vip_offers/delete_wire_report/${record_id}`,
   };
 
   try {
@@ -153,6 +159,55 @@ function* delVIPWReport({ payload: record_id }) {
     let message;
     message = error.response.data.msg;
     yield put(deleteVipWireReportFailed(message));
+  }
+}
+
+function* getCurrentVipProductRecord({ payload }) {
+  //console.log('getCurrentRecord payload ', payload);
+  const { product_id } = payload;
+  const options = {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/vip_offers/prods/${product_id}`,
+  };
+
+  try {
+    const response = yield axios(options);
+    yield put(getCurrentVipProductSuccess(response.data));
+  } catch (error) {
+    let message;
+    switch (error.response.status) {
+      default:
+        message = error.response.data.msg;
+    }
+    yield put(getCurrentVipProductFailed(message));
+  }
+}
+
+function* editVipProductRecord({ payload }) {
+  console.log('editVipProductRecord *****', payload);
+  const { record, action, history } = payload;
+
+  const options = {
+    method: action === 'add' ? 'POST' : 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    url: `/api/vip_offers/prods${action === 'add' ? '' : '/update'}`,
+    data: record,
+  };
+
+  try {
+    const response = yield axios(options);
+    //console.log('editGovRecordSuccess editGovRecord', response);
+    history.push(`/vip/offers/form/${record.product_id}`);
+    yield put(editVipProductSuccess(response.data));
+  } catch (error) {
+    //console.log('error editGovRecord', error.response.data);
+    let message;
+    switch (error.response.status) {
+      default:
+        message = error.response.data;
+    }
+    yield put(editVipProductFailed(message));
   }
 }
 
@@ -178,6 +233,12 @@ export function* watchEditVipWireReport(): any {
 export function* watchDeleteVipWireReport(): any {
   yield takeEvery(DELETE_VIP_WIRE_REPORT, delVIPWReport);
 }
+export function* watchGetCurrentVipProductRecord(): any {
+  yield takeEvery(GET_CURRENT_VIP_PRODUCT, getCurrentVipProductRecord);
+}
+export function* watcheditVipProductRecord(): any {
+  yield takeEvery(EDIT_VIP_PRODUCT, editVipProductRecord);
+}
 
 function* vipOfferSaga(): any {
   yield all([
@@ -186,7 +247,9 @@ function* vipOfferSaga(): any {
     fork(watchGetCurrentReport),
     fork(watchGetProdsByGameId),
     fork(watchEditVipWireReport),
-    fork(watchDeleteVipWireReport)
+    fork(watchDeleteVipWireReport),
+    fork(watchGetCurrentVipProductRecord),
+    fork(watcheditVipProductRecord),
   ]);
 }
 

@@ -200,7 +200,7 @@ const SerialRecordsHome = React.lazy(() =>
 const PrivateRoute = ({ component: Component, roles, ...rest }) => (
   <Route
     {...rest}
-    render={props => {
+    render={(props) => {
       if (!isUserAuthenticated()) {
         // not logged in so redirect to login page with the return url
         return (
@@ -228,7 +228,7 @@ const rootRoute = {
   path: '/',
   exact: true,
   component: () => <Redirect to='/dashboard/service' />,
-  route: PrivateRoute
+  route: PrivateRoute,
 };
 
 // dashboards
@@ -243,18 +243,18 @@ const myDashboardRoutes = {
       name: 'Ecommerce',
       badge: {
         variant: 'success',
-        text: '3'
+        text: '3',
       },
       component: EcommerceDashboard,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/mydashboard/crm',
       name: 'CRM',
       component: CRMDashboard,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 //official dashboards
 const dashboardRoutes = {
@@ -267,9 +267,9 @@ const dashboardRoutes = {
       path: '/dashboard/service',
       name: '客服相關',
       component: AdminDashboard,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 // apps
 const appRoutes = {
@@ -281,7 +281,7 @@ const appRoutes = {
       path: '/apps/calendar',
       name: 'Calendar',
       component: CalendarApp,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/apps/projects',
@@ -291,15 +291,15 @@ const appRoutes = {
           path: '/apps/projects/list',
           name: 'List',
           component: Projects,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/projects/detail',
           name: 'Detail',
           component: ProjectDetail,
-          route: PrivateRoute
-        }
-      ]
+          route: PrivateRoute,
+        },
+      ],
     },
     {
       path: '/apps/ecommerce',
@@ -309,57 +309,57 @@ const appRoutes = {
           path: '/apps/ecommerce/products',
           name: 'Products',
           component: EcommerceProducts,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/details',
           name: 'Product Details',
           component: ProductDetails,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/orders',
           name: 'Orders',
           component: Orders,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/order/details',
           name: 'Order Details',
           component: OrderDetails,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/customers',
           name: 'Customers',
           component: Customers,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/shopping-cart',
           name: 'Shopping Cart',
           component: Cart,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/checkout',
           name: 'Checkout',
           component: Checkout,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/ecommerce/sellers',
           name: 'Sellers',
           component: Sellers,
-          route: PrivateRoute
-        }
-      ]
+          route: PrivateRoute,
+        },
+      ],
     },
     {
       path: '/apps/kanban',
       name: 'Kanban',
       component: Kanban,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/apps/email',
@@ -369,17 +369,17 @@ const appRoutes = {
           path: '/apps/email/inbox',
           name: 'Inbox',
           component: Inbox,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/apps/email/details',
           name: 'Email Details',
           component: EmailDetail,
-          route: PrivateRoute
-        }
-      ]
-    }
-  ]
+          route: PrivateRoute,
+        },
+      ],
+    },
+  ],
 };
 
 // pages
@@ -392,51 +392,51 @@ const pageRoutes = {
       path: '/pages/starter',
       name: 'Starter',
       component: Starter,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/profile',
       name: 'Profile',
       component: Profile,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/invoice',
       name: 'Invoice',
       component: Invoice,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/faq',
       name: 'FAQ',
       component: FAQ,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/pricing',
       name: 'Pricing',
       component: Pricing,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/error-403',
       name: 'Error - 403',
       component: ErrorForbidden,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/error-404',
       name: 'Error - 404',
       component: ErrorPageNotFound,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/pages/error-500',
       name: 'Error - 500',
       component: ServerError,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 // auth
@@ -448,33 +448,33 @@ const authRoutes = {
       path: '/account/login',
       name: 'Login',
       component: Login,
-      route: Route
+      route: Route,
     },
     {
       path: '/account/logout',
       name: 'Logout',
       component: Logout,
-      route: Route
+      route: Route,
     },
     {
       path: '/account/register',
       name: 'Register',
       component: Register,
-      route: Route
+      route: Route,
     },
     {
       path: '/account/confirm',
       name: 'Confirm',
       component: Confirm,
-      route: Route
+      route: Route,
     },
     {
       path: '/account/forget-password',
       name: 'Forget Password',
       component: ForgetPassword,
-      route: Route
-    }
-  ]
+      route: Route,
+    },
+  ],
 };
 
 // ui
@@ -487,69 +487,69 @@ const uiRoutes = {
       path: '/ui/buttons',
       name: 'Buttons',
       component: Buttons,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/cards',
       name: 'Cards',
       component: Cards,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/general',
       name: 'General',
       component: General,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/grid',
       name: 'Grid',
       component: Grid,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/icons',
       name: 'Icons',
       component: Icons,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/modals',
       name: 'Modals',
       component: Modals,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/notifications',
       name: 'Notifications',
       component: Notifications,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/spinners',
       name: 'Spinners',
       component: Spinners,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/tabs',
       name: 'Tabs',
       component: Tabs,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/typography',
       name: 'Typography',
       component: Typography,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/ui/widgets',
       name: 'Widgets',
       component: Widgets,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 // forms
@@ -562,39 +562,39 @@ const formsRoutes = {
       path: '/forms/basic',
       name: 'Basic Elements',
       component: BasicForms,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/forms/advanced',
       name: 'Form Advanced',
       component: FormAdvanced,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/forms/validation',
       name: 'Form validation',
       component: FormValidation,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/forms/wizard',
       name: 'Form Wizard',
       component: FormWizard,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/forms/upload',
       name: 'File Upload',
       component: FileUpload,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/forms/editors',
       name: 'Editors',
       component: Editors,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 // other features
@@ -611,21 +611,21 @@ const featuresRoutes = {
           path: '/features/charts/apex',
           name: 'Apex',
           component: ApexChart,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/features/charts/brite',
           name: 'Brite',
           component: BriteChart,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/features/charts/chartjs',
           name: 'Chartjs',
           component: ChartJs,
-          route: PrivateRoute
-        }
-      ]
+          route: PrivateRoute,
+        },
+      ],
     },
     {
       path: '/features/tables',
@@ -635,29 +635,29 @@ const featuresRoutes = {
           path: '/features/tables/basic',
           name: 'Basic',
           component: BasicTables,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/features/tables/advanced',
           name: 'Advanced',
           component: AdvancedTables,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
           path: '/features/tables/testtable',
           name: '測試表格',
           component: TestTable,
-          route: PrivateRoute
-        }
-      ]
+          route: PrivateRoute,
+        },
+      ],
     },
     {
       path: '/features/googlemaps',
       name: 'Google Maps',
       component: GoogleMaps,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 const platformRoutesSub = {
@@ -668,21 +668,21 @@ const platformRoutesSub = {
       path: '/platform/modify_password',
       name: '修改密碼',
       component: ModifyPassword,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/platform/preset_messages',
       name: '自訂快速回覆',
       component: PresetMessageHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/platform/action_history',
       name: '後台操作紀錄',
       component: UserLogsHome,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 // online cs
 
@@ -694,15 +694,15 @@ const serviceRoutesSub = {
       path: '/service/view/:question_id',
       name: '客服案件檢視',
       component: SingleQuestionPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/service/batch_handler/:record_id',
       name: '批次處理-項目檢視',
       component: BatchTaskView,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 const serviceRoutes = {
   path: '/service',
@@ -714,60 +714,60 @@ const serviceRoutes = {
       path: '/service/overview',
       name: '總覽',
       component: ServiceOverview,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       exact: true,
       path: '/service/questions/todo',
       name: '待處理案件',
       component: QuesionsListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/service/questions/get_list',
       name: '等待中案件',
       component: QuesionsListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/service/questions/closed',
       name: '近期結案案件',
       component: QuesionsListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/service/questions/hidden',
       name: '隱藏案件',
       component: QuesionsListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/service/questions/favorite',
       name: '我收藏的案件',
       icon: 'dripicons-star',
       component: QuesionsListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       exact: true,
       path: '/service/allocate/list',
       name: '派單系統- 案件列表',
       component: AllocateListPage,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       exact: true,
       path: '/service/statistics',
       name: '件數統計',
       component: ServiceStatistics,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       exact: true,
       path: '/service/pivot_tbl',
       name: '時間別統計',
       component: ServiceStatisticsByHour,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
 
     {
@@ -776,7 +776,7 @@ const serviceRoutes = {
       name: '案件查詢',
       icon: 'dripicons-search',
       component: QuestionsQueryHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       exact: true,
@@ -784,9 +784,9 @@ const serviceRoutes = {
       name: '批次處理',
       icon: 'dripicons-basket',
       component: BatchListPage,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 // offline cs
 const offlineRoutes = {
@@ -798,21 +798,21 @@ const offlineRoutes = {
       path: '/offline/cpl_case/home',
       name: '消保',
       component: CplCaseHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/gov_letter/home',
       name: '公函',
       component: GovLetterHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/personal_visit/home',
       name: '親訪',
       component: PersonalVisitHome,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 const offlineRoutesSub = {
   path: '/offline',
@@ -822,51 +822,51 @@ const offlineRoutesSub = {
       path: '/offline/personal_visit/create',
       name: '新增親訪紀錄',
       component: PersonalVisitForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/personal_visit/edit/:record_id',
       name: '編輯親訪紀錄',
       component: PersonalVisitForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/gov_letter/create',
       name: '新增公函',
       component: GovLetterForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/gov_letter/edit/:record_id',
       name: '編輯公函',
       component: GovLetterForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/cpl_case/create',
       name: '新增消保紀錄',
       component: CplCaseForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/cpl_case/edit/:record_id',
       name: '編輯消保紀錄',
       component: CplCaseForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/offline/cpl_case/view/:record_id',
       name: '檢視消保紀錄',
       component: CplCaseView,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/test',
       name: '測試',
       component: TestPage,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 // VIP
@@ -879,20 +879,20 @@ const vipRoutes = {
       path: '/vip/whale_users',
       name: '鯨魚用戶',
       component: WhaleUserHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/vip/requests_report',
       name: '鯨魚用戶服務紀錄',
       component: RequestReportHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
 
     {
       path: '/vip/wire_report/list',
       name: 'VIP 訂單',
       component: VipOrdersHome,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/vip/offers',
@@ -902,17 +902,17 @@ const vipRoutes = {
           path: '/vip/offers/offer_list',
           name: '方案列表',
           component: VipOfferHome,
-          route: PrivateRoute
+          route: PrivateRoute,
         },
         {
-          path: '/vip/offers/add_offer',
-          name: '方案明細',
+          path: '/vip/offers/form/create',
+          name: '新增方案',
           component: VipOfferForm,
-          route: PrivateRoute
-        }
-      ]
-    }
-  ]
+          route: PrivateRoute,
+        },
+      ],
+    },
+  ],
 };
 //games
 
@@ -926,22 +926,22 @@ const gamesRoutes = {
       name: '遊戲設定',
       component: GamesHome,
       route: PrivateRoute,
-      exact: true
+      exact: true,
     },
     {
       path: '/games/create',
       name: '新增遊戲',
       component: GamesEditForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/games/servers',
       name: '伺服器設定',
       component: ServerHome,
       route: PrivateRoute,
-      exact: true
-    }
-  ]
+      exact: true,
+    },
+  ],
 };
 
 //events
@@ -956,9 +956,9 @@ const eventsRoutes = {
       name: '虛寶活動',
       component: SerialRecordsHome,
       route: PrivateRoute,
-      exact: true
-    }
-  ]
+      exact: true,
+    },
+  ],
 };
 // online cs
 
@@ -970,9 +970,9 @@ const gameRoutesSub = {
       path: '/games/edit/:game_id',
       name: '編輯遊戲',
       component: GamesEditForm,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+  ],
 };
 
 const vipRoutesSub = {
@@ -983,23 +983,29 @@ const vipRoutesSub = {
       path: '/vip/wire_report/edit/:report_id',
       name: '編輯vip訂單',
       component: VipOrdersForm,
-      route: PrivateRoute
+      route: PrivateRoute,
     },
     {
       path: '/vip/user_dashboard/:game_id',
       name: '維護鯨魚用戶資料',
       component: WhaleUserDashboard,
-      route: PrivateRoute
-    }
-  ]
+      route: PrivateRoute,
+    },
+    {
+      path: '/vip/offers/form/:product_id',
+      name: '編輯方案',
+      component: VipOfferForm,
+      route: PrivateRoute,
+    },
+  ],
 };
 
 // flatten the list of all nested routes
-const flattenRoutes = routes => {
+const flattenRoutes = (routes) => {
   let flatRoutes = [];
 
   routes = routes || [];
-  routes.forEach(item => {
+  routes.forEach((item) => {
     flatRoutes.push(item);
 
     if (typeof item.children !== 'undefined') {
@@ -1029,7 +1035,7 @@ const allRoutes = [
   gamesRoutes,
   gameRoutesSub,
   vipRoutesSub,
-  eventsRoutes
+  eventsRoutes,
 ];
 
 //所有要在leftSideBar顯示的路徑
@@ -1048,7 +1054,7 @@ const authProtectedRoutes =
         serviceRoutes,
         vipRoutes,
         gamesRoutes,
-        eventsRoutes
+        eventsRoutes,
       ]
     : [
         dashboardRoutes,
@@ -1056,7 +1062,7 @@ const authProtectedRoutes =
         serviceRoutes,
         vipRoutes,
         gamesRoutes,
-        eventsRoutes
+        eventsRoutes,
       ];
 
 const allFlattenRoutes = flattenRoutes(allRoutes);
