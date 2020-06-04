@@ -254,9 +254,13 @@ const VipOfferForm = ({
                       type='switch'
                       id='activeSwitch'
                       name='activeSwitch'
-                      label={isActive ? '上架中' : '下架'}
+                      label={
+                        isActive === '1' || isActive === true
+                          ? '上架中'
+                          : '下架'
+                      }
                       className='small text-muted'
-                      checked={isActive}
+                      checked={isActive === '1' || isActive === true}
                       onChange={(e) => {
                         setIsActive(e.target.checked);
                       }}
@@ -267,7 +271,10 @@ const VipOfferForm = ({
                 <Row form>
                   <Col md={12}>
                     <h4 className='mt-3 header-title'>指定區間</h4>
-
+                    <p className='small text-muted'>
+                      可以僅設定上架起始,
+                      但狀態必須是"上架中"才會在指定時間出現在匯款回報頁面喔!
+                    </p>
                     <Row form>
                       <Col md={6}>
                         <FormGroup>
@@ -316,7 +323,7 @@ const VipOfferForm = ({
                 <Link
                   className='btn btn-secondary mr-2'
                   to='/vip/offers/offer_list'>
-                  取消
+                  回列表
                 </Link>
 
                 <Button color='primary' type='submit'>
