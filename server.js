@@ -10,10 +10,10 @@ app.use(
     limits: { fileSize: 50 * 1024 * 1024 },
     abortOnLimit: true,
     responseOnLimit: "檔案太大",
-    limitHandler: function(req, res, next) {
+    limitHandler: function (req, res, next) {
       //console.log("hi");
       return res.status(413).send({ file01: "檔案太大" });
-    }
+    },
   })
 );
 app.use(requestIp.mw());
@@ -37,6 +37,8 @@ app.use("/api/vip_offers", require("./routes/api/vip_offers"));
 app.use("/api/batch", require("./routes/api/batch"));
 app.use("/api/gmt_tool", require("./routes/api/gmt_tool"));
 app.use("/api/test", require("./routes/api/test"));
+app.use("/api/vip_rpt", require("./routes/api/vip_rpt"));
+
 //serve static assets if in production
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "stage") {
   //set a static folder
@@ -62,13 +64,13 @@ if (app.get("env") !== "production") {
   var options = {
     key: fs.readFileSync(config.ssl_options.keyfile),
     cert: fs.readFileSync(config.ssl_options.certfile),
-    ca: [fs.readFileSync(config.ssl_options.cafile)]
+    ca: [fs.readFileSync(config.ssl_options.cafile)],
   };
 
   server = https.createServer(options, app);
 }
 
-server.listen(port, "0.0.0.0", function() {
+server.listen(port, "0.0.0.0", function () {
   console.log("server env :" + app.get("env"));
   console.log("server is listening on:" + port);
 });

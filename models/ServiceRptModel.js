@@ -25,7 +25,7 @@ const ServiceRpt = {
         [beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => ({ admin_uid, result: rows }))
-      .catch(err => {
+      .catch((err) => {
         //console.log(err);
         return err;
       });
@@ -46,7 +46,7 @@ const ServiceRpt = {
         [admin_uid, beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => rows[0])
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return err;
       });
@@ -60,7 +60,7 @@ const ServiceRpt = {
         [admin_uid, beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => rows[0].cnt)
-      .catch(err => {
+      .catch((err) => {
         //console.log(err);
         return err;
       });
@@ -81,11 +81,11 @@ const ServiceRpt = {
           endDt + " 23:59:59",
           admin_uid,
           beginDt,
-          endDt + " 23:59:59"
+          endDt + " 23:59:59",
         ]
       )
       .then(([rows, fields]) => rows[0])
-      .catch(err => {
+      .catch((err) => {
         //console.log(err);
         return err;
       });
@@ -100,7 +100,7 @@ const ServiceRpt = {
         [admin_uid, beginDt, endDt + " 23:59:59"]
       )
       .then(([rows, fields]) => rows[0].cnt)
-      .catch(err => {
+      .catch((err) => {
         //console.log(err);
         return err;
       });
@@ -111,7 +111,7 @@ const ServiceRpt = {
       .promise()
       .query(`select uid,name from admin_users where role='cs_master'`)
       .then(([rows, fields]) => rows)
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return null;
       });
@@ -121,27 +121,33 @@ const ServiceRpt = {
     return await db2
       .promise()
       .query(
-        `select admin_uid,b.name as admin_name,b.role , sum(cnt) as cnt , sum(status_process) as status_process,sum(status_done) as status_done,sum(gov_cnt) as gov_cnt,sum(cpl_cnt2) as cpl_cnt2 from 
+        `select admin_uid,b.name as admin_name,b.role , sum(cnt) as cnt , sum(status_process) as status_process,sum(status_done) as status_done,sum(gov_cnt) as gov_cnt,sum(cpl_cnt2) as cpl_cnt2, sum(vip_order) as vip_order from 
     (select assignee as  admin_uid, count(*) as cnt ,
     SUM(case when allocate_status='1' then 1 else 0 end) as 'status_process',
     SUM(case when allocate_status>1 then 1 else 0 end) as 'status_done',
     0 as gov_cnt,
-      0 as cpl_cnt2
+      0 as cpl_cnt2, 0 as vip_order
 from question_allocation qa 
 where allocate_status >0  and create_time between '${beginDt}' and '${endDt}'
 group by assignee
     union 
-    select admin_uid, 0 as cnt, 0 as status_process, 0 as status_done, count(*) as gov_cnt, 0 as cpl_cnt2 from gov_letters where  close_date between '${beginDt}' and '${endDt}' and status=4 group by admin_uid
+    select admin_uid, 0 as cnt, 0 as status_process, 0 as status_done, count(*) as gov_cnt, 0 as cpl_cnt2, 0 as vip_order from gov_letters where  close_date between '${beginDt}' and '${endDt}' and status=4 group by admin_uid
     union 
-    select admin_uid,  0 as cnt, 0 as status_process, 0 as status_done, 0 as gov_cnt ,  count(*) as cpl_cnt2
+    select admin_uid,  0 as cnt, 0 as status_process, 0 as status_done, 0 as gov_cnt ,  count(*) as cpl_cnt2, 0 as vip_order
     from cpl_replies
     where  contact_time between '${beginDt}' and '${endDt}'
-    group by admin_uid )  a 
+    group by admin_uid 
+    union
+    select admin_uid,  0 as cnt, 0 as status_process, 0 as status_done, 0 as gov_cnt ,  0 as cpl_cnt2, count(*) as vip_order
+from vip_wire_report
+where report_status=4 and  update_time between '${beginDt}' and '${endDt}'
+group by admin_uid
+    )  a 
     join admin_users b on a.admin_uid =b.uid
     group by admin_uid  `
       )
       .then(([rows, fields]) => rows)
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return null;
       });
@@ -152,7 +158,7 @@ group by assignee
       .query(
         `select DATE_FORMAT(create_time,'%Y-%m') as month, count(*) total,
         SUM(case when assignee='86' then 1 else 0 end) as 'admin_86',
-        SUM(case when assignee='87' then 1 else 0 end) as 'admin_87',
+        SUM(case when assignee='183' then 1 else 0 end) as 'admin_183',
         SUM(case when assignee='116' then 1 else 0 end) as 'admin_116',
         SUM(case when assignee='151' then 1 else 0 end) as 'admin_151'
         from question_allocation qa 
@@ -160,11 +166,11 @@ group by assignee
         GROUP BY DATE_FORMAT(create_time,'%Y-%m');`
       )
       .then(([rows, fields]) => rows)
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         return null;
       });
-  }
+  },
 };
 
 module.exports = ServiceRpt;
