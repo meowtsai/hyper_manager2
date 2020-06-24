@@ -6,8 +6,9 @@ import {
 
 type VipRptAction = { type: string, payload: {} | string };
 
-export const getVipDashboardData = (): VipRptAction => ({
+export const getVipDashboardData = (option: {}): VipRptAction => ({
   type: GET_VIP_DASHBOARD_DATA,
+  payload: option,
 });
 
 export const getVipDashboardDataSuccess = (data: []): VipRptAction => ({

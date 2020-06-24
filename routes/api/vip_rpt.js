@@ -17,11 +17,16 @@ router.get(
   (req, res, next) => checkPermission(req, res, next, "vip", "read"),
   async (req, res) => {
     try {
-      const data = await VipOffersModel.get30daysData();
-      if (data.error) {
-        return res.status(500).json({ msg: `獲取資料失敗:(${data.error})` });
-      }
-      res.json({ past_month_data: data });
+      const days = req.query.value ? req.query.value : 0;
+      const p_past_month_data = VipOffersModel.get30daysData();
+      const p_prod = VipOffersModel.getProductsSelling(days);
+      const p_buyers = VipOffersModel.getTopBuyers(days);
+
+      Promise.all([p_past_month_data, p_prod, p_buyers]).then(
+        ([past_month_data, product_selling_data, top_buyers]) => {
+          res.json({ past_month_data, product_selling_data, top_buyers });
+        }
+      );
     } catch (error) {
       return res.status(500).json({ msg: `發生錯誤:(${error})` });
     }

@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-import { all, fork, put, takeEvery } from 'redux-saga/effects';
+import { all, fork, put, takeEvery } from "redux-saga/effects";
 import {
   GET_VIP_OFFERS,
   GET_VIP_ORDERS,
@@ -10,7 +10,7 @@ import {
   DELETE_VIP_WIRE_REPORT,
   GET_CURRENT_VIP_PRODUCT,
   EDIT_VIP_PRODUCT,
-} from './constants';
+} from "./constants";
 
 import {
   getVipOffersFailed,
@@ -29,13 +29,13 @@ import {
   getCurrentVipProductFailed,
   editVipProductFailed,
   editVipProductSuccess,
-} from './actions';
+} from "./actions";
 
 function* getVipOffers() {
   const options = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    url: '/api/vip_offers/offer_list',
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: "/api/vip_offers/offer_list",
   };
 
   try {
@@ -50,9 +50,9 @@ function* getVipOffers() {
 
 function* getVipOrder() {
   const options = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    url: '/api/vip_offers/order_list',
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    url: "/api/vip_offers/order_list",
   };
 
   try {
@@ -73,8 +73,8 @@ function* getCurrentRecord({ payload }) {
   //console.log('getCurrentRecord payload ', payload);
   const { report_id } = payload;
   const options = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
     url: `/api/vip_offers/detail/${report_id}`,
   };
 
@@ -98,8 +98,8 @@ function* getCurrentRecord({ payload }) {
 function* getProdsByGameId({ payload: gameId }) {
   //console.log('getServersByGameId', gameId);
   const options = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
     url: `/api/vip_offers/prods_list/${gameId}`,
   };
 
@@ -123,9 +123,9 @@ function* editRecord({ payload }) {
   const { record } = payload;
 
   const options = {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    url: '/api/vip_offers/wire_report/update',
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    url: "/api/vip_offers/wire_report/update",
     data: record,
   };
 
@@ -147,8 +147,8 @@ function* editRecord({ payload }) {
 function* delVIPWReport({ payload: record_id }) {
   //console.log('delVIPWReport', record_id);
   const options = {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
     url: `/api/vip_offers/delete_wire_report/${record_id}`,
   };
 
@@ -166,8 +166,8 @@ function* getCurrentVipProductRecord({ payload }) {
   //console.log('getCurrentRecord payload ', payload);
   const { product_id } = payload;
   const options = {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
     url: `/api/vip_offers/prods/${product_id}`,
   };
 
@@ -185,13 +185,13 @@ function* getCurrentVipProductRecord({ payload }) {
 }
 
 function* editVipProductRecord({ payload }) {
-  console.log('editVipProductRecord *****', payload);
+  //console.log('editVipProductRecord *****', payload);
   const { record, action, history } = payload;
 
   const options = {
-    method: action === 'add' ? 'POST' : 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    url: `/api/vip_offers/prods${action === 'add' ? '' : '/update'}`,
+    method: action === "add" ? "POST" : "PUT",
+    headers: { "Content-Type": "application/json" },
+    url: `/api/vip_offers/prods${action === "add" ? "" : "/update"}`,
     data: record,
   };
 

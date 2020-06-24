@@ -195,6 +195,54 @@ const VipOffersModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+  getProductsSelling: async (daysRange) => {
+    return await db2
+      .promise()
+      .query(
+        `SELECT a.product_id, b.title, b.price,  sum(qty) as qty, b.price * sum(qty) as total
+        FROM vip_wire_report a left join vip_products b 
+        on a.product_id = b.product_id
+        ${
+          daysRange !== 0
+            ? ` WHERE a.report_status=4 and a.update_time BETWEEN CURDATE() - INTERVAL ${daysRange} DAY AND CURDATE()`
+            : ""
+        }
+        GROUP BY a.product_id, b.price,b.title
+        ORDER BY sum(qty) desc`
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  getTopBuyers: async (daysRange) => {
+    return await db2
+      .promise()
+      .query(
+        `select a.*, (select vip_ranking from whale_users where whale_users.site=a.game_id and whale_users.char_in_game_id=a.role_id) as vip_ranking ,g.name as game_name from 
+        (select email, char_name,role_id, game_id,  sum(wire_amount) as total,count(*) as cnt
+        from vip_wire_report 
+        ${
+          daysRange !== 0
+            ? ` WHERE report_status=4 and update_time BETWEEN CURDATE() - INTERVAL ${daysRange} DAY AND CURDATE()`
+            : ""
+        }
+        group by email ,char_name, role_id, game_id order by sum(wire_amount) desc limit 10) a
+        left join games g on a.game_id=g.game_id `
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 module.exports = VipOffersModel;

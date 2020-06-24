@@ -8,12 +8,16 @@ import {
   getVipDashboardDataFailed,
 } from "./actions";
 
-function* getVipDashboard() {
+function* getVipDashboard({ payload }) {
   const options = {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    url: "/api/vip_rpt/home",
+    url: `/api/vip_rpt/home${
+      payload ? `?func=${payload.function}&value=${payload.value}` : ""
+    }`,
   };
+  //{function:'buyers',value:7}
+  //console.log("getVipDashboard", payload);
 
   try {
     const response = yield axios(options);
