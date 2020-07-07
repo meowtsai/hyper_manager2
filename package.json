@@ -21,7 +21,7 @@
     "morgan": "^1.9.1",
     "mysql2": "^1.7.0",
     "nodemailer": "^6.4.2",
-    "npm": "^6.13.7",
+    "npm": "^6.14.6",
     "npm-lifecycle": "^2.1.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
