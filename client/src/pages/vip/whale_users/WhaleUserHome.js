@@ -1,16 +1,17 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { Row, Col, FormGroup, Button, Input, Alert } from 'reactstrap';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
-import { CSVLink } from 'react-csv';
-import PageTitle from '../../../components/PageTitle';
-import Spinner from '../../../components/Spinner';
+import React, { Fragment, useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { Row, Col, FormGroup, Button, Input, Alert } from "reactstrap";
+import { Link } from "react-router-dom";
+import classNames from "classnames";
+import { CSVLink } from "react-csv";
+import PageTitle from "../../../components/PageTitle";
+import Spinner from "../../../components/Spinner";
 import {
   isAddedOptions,
   vipRankingOptions,
   vipServiceOptions,
-} from './whaleOptConfig';
+  vipServiceOptionsByGameId,
+} from "./whaleOptConfig";
 import {
   getVipGames,
   getVip,
@@ -18,23 +19,23 @@ import {
   clearVIPMessage,
   deleteVipServiceRequest,
   addVipServiceRequest,
-} from '../../../redux/actions';
-import Moment from 'react-moment';
-import moment from 'moment';
+} from "../../../redux/actions";
+import Moment from "react-moment";
+import moment from "moment";
 
-import BootstrapTable from 'react-bootstrap-table-next';
+import BootstrapTable from "react-bootstrap-table-next";
 import filterFactory, {
   textFilter,
   selectFilter,
-} from 'react-bootstrap-table2-filter';
+} from "react-bootstrap-table2-filter";
 //import paginationFactory from "react-bootstrap-table2-paginator";
 import paginationFactory, {
   PaginationProvider,
   PaginationTotalStandalone,
   PaginationListStandalone,
-} from 'react-bootstrap-table2-paginator';
+} from "react-bootstrap-table2-paginator";
 
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 const WhaleUserHome = ({
   getVipGames,
@@ -55,7 +56,7 @@ const WhaleUserHome = ({
 }) => {
   const search = window.location.search;
   const params = new URLSearchParams(search);
-  const query_game_id = params.get('game_id') ? params.get('game_id') : '';
+  const query_game_id = params.get("game_id") ? params.get("game_id") : "";
 
   const [gameId, setGameId] = useState(query_game_id);
   const [modal, setModal] = useState(false);
@@ -93,7 +94,7 @@ const WhaleUserHome = ({
     if (gameId) {
       getVip(gameId);
     }
-    document.title = 'VIP - 鯨魚用戶列表';
+    document.title = "VIP - 鯨魚用戶列表";
     // eslint-disable-next-line
   }, []);
 
@@ -153,11 +154,11 @@ const WhaleUserHome = ({
 
   const onLineAddChange = (uid) => {
     //console.log("onLineAddChange", gameId, uid);
-    putVip(gameId, uid, 'LINE_ACTION');
+    putVip(gameId, uid, "LINE_ACTION");
   };
 
   const onConfirmInactive = (uid) => {
-    console.log('onConfirmInactive', gameId, uid);
+    console.log("onConfirmInactive", gameId, uid);
   };
 
   const onEdit = (char_in_game_id) => {
@@ -169,24 +170,24 @@ const WhaleUserHome = ({
     toggle();
   };
 
-  const headerSortingStyle = { backgroundColor: '#c8e6c9' };
+  const headerSortingStyle = { backgroundColor: "#c8e6c9" };
 
   const columns = [
     {
-      dataField: 'uid',
-      text: '帳號',
+      dataField: "uid",
+      text: "帳號",
       filter: textFilter(),
       sort: true,
       headerSortingStyle,
       headerStyle: (column, colIndex) => {
-        return { width: '100px' };
+        return { width: "100px" };
       },
     },
     {
-      dataField: 'vip_ranking',
-      text: 'VIP',
+      dataField: "vip_ranking",
+      text: "VIP",
       headerStyle: (column, colIndex) => {
-        return { width: '100px' };
+        return { width: "100px" };
       },
       headerSortingStyle,
       sort: true,
@@ -197,10 +198,10 @@ const WhaleUserHome = ({
 
         return opt ? (
           <span className={`mr-1 badge badge-${opt.color}-lighten badge-pill`}>
-            {opt.label || ''}
+            {opt.label || ""}
           </span>
         ) : (
-          ''
+          ""
         );
       },
       filter: selectFilter({
@@ -208,146 +209,147 @@ const WhaleUserHome = ({
       }),
     },
     {
-      dataField: 'char_name',
-      text: '角色暱稱',
+      dataField: "char_name",
+      text: "角色暱稱",
       filter: textFilter(),
       sort: true,
       headerSortingStyle,
       headerStyle: (column, colIndex) => {
-        return { width: '150px' };
+        return { width: "150px" };
       },
       formatter: (cellContent, row) => {
         return cellContent ? (
           <Fragment>
-            {' '}
+            {" "}
             <Link
               to={`/vip/user_dashboard/${row.site}?user=${encodeURIComponent(
                 row.char_in_game_id
-              )}`}>
+              )}`}
+            >
               {cellContent}
             </Link>
           </Fragment>
         ) : (
-          ''
+          ""
         );
       },
     },
     {
-      dataField: 'char_in_game_id',
-      text: '角色ID',
+      dataField: "char_in_game_id",
+      text: "角色ID",
 
       filter: textFilter({
         onFilter: filterByRoleIdOrRoleNo,
       }),
       headerStyle: (column, colIndex) => {
-        return { width: '100px' };
+        return { width: "100px" };
       },
       formatter: (cellContent, row) => {
         return cellContent ? (
           <Fragment>
             {cellContent}
-            {row.role_id ? <div>{row.role_id}</div> : ''}
+            {row.role_id ? <div>{row.role_id}</div> : ""}
           </Fragment>
         ) : (
-          ''
+          ""
         );
       },
     },
     {
-      dataField: 'server_name',
-      text: '伺服器',
+      dataField: "server_name",
+      text: "伺服器",
       filter: textFilter(),
       headerStyle: (column, colIndex) => {
-        return { width: '100px' };
+        return { width: "100px" };
       },
     },
     {
-      dataField: 'country',
-      text: '國家',
+      dataField: "country",
+      text: "國家",
       filter: textFilter(),
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: '100px' };
+        return { width: "100px" };
       },
     },
 
     {
-      dataField: 'vip_ranking_updated',
-      text: '升階',
+      dataField: "vip_ranking_updated",
+      text: "升階",
       sort: true,
       headerSortingStyle,
       formatter: (cellContent, row) => {
         return cellContent ? (
-          <Moment className='text-muted small' format='YYYY-MM-DD HH:mm:ss'>
+          <Moment className="text-muted small" format="YYYY-MM-DD HH:mm:ss">
             {cellContent}
           </Moment>
         ) : (
-          ''
+          ""
         );
       },
     },
     {
-      dataField: 'latest_topup_date',
-      text: '最後儲值',
+      dataField: "latest_topup_date",
+      text: "最後儲值",
       sort: true,
       headerSortingStyle,
       formatter: (cellContent, row) => {
         return cellContent ? (
-          <Moment className='text-muted small' format='YYYY-MM-DD HH:mm:ss'>
+          <Moment className="text-muted small" format="YYYY-MM-DD HH:mm:ss">
             {cellContent}
           </Moment>
         ) : (
-          ''
+          ""
         );
       },
     },
 
     {
-      dataField: 'deposit_total',
-      text: '儲值總額',
+      dataField: "deposit_total",
+      text: "儲值總額",
       sort: true,
       headerSortingStyle,
       formatter: (cellContent, row) => {
         // Create our number formatter.
         //new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(number)
-        var totalFormatter = new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'TWD',
+        var totalFormatter = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "TWD",
           minimumFractionDigits: 0,
         });
         return <span>{totalFormatter.format(cellContent)}</span>;
       },
     },
     {
-      dataField: 'is_added',
-      text: 'Line',
+      dataField: "is_added",
+      text: "Line",
       filter: selectFilter({
         options: isAddedOptions,
       }),
       headerStyle: (column, colIndex) => {
-        return { width: '50px' };
+        return { width: "50px" };
       },
       formatter: (cellContent, row) => {
         const displayBlock =
           row.is_added === 1 ? (
             <span>
-              {' '}
-              <i className='mdi mdi-account-check-outline'></i>{' '}
+              {" "}
+              <i className="mdi mdi-account-check-outline"></i>{" "}
             </span>
           ) : null;
         return displayBlock;
       },
     },
     {
-      dataField: 'line_date',
-      text: '加入日期',
+      dataField: "line_date",
+      text: "加入日期",
       sort: true,
       headerSortingStyle,
       formatter: (cellContent, row) => {
         const displayBlock =
           row.is_added === 1 ? (
             <span>
-              <Moment className='text-muted small' format='YYYY-MM-DD HH:mm:ss'>
+              <Moment className="text-muted small" format="YYYY-MM-DD HH:mm:ss">
                 {row.line_date}
               </Moment>
             </span>
@@ -357,14 +359,14 @@ const WhaleUserHome = ({
     },
 
     {
-      dataField: 'inactive_confirm_date',
-      text: '確認流失',
+      dataField: "inactive_confirm_date",
+      text: "確認流失",
       sort: true,
       formatter: (cellContent, row) => {
         const displayBlock = cellContent ? (
           <span>
-            <i className='mdi mdi-account-off-outline'></i>{' '}
-            <Moment className='text-muted small' format='YYYY-MM-DD HH:mm:ss'>
+            <i className="mdi mdi-account-off-outline"></i>{" "}
+            <Moment className="text-muted small" format="YYYY-MM-DD HH:mm:ss">
               {cellContent}
             </Moment>
           </span>
@@ -373,12 +375,12 @@ const WhaleUserHome = ({
       },
     },
     {
-      dataField: 'last_login',
-      text: '最後登入',
+      dataField: "last_login",
+      text: "最後登入",
       sort: true,
       formatter: (cellContent, row) => {
         const displayBlock = cellContent ? (
-          <Moment className='text-muted small' format='YYYY-MM-DD'>
+          <Moment className="text-muted small" format="YYYY-MM-DD">
             {cellContent}
           </Moment>
         ) : null;
@@ -451,45 +453,54 @@ const WhaleUserHome = ({
       if (reqData.length > 0) {
         return (
           <Fragment>
-            {' '}
+            {" "}
             {reqData.map((d) => {
               const vsop =
                 vipServiceOptions.filter(
                   (vo) => vo.type.toString() === d.service_type
                 )[0] || {};
 
+              const optionByGameId =
+                vipServiceOptionsByGameId[gameId][d.service_type][
+                  d.request_code
+                ];
+              //console.log(JSON.stringify(optionByGameId));
+
               return (
                 <div key={`${row.char_in_game_id}_${d.id}`}>
                   <i className={`${vsop.icon} text-info`}></i>
-                  <span className='text-info'>
-                    {vsop.label}-{vsop.list[d.request_code]}{' '}
+                  <span className="text-info">
+                    {vsop.label}-{optionByGameId}{" "}
                   </span>
 
-                  <blockquote className='blockquote'>
-                    <p className='mb-0'>
+                  <blockquote className="blockquote">
+                    <p className="mb-0">
                       <Button
                         outline
-                        color='danger'
-                        size='sm'
-                        style={{ padding: '0.08rem', lineHeight: '1' }}
-                        className='btn-icon mr-2'
-                        onClick={() => onDelReqeust(d.id)}>
+                        color="danger"
+                        size="sm"
+                        style={{ padding: "0.08rem", lineHeight: "1" }}
+                        className="btn-icon mr-2"
+                        onClick={() => onDelReqeust(d.id)}
+                      >
                         <i
                           className={classNames(
-                            'mdi',
-                            'mdi-window-close',
-                            'ml-0',
-                            'mr-0'
-                          )}></i>
+                            "mdi",
+                            "mdi-window-close",
+                            "ml-0",
+                            "mr-0"
+                          )}
+                        ></i>
                       </Button>
-                      {d.note}{' '}
+                      {d.note}{" "}
                     </p>
-                    <footer className='blockquote-footer'>
-                      負責專員:{d.admin_name}{' '}
-                      <cite title='Source Title'>
+                    <footer className="blockquote-footer">
+                      負責專員:{d.admin_name}{" "}
+                      <cite title="Source Title">
                         <Moment
-                          className='Source Title'
-                          format='YYYY-MM-DD HH:mm:ss'>
+                          className="Source Title"
+                          format="YYYY-MM-DD HH:mm:ss"
+                        >
                           {d.create_time}
                         </Moment>
                       </cite>
@@ -497,7 +508,7 @@ const WhaleUserHome = ({
                   </blockquote>
                 </div>
               );
-            })}{' '}
+            })}{" "}
           </Fragment>
         );
       } else {
@@ -507,7 +518,7 @@ const WhaleUserHome = ({
   };
 
   const customTotal = (from, to, size) => (
-    <span className='react-bootstrap-table-pagination-total ml-2'>
+    <span className="react-bootstrap-table-pagination-total ml-2">
       顯示 {size} 筆總數中的 {from} ~ {to} 紀錄
     </span>
   );
@@ -515,30 +526,30 @@ const WhaleUserHome = ({
   //帳號	角色	原廠ID	伺服器	儲值累積	最後訂單時間	地區	未儲值/日	升階	邀請次數	加入Line	加入Line日期	最後登入日期	確認流失	VIP級別	Column1
 
   const csvHeaders = [
-    { label: '帳號', key: 'uid' },
-    { label: '角色', key: 'char_name' },
+    { label: "帳號", key: "uid" },
+    { label: "角色", key: "char_name" },
 
-    { label: '原廠ID', key: 'char_in_game_id' },
-    { label: '伺服器', key: 'server_name' },
-    { label: '儲值累積', key: 'deposit_total' },
-    { label: '最後訂單時間', key: 'latest_topup_date' },
-    { label: '地區', key: 'country' },
-    { label: '升階', key: 'vip_ranking_updated' },
-    { label: '加入Line', key: 'is_added' },
-    { label: '加入Line日期', key: 'line_date' },
-    { label: '最後登入日期', key: 'last_login' },
-    { label: '確認流失', key: 'inactive_confirm_date' },
-    { label: '角色id', key: 'role_id' },
-    { label: 'VIP級別', key: 'vip_ranking' },
+    { label: "原廠ID", key: "char_in_game_id" },
+    { label: "伺服器", key: "server_name" },
+    { label: "儲值累積", key: "deposit_total" },
+    { label: "最後訂單時間", key: "latest_topup_date" },
+    { label: "地區", key: "country" },
+    { label: "升階", key: "vip_ranking_updated" },
+    { label: "加入Line", key: "is_added" },
+    { label: "加入Line日期", key: "line_date" },
+    { label: "最後登入日期", key: "last_login" },
+    { label: "確認流失", key: "inactive_confirm_date" },
+    { label: "角色id", key: "role_id" },
+    { label: "VIP級別", key: "vip_ranking" },
   ];
 
   if (loading) {
-    return <Spinner className='m-2' color='secondary' />;
+    return <Spinner className="m-2" color="secondary" />;
   }
 
   if (error) {
     return (
-      <Alert color='danger' isOpen={error ? true : false}>
+      <Alert color="danger" isOpen={error ? true : false}>
         <div>{error}</div>
       </Alert>
     );
@@ -548,21 +559,22 @@ const WhaleUserHome = ({
     <Fragment>
       <PageTitle
         breadCrumbItems={[
-          { label: 'VIP', path: '/vip', active: false },
-          { label: '鯨魚用戶', path: '/vip/whale_users', active: true },
+          { label: "VIP", path: "/vip", active: false },
+          { label: "鯨魚用戶", path: "/vip/whale_users", active: true },
         ]}
-        title={'VIP - 鯨魚用戶列表'}
+        title={"VIP - 鯨魚用戶列表"}
       />
-      <Row className='mb-2'>
+      <Row className="mb-2">
         <Col lg={6}>
           <FormGroup>
             <Input
-              type='select'
-              name='gameSelect'
-              id='gameSelect'
+              type="select"
+              name="gameSelect"
+              id="gameSelect"
               onChange={(e) => changeVIPGame(e.target.value)}
-              value={gameId}>
-              <option value=''>==選擇遊戲==</option>
+              value={gameId}
+            >
+              <option value="">==選擇遊戲==</option>
               {game_list.length > 0 &&
                 game_list.map((game) => (
                   <option key={`sel-${game.site}`} value={game.site}>
@@ -579,37 +591,38 @@ const WhaleUserHome = ({
                   ...vip,
                   line_date:
                     vip.line_date === null
-                      ? ''
-                      : moment(vip.line_date).format('YYYY-MM-DD'),
+                      ? ""
+                      : moment(vip.line_date).format("YYYY-MM-DD"),
                   latest_topup_date:
                     vip.latest_topup_date === null
-                      ? ''
+                      ? ""
                       : moment(vip.latest_topup_date).format(
-                          'YYYY-MM-DD HH:mm'
+                          "YYYY-MM-DD HH:mm"
                         ),
                   last_login:
                     vip.last_login === null
-                      ? ''
-                      : moment(vip.last_login).format('YYYY-MM-DD'),
+                      ? ""
+                      : moment(vip.last_login).format("YYYY-MM-DD"),
                   vip_ranking_updated:
                     vip.vip_ranking_updated === null
-                      ? ''
-                      : moment(vip.vip_ranking_updated).format('YYYY-MM-DD'),
+                      ? ""
+                      : moment(vip.vip_ranking_updated).format("YYYY-MM-DD"),
                   inactive_confirm_date:
                     vip.inactive_confirm_date === null
-                      ? ''
-                      : moment(vip.inactive_confirm_date).format('YYYY-MM-DD'),
-                  is_added: vip.is_added === 1 ? 'V' : '',
+                      ? ""
+                      : moment(vip.inactive_confirm_date).format("YYYY-MM-DD"),
+                  is_added: vip.is_added === 1 ? "V" : "",
 
                   vip_ranking: vip.vip_ranking
                     ? vipRankingOptions.filter(
                         (ranking) => ranking.value === vip.vip_ranking
                       )[0].label
-                    : '',
+                    : "",
                 }))
                 .sort((a, b) => b.deposit_total - a.deposit_total)}
               headers={csvHeaders}
-              filename={fileName + '.csv'}>
+              filename={fileName + ".csv"}
+            >
               下載 csv檔案
             </CSVLink>
           )}
@@ -617,19 +630,19 @@ const WhaleUserHome = ({
 
         <Col lg={4}>
           {error && (
-            <Alert color='danger' isOpen={error ? true : false}>
+            <Alert color="danger" isOpen={error ? true : false}>
               <div>{error}</div>
             </Alert>
           )}
 
           {updateOKMessage && (
-            <Alert color='success' isOpen={updateOKMessage ? true : false}>
+            <Alert color="success" isOpen={updateOKMessage ? true : false}>
               <div>{updateOKMessage}</div>
             </Alert>
           )}
         </Col>
       </Row>
-      <Row className='mb-2'>
+      <Row className="mb-2">
         <Col lg={12}>
           <PaginationProvider
             pagination={paginationFactory({
@@ -637,27 +650,28 @@ const WhaleUserHome = ({
               totalSize: vip_list.length,
               sizePerPage: 100,
               paginationTotalRenderer: customTotal,
-            })}>
+            })}
+          >
             {({ paginationProps, paginationTableProps }) => (
               <div>
                 <PaginationTotalStandalone {...paginationProps} />
                 <PaginationListStandalone {...paginationProps} />
                 <BootstrapTable
-                  keyField='char_in_game_id'
+                  keyField="char_in_game_id"
                   data={vip_list}
                   columns={columns}
                   striped
                   hover
                   condensed
-                  noDataIndication='請選擇遊戲'
+                  noDataIndication="請選擇遊戲"
                   defaultSorted={[
                     {
-                      dataField: 'deposit_total',
-                      order: 'desc',
+                      dataField: "deposit_total",
+                      order: "desc",
                     },
                   ]}
-                  wrapperClasses='table-responsive'
-                  rowClasses='text-dark m-0 font-13'
+                  wrapperClasses="table-responsive"
+                  rowClasses="text-dark m-0 font-13"
                   expandRow={expandRow}
                   filter={filterFactory()}
                   {...paginationTableProps}

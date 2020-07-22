@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { vipServiceOptions } from "./whaleOptConfig";
+import { vipServiceOptions, vipServiceOptionsByGameId } from "./whaleOptConfig";
 import {
   Row,
   Col,
@@ -14,17 +14,6 @@ import {
   Input,
   FormFeedback,
   Alert,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  TabContent,
-  TabPane,
-  Nav,
-  NavItem,
-  NavLink,
-  InputGroup,
-  InputGroupAddon
 } from "reactstrap";
 import PageTitle from "../../../components/PageTitle";
 import UserViewBasic from "./UserViewBasic";
@@ -34,7 +23,7 @@ import {
   updateVipInfo,
   addVipServiceRequest,
   deleteVipServiceRequest,
-  clearVIPMessage
+  clearVIPMessage,
 } from "../../../redux/actions";
 const WhaleUserDashboard = ({
   vip,
@@ -45,7 +34,7 @@ const WhaleUserDashboard = ({
   deleteVipServiceRequest,
   clearVIPMessage,
   match,
-  history
+  history,
 }) => {
   const [requestType, setRequestType] = useState(1);
   const [code, setCode] = useState();
@@ -59,11 +48,10 @@ const WhaleUserDashboard = ({
   const params = new URLSearchParams(search);
   const query_user = params.get("user");
   const quickOptionList =
-    vipServiceOptions.filter(v => v.type === requestType)[0].list || {};
+    vipServiceOptions.filter((v) => v.type === requestType)[0].list || {};
 
   useEffect(() => {
     if (game_id && query_user) {
-      
       getCurrentWhaleUser(game_id, query_user, history);
     }
     document.title = "VIP - 鯨魚用戶檢視";
@@ -86,7 +74,7 @@ const WhaleUserDashboard = ({
     }
   }, [updateOKMessage]);
 
-  const onEditWhaleUser = modifiedContent => {
+  const onEditWhaleUser = (modifiedContent) => {
     if (Object.keys(modifiedContent).length > 0) {
       //fire save aciton
       // console.log("modifiedContent", modifiedContent);
@@ -95,7 +83,7 @@ const WhaleUserDashboard = ({
       updateVipInfo(game_id, vip.char_in_game_id, modifiedContent);
     }
   };
-  const onDeleteRequestRecord = id => {
+  const onDeleteRequestRecord = (id) => {
     const deleteOk = window.confirm("確定要刪除#" + id + "這筆紀錄嗎?");
     if (deleteOk) {
       deleteVipServiceRequest(id);
@@ -109,7 +97,7 @@ const WhaleUserDashboard = ({
       service_type: requestType,
       request_code: code,
       tag: tagText,
-      note: reqNote
+      note: reqNote,
     };
     //console.log("record", record);
 
@@ -141,18 +129,18 @@ const WhaleUserDashboard = ({
           {
             label: "VIP",
             path: "/vip/whale_users",
-            active: false
+            active: false,
           },
           {
             label: "鯨魚用戶",
             path: `/vip/whale_users?game_id=${game_id}`,
-            active: false
+            active: false,
           },
           {
             label: "檢視用戶資料",
             path: `/vip/user_dashboard/${game_id}?user=${query_user}`,
-            active: true
-          }
+            active: true,
+          },
         ]}
         title="檢視用戶資料"
       />
@@ -163,19 +151,21 @@ const WhaleUserDashboard = ({
         <Fragment>
           <UserViewBasic
             vip={vip}
-            goBack={e => history.goBack()}
+            goBack={(e) => history.goBack()}
             onEditWhaleUser={onEditWhaleUser}
             updateOKMessage={updateOKMessage}
           />
           <UserRequestData
-            requests={vip.request_data.filter(r => r.service_type == "1")}
+            requests={vip.request_data.filter((r) => r.service_type == "1")}
             lbltext="服務紀錄"
             onDeleteClick={onDeleteRequestRecord}
+            serviceOptions={vipServiceOptionsByGameId[game_id][1]}
           />
           <UserRequestData
-            requests={vip.request_data.filter(r => r.service_type == "2")}
+            requests={vip.request_data.filter((r) => r.service_type == "2")}
             lbltext="重點對話節錄"
             onDeleteClick={onDeleteRequestRecord}
+            serviceOptions={vipServiceOptionsByGameId[game_id][2]}
           />
 
           <Row className="mt-2">
@@ -202,7 +192,7 @@ const WhaleUserDashboard = ({
                           name="typeSelect"
                           id="typeSelect"
                           value={requestType}
-                          onChange={e => {
+                          onChange={(e) => {
                             if (e.target.value !== "") {
                               setRequestType(Number.parseInt(e.target.value));
                             }
@@ -210,7 +200,7 @@ const WhaleUserDashboard = ({
                           invalid={formErrors.requestType ? true : false}
                         >
                           <option value="">==選擇服務類型==</option>
-                          {vipServiceOptions.map(opt => (
+                          {vipServiceOptions.map((opt) => (
                             <option
                               key={`selType-${opt.type}`}
                               value={opt.type}
@@ -228,7 +218,7 @@ const WhaleUserDashboard = ({
                           type="select"
                           name="codeSelect"
                           id="codeSelect"
-                          onChange={e =>
+                          onChange={(e) =>
                             setCode(Number.parseInt(e.target.value))
                           }
                           value={code}
@@ -236,9 +226,15 @@ const WhaleUserDashboard = ({
                         >
                           <option value="">==快選==</option>
 
-                          {Object.keys(quickOptionList).map(qo => (
+                          {Object.keys(
+                            vipServiceOptionsByGameId[game_id][requestType]
+                          ).map((qo) => (
                             <option key={`selQuickType-${qo}`} value={qo}>
-                              {quickOptionList[qo]}
+                              {
+                                vipServiceOptionsByGameId[game_id][requestType][
+                                  qo
+                                ]
+                              }
                             </option>
                           ))}
                         </Input>
@@ -251,7 +247,7 @@ const WhaleUserDashboard = ({
                           name="txtTag"
                           id="txtTag"
                           placeholder="(選填)自訂標籤"
-                          onChange={e => setTagText(e.target.value)}
+                          onChange={(e) => setTagText(e.target.value)}
                           maxLength="10"
                           value={tagText}
                           invalid={formErrors.tagText ? true : false}
@@ -270,7 +266,7 @@ const WhaleUserDashboard = ({
                       id="reqNote"
                       rows="5"
                       placeholder="(選填) 輸入服務項目相關說明或重點對話, 250字以內..."
-                      onChange={e => setReqNote(e.target.value)}
+                      onChange={(e) => setReqNote(e.target.value)}
                       value={reqNote}
                       invalid={formErrors.reqNote ? true : false}
                     />
@@ -297,17 +293,17 @@ const WhaleUserDashboard = ({
 };
 
 WhaleUserDashboard.propTypes = {
-  getCurrentWhaleUser: PropTypes.func.isRequired
+  getCurrentWhaleUser: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   vip: state.VIP.currentWhaleUser,
-  updateOKMessage: state.VIP.updateOKMessage
+  updateOKMessage: state.VIP.updateOKMessage,
 });
 export default connect(mapStateToProps, {
   getCurrentWhaleUser,
   updateVipInfo,
   clearVIPMessage,
   addVipServiceRequest,
-  deleteVipServiceRequest
+  deleteVipServiceRequest,
 })(WhaleUserDashboard);
