@@ -39,7 +39,7 @@ const VipOrdersHome = ({
   );
   const [endTime, setEndTime] = useState(moment().format("YYYY-MM-DDT23:59"));
   const [selectedGame, setSelectedGame] = useState("");
-  const [selectedTimeField, setSelectedTimeField] = useState("1");
+  const [selectedTimeField, setSelectedTimeField] = useState("wire_time");
 
   const [searchActivated, setSearchActivated] = useState(false);
 
