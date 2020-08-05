@@ -9,6 +9,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
+  Alert,
 } from "reactstrap";
 import Moment from "react-moment";
 import { Link } from "react-router-dom";
@@ -28,17 +29,30 @@ const DaddyListHome = () => {
   const [daddyList, setDaddyList] = useState([]);
   const [mappingReports, setMappingReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      const result = await axios("/api/daddy/list");
-      setLoading(false);
-      setMappingReports(result.data.reports || []);
-      setDaddyList(result.data.list || []);
+      try {
+        const result = await axios("/api/daddy/list");
+        setLoading(false);
+        setMappingReports(result.data.reports || []);
+        setDaddyList(result.data.list || []);
+      } catch (error) {
+        setLoading(false);
+        setError("您沒有相關權限");
+      }
     }
     fetchData();
   }, []); // Or [] if effect doesn't need props or state
   if (loading) return <LoaderWidget />;
+  if (error) {
+    return (
+      <Alert color="danger" isOpen={error ? true : false}>
+        <div>{error}</div>
+      </Alert>
+    );
+  }
   const expandRow = {
     showExpandColumn: true,
     expandByColumnOnly: true,
