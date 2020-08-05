@@ -38,7 +38,7 @@ app.use("/api/batch", require("./routes/api/batch"));
 app.use("/api/gmt_tool", require("./routes/api/gmt_tool"));
 app.use("/api/test", require("./routes/api/test"));
 app.use("/api/vip_rpt", require("./routes/api/vip_rpt"));
-
+app.use("/api/daddy", require("./routes/api/vip_daddy"));
 //serve static assets if in production
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "stage") {
   //set a static folder

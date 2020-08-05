@@ -166,6 +166,10 @@ const WhaleUserHome = React.lazy(() =>
   import("../pages/vip/whale_users/WhaleUserHome")
 );
 
+const DaddyListHome = React.lazy(() =>
+  import("../pages/vip/daddy/DaddyListHome")
+);
+
 ///vip/user_dashboard/${gameId}?
 const WhaleUserDashboard = React.lazy(() =>
   import("../pages/vip/whale_users/UserDashboard")
@@ -883,6 +887,12 @@ const vipRoutes = {
       path: "/vip/dashboard",
       name: "總覽",
       component: VipDashboardHome,
+      route: PrivateRoute,
+    },
+    {
+      path: "/vip/daddy",
+      name: "大戶",
+      component: DaddyListHome,
       route: PrivateRoute,
     },
     {
