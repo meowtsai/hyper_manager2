@@ -15,9 +15,9 @@ const WhaleUserModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  getVIPList: async game_id => {
+  getVIPList: async (game_id) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -29,10 +29,10 @@ const WhaleUserModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
 
-  getRequestData: async game_id => {
+  getRequestData: async (game_id) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -47,7 +47,7 @@ const WhaleUserModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getRequestDataByDateRangeGameId: async (game_id, begin_date, end_date) => {
     //console.log("findOne", account);
@@ -64,7 +64,7 @@ const WhaleUserModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findOne: async (game_id, uid) => {
     //console.log("findOne", account);
@@ -78,7 +78,7 @@ const WhaleUserModel = {
           return null;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findUserByRoleId: async (game_id, role_id) => {
     //console.log("findOne", account);
@@ -95,7 +95,7 @@ const WhaleUserModel = {
           return null;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getRequestDataByRoleId: async (game_id, role_id) => {
     //console.log("findOne", account);
@@ -112,9 +112,9 @@ const WhaleUserModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  saveServiceRequest: async record => {
+  saveServiceRequest: async (record) => {
     return await db2
       .promise()
       .query("insert into vip_requests set ?", record)
@@ -125,7 +125,7 @@ const WhaleUserModel = {
           return { error: "新增失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findServiceRequestByIdAndUpdate: async (id, record) => {
     return await db2
@@ -138,10 +138,10 @@ const WhaleUserModel = {
           return { error: "更新失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
 
-  findServiceRequestAndRemove: async vr_id => {
+  findServiceRequestAndRemove: async (vr_id) => {
     return await db2
       .promise()
       .query("Delete from vip_requests where id=?", [vr_id])
@@ -152,7 +152,7 @@ const WhaleUserModel = {
           return { error: "刪除失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findByRoleIdAndUpdate: async (game_id, role_id, record) => {
     return await db2
@@ -160,7 +160,7 @@ const WhaleUserModel = {
       .query("Update whale_users set ? where site=? and char_in_game_id=?", [
         record,
         game_id,
-        role_id
+        role_id,
       ])
       .then(([rows, fields]) => {
         if (rows.affectedRows > 0) {
@@ -169,8 +169,65 @@ const WhaleUserModel = {
           return { error: "更新失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
-  }
+      .catch((err) => ({ error: err.message }));
+  },
+  findVipWhaleByRoleId: async (game_id, role_id) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query("select * from vip_whales where game_id=? and role_id=?", [
+        game_id,
+        role_id,
+      ])
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows[0];
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  findVipReportLog: async (report_id) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query("select * from log_vipv2_report where report_id=?", [report_id])
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows[0];
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  saveVipWhale: async (record) => {
+    return await db2
+      .promise()
+      .query("insert into vip_whales set ?", record)
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "新增失敗" };
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  updateVipWhaleByWhale_id: async (whale_id, record) => {
+    return await db2
+      .promise()
+      .query("Update vip_whales set ? where whale_id=?", [record, whale_id])
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "更新失敗" };
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 module.exports = WhaleUserModel;

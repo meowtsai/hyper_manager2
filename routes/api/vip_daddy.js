@@ -20,12 +20,12 @@ router.get(
   async (req, res) => {
     //const game_id = req.params.game_id;
     const plist = DaddyModel.getAll();
-    const preports = DaddyModel.findAllReports();
+    //const preports = DaddyModel.findAllReports();
 
-    Promise.all([plist, preports])
+    Promise.all([plist])
       .then(
-        ([list, reports]) => {
-          res.json({ list, reports });
+        ([list]) => {
+          res.json({ list });
         },
         (reason) => {
           //console.log(reason);

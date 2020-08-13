@@ -889,12 +889,7 @@ const vipRoutes = {
       component: VipDashboardHome,
       route: PrivateRoute,
     },
-    {
-      path: "/vip/daddy",
-      name: "大戶",
-      component: DaddyListHome,
-      route: PrivateRoute,
-    },
+
     {
       path: "/vip/whale_users",
       name: "鯨魚用戶",
@@ -931,6 +926,12 @@ const vipRoutes = {
           route: PrivateRoute,
         },
       ],
+    },
+    {
+      path: "/vip/daddy",
+      name: "VIP儲值服務用戶",
+      component: DaddyListHome,
+      route: PrivateRoute,
     },
   ],
 };

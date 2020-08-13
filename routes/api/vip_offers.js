@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const VipOffersModel = require('../../models/VipOffersModel');
-const WhaleUserModel = require('../../models/WhaleUserModel');
-const checkPermission = require('../../middleware/checkPermission');
-const validator = require('validator');
-const auth = require('../../middleware/auth');
-const { isEmpty } = require('../../utils/helper');
-
+const VipOffersModel = require("../../models/VipOffersModel");
+const WhaleUserModel = require("../../models/WhaleUserModel");
+const checkPermission = require("../../middleware/checkPermission");
+const validator = require("validator");
+const auth = require("../../middleware/auth");
+const { isEmpty } = require("../../utils/helper");
+const { v4: uuidv4 } = require("uuid");
 //@route: GET /api/vip_offers/test
 //@desc: get test res
 //@access: public
-router.get('/test', async (req, res) => {
-  res.json({ msg: 'test vip_offers ok' });
+router.get("/test", async (req, res) => {
+  res.json({ msg: "test vip_offers ok" });
 });
 
 //@route: GET /api/vip/offers_list
@@ -19,9 +19,9 @@ router.get('/test', async (req, res) => {
 //@access: private
 //if ($this->zacl->check_acl("vip", "read")) { read,modify,authorize,statistics
 router.get(
-  '/offer_list',
+  "/offer_list",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'read');
+    return checkPermission(req, res, next, "vip", "read");
   },
   async (req, res) => {
     try {
@@ -39,9 +39,9 @@ router.get(
 );
 
 router.get(
-  '/order_list',
+  "/order_list",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'read');
+    return checkPermission(req, res, next, "vip", "read");
   },
   async (req, res) => {
     try {
@@ -59,9 +59,9 @@ router.get(
 );
 
 router.get(
-  '/detail/:report_id',
+  "/detail/:report_id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'modify');
+    return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
     const report_id = req.params.report_id;
@@ -69,15 +69,15 @@ router.get(
     if (g) {
       res.json(g);
     } else {
-      res.status(400).json({ msg: '沒有這個紀錄' });
+      res.status(400).json({ msg: "沒有這個紀錄" });
     }
   }
 );
 
 router.get(
-  '/prods_list/:game_id',
+  "/prods_list/:game_id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'read');
+    return checkPermission(req, res, next, "vip", "read");
   },
   async (req, res) => {
     const game_id = req.params.game_id;
@@ -85,7 +85,7 @@ router.get(
     if (g) {
       res.json(g);
     } else {
-      res.status(400).json({ msg: '沒有這個紀錄' });
+      res.status(400).json({ msg: "沒有這個紀錄" });
     }
   }
 );
@@ -93,9 +93,9 @@ router.get(
 //get single product by its product id
 // /api/vip_offers/prods/:product_id
 router.get(
-  '/prods/:product_id',
+  "/prods/:product_id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'read');
+    return checkPermission(req, res, next, "vip", "read");
   },
   async (req, res) => {
     const product_id = req.params.product_id;
@@ -104,7 +104,7 @@ router.get(
       if (prod) {
         res.json(prod);
       } else {
-        res.status(400).json({ msg: '沒有這個紀錄' });
+        res.status(400).json({ msg: "沒有這個紀錄" });
       }
     } else {
       res.status(400).json({ msg: prod.error });
@@ -114,9 +114,9 @@ router.get(
 //新增一筆vip 方案內容
 //url: "/api/vip_offers/prods"
 router.post(
-  '/prods',
+  "/prods",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'modify');
+    return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
     const newEntry = req.body;
@@ -139,7 +139,7 @@ router.post(
 
     if (result.affectedRows === 1) {
       res.json({
-        msg: '新增成功',
+        msg: "新增成功",
         newRecord: newEntry,
       });
     } else {
@@ -151,9 +151,9 @@ router.post(
 //更新vip 方案內容
 //url: "/api/vip_offers/prods/update",
 router.put(
-  '/prods/update',
+  "/prods/update",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'modify');
+    return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
     const record = req.body;
@@ -173,7 +173,7 @@ router.put(
       if (!updateMsg.error) {
         if (updateMsg.affectedRows === 1) {
           res.json({
-            msg: '資訊已更新。',
+            msg: "資訊已更新。",
             updatedField: { ...record },
           });
         } else {
@@ -190,9 +190,9 @@ router.put(
 
 //url: "/api/vip_offers/wire_report/update",
 router.put(
-  '/wire_report/update',
+  "/wire_report/update",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'modify');
+    return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
     const record = req.body;
@@ -217,7 +217,7 @@ router.put(
         //console.log("vip_ranking", vip.vip_ranking);
         if (vip) {
           record.vip_ranking =
-            vip.vip_ranking === null ? 'NO_R' : vip.vip_ranking;
+            vip.vip_ranking === null ? "NO_R" : vip.vip_ranking;
         } else {
           record.vip_ranking = null;
         }
@@ -229,8 +229,13 @@ router.put(
       );
       if (!updateMsg.error) {
         if (updateMsg.affectedRows === 1) {
+          //0812 用戶資料更新後 新增(或更新)vip_whale主檔
+          if (record.report_status === "4") {
+            update_vip_whale(record);
+          }
+
           res.json({
-            msg: '資訊已更新。',
+            msg: "資訊已更新。",
             updatedField: { ...record },
           });
         } else {
@@ -245,10 +250,71 @@ router.put(
   }
 );
 
+const update_vip_whale = async (record) => {
+  const log = await WhaleUserModel.findVipReportLog(record.report_id);
+  const { game_id, area, gender, birthday } = log;
+  //console.log("3", log);
+  if (!log) {
+    //尚未有log的訂單
+    return;
+  }
+
+  //1. find if exist
+  // console.log("1", record);
+  const {
+    server_id,
+    role_id,
+    email,
+    phone,
+    wire_name,
+    wire_time,
+    char_name,
+  } = record;
+  const prevRecord = await WhaleUserModel.findVipWhaleByRoleId(
+    game_id,
+    role_id
+  );
+  // console.log("2", prevRecord);
+
+  const whale_id = prevRecord ? prevRecord.whale_id : uuidv4();
+  //console.log("4", whale_id);
+  //1. record
+
+  //get total_orders_num, total_orders_amount
+  const statResult = await VipOffersModel.getBuyerOrderCount(game_id, role_id);
+
+  //console.log("7", statResult);
+  const vip_record = {
+    game_id,
+    server_id,
+    role_id,
+    char_name,
+    email,
+    phone,
+    wire_name,
+    area,
+    gender,
+    birthday,
+    last_active_at: wire_time,
+    total_orders_num: statResult[0].order_count,
+    total_orders_amount: statResult[0].order_amount,
+  };
+  //console.log("5", vip_record);
+  const result = !prevRecord
+    ? await WhaleUserModel.saveVipWhale({ ...vip_record, whale_id })
+    : await WhaleUserModel.updateVipWhaleByWhale_id(whale_id, vip_record);
+
+  //console.log("6", result);
+  // last_active_at;
+  // vip_ranking;
+  // total_orders_num;
+  // total_orders_amount;
+};
+
 router.delete(
-  '/delete_wire_report/:id',
+  "/delete_wire_report/:id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'whale_users_statistics', 'read');
+    return checkPermission(req, res, next, "whale_users_statistics", "read");
   },
   async (req, res) => {
     const report_id = req.params.id;
@@ -260,19 +326,19 @@ router.delete(
 
     if (delResult.affectedRows === 1) {
       res.json({
-        msg: '紀錄已經刪除。',
+        msg: "紀錄已經刪除。",
         updatedField: report_id,
       });
     } else {
-      res.status(500).json({ msg: '紀錄刪除失敗' });
+      res.status(500).json({ msg: "紀錄刪除失敗" });
     }
   }
 );
 
 router.delete(
-  '/prods/:product_id',
+  "/prods/:product_id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'vip', 'modify');
+    return checkPermission(req, res, next, "vip", "modify");
   },
   async (req, res) => {
     const product_id = req.params.product_id;
@@ -281,17 +347,17 @@ router.delete(
     //不可刪除目前上架中以及主表有關連到的商品
     const product = await VipOffersModel.findProdById(product_id);
     if (!product) {
-      return res.status(500).json({ msg: '沒有這個品項' });
+      return res.status(500).json({ msg: "沒有這個品項" });
     }
-    if (product.is_active === '1') {
-      return res.status(500).json({ msg: '無法刪除，品項目前上架中' });
+    if (product.is_active === "1") {
+      return res.status(500).json({ msg: "無法刪除，品項目前上架中" });
     }
 
     const undeletable = await VipOffersModel.checkIfExistInWireReport(
       product_id
     );
     if (undeletable) {
-      return res.status(500).json({ msg: '無法刪除，品項已經關聯其他訂單' });
+      return res.status(500).json({ msg: "無法刪除，品項已經關聯其他訂單" });
     }
 
     const delResult = await VipOffersModel.findProdAndRemove(product_id);
@@ -302,11 +368,11 @@ router.delete(
 
     if (delResult.affectedRows === 1) {
       res.json({
-        msg: '品項已經刪除。',
+        msg: "品項已經刪除。",
         updatedField: product_id,
       });
     } else {
-      res.status(500).json({ msg: '品項刪除失敗' });
+      res.status(500).json({ msg: "品項刪除失敗" });
     }
   }
 );
@@ -315,11 +381,11 @@ module.exports = router;
 const validateVipOrderUpdate = (data) => {
   let errors = {};
 
-  data.report_status = !isEmpty(data.report_status) ? data.report_status : '';
-  data.orderids = !isEmpty(data.orderids) ? data.orderids : '';
+  data.report_status = !isEmpty(data.report_status) ? data.report_status : "";
+  data.orderids = !isEmpty(data.orderids) ? data.orderids : "";
 
-  if (data.report_status === '2' && validator.isEmpty(data.orderids)) {
-    errors.orderids = '請輸入單號';
+  if (data.report_status === "2" && validator.isEmpty(data.orderids)) {
+    errors.orderids = "請輸入單號";
   }
 
   return {
@@ -331,30 +397,30 @@ const validateVipOrderUpdate = (data) => {
 const validateProductInput = (data) => {
   let errors = {};
 
-  data.product_id = !isEmpty(data.product_id) ? data.product_id : '';
-  data.title = !isEmpty(data.title) ? data.title : '';
-  data.game_id = !isEmpty(data.game_id) ? data.game_id : '';
+  data.product_id = !isEmpty(data.product_id) ? data.product_id : "";
+  data.title = !isEmpty(data.title) ? data.title : "";
+  data.game_id = !isEmpty(data.game_id) ? data.game_id : "";
   data.price = !isEmpty(data.price) ? data.price : null;
   data.gold = !isEmpty(data.gold) ? data.gold : null;
 
   const { product_id, title, game_id, price, gold } = data;
 
   if (!product_id || validator.isEmpty(product_id)) {
-    errors.product_id = '必須填寫產品ID。';
+    errors.product_id = "必須填寫產品ID。";
   }
 
   if (!title || validator.isEmpty(title)) {
-    errors.title = '必須填寫產品名稱或描述。';
+    errors.title = "必須填寫產品名稱或描述。";
   }
   if (!game_id || validator.isEmpty(game_id)) {
-    errors.game_id = '必須選擇遊戲。';
+    errors.game_id = "必須選擇遊戲。";
   }
 
   if (!price || !validator.isInt(price.toString())) {
-    errors.price = '必須選輸入商品價格。';
+    errors.price = "必須選輸入商品價格。";
   }
   if (!gold || !validator.isInt(gold.toString())) {
-    errors.gold = '必須選輸入對應遊戲幣。';
+    errors.gold = "必須選輸入對應遊戲幣。";
   }
 
   return {

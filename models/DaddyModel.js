@@ -76,21 +76,6 @@ const DaddyModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
-  findAllReports: async () => {
-    return await db2
-      .promise()
-      .query(
-        "select m.*, v.game_id, v.char_name,v.wire_amount, v.wire_time,v.role_id from vip_whale_report_map m left join vip_wire_report v on m.report_id=v.report_id"
-      )
-      .then(([rows, fields]) => {
-        if (rows.length > 0) {
-          return rows;
-        } else {
-          return null;
-        }
-      })
-      .catch((err) => ({ error: err.message }));
-  },
 };
 
 module.exports = DaddyModel;

@@ -243,6 +243,23 @@ const VipOffersModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+  getBuyerOrderCount: async (game_id, role_id) => {
+    return await db2
+      .promise()
+      .query(
+        `select count(*) as order_count, sum(wire_amount) as order_amount
+        from vip_wire_report  where game_id=? and role_id=? and report_status='4'`,
+        [game_id, role_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return [];
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 module.exports = VipOffersModel;

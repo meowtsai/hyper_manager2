@@ -11,7 +11,9 @@ import {
   DropdownItem,
   Alert,
 } from "reactstrap";
+import { CSVLink } from "react-csv";
 import Moment from "react-moment";
+import moment from "moment";
 import { Link } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
 import BootstrapTable from "react-bootstrap-table-next";
@@ -25,9 +27,10 @@ import paginationFactory, {
 import classNames from "classnames";
 import axios from "axios";
 import LoaderWidget from "../../../components/Loader";
+import { vipRankingOptions } from "../whale_users/whaleOptConfig";
 const DaddyListHome = () => {
   const [daddyList, setDaddyList] = useState([]);
-  const [mappingReports, setMappingReports] = useState([]);
+  //const [mappingReports, setMappingReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,7 +39,7 @@ const DaddyListHome = () => {
       try {
         const result = await axios("/api/daddy/list");
         setLoading(false);
-        setMappingReports(result.data.reports || []);
+        //setMappingReports(result.data.reports || []);
         setDaddyList(result.data.list || []);
       } catch (error) {
         setLoading(false);
@@ -58,9 +61,7 @@ const DaddyListHome = () => {
     expandByColumnOnly: true,
 
     renderer: (row) => {
-      const whaleReports = mappingReports.filter(
-        (report) => report.whale_id === row.whale_id
-      );
+      const whaleReports = [];
 
       return (
         <Fragment>
@@ -97,25 +98,84 @@ const DaddyListHome = () => {
     },
   };
 
-  const ReportsColumn = (cell, row, rowIndex, extraData) => {
-    //-whale_id                             | report_id           | game_id    | char_name          | wire_amount | wire_time
+  // const ReportsColumn = (cell, row, rowIndex, extraData) => {
+  //   //-whale_id                             | report_id           | game_id    | char_name          | wire_amount | wire_time
 
-    const whaleReports = mappingReports.filter(
-      (report) => report.whale_id === row.whale_id
+  //   const whaleReports = mappingReports.filter(
+  //     (report) => report.whale_id === row.whale_id
+  //   );
+
+  //   const totalSpend = whaleReports.reduce((prev, curr) => {
+  //     return prev + curr.wire_amount;
+  //   }, 0);
+
+  //   return (
+  //     <Fragment>
+  //       共{whaleReports.length} 筆訂單, {totalSpend} 儲值金額
+  //     </Fragment>
+  //   );
+  // };
+
+  const genderOptions = {
+    m: "男性",
+    f: "女性",
+    x: "中性",
+  };
+
+  const RoleColumn = (cell, row, rowIndex, extraData) => {
+    const opt = vipRankingOptions.filter(
+      (opt) => opt.value === row.vip_ranking
+    )[0];
+    const ranking_badge = opt ? (
+      <span className={`mr-1 badge badge-${opt.color}-lighten badge-pill`}>
+        {opt.label || ""}
+      </span>
+    ) : (
+      ""
     );
-
-    const totalSpend = whaleReports.reduce((prev, curr) => {
-      return prev + curr.wire_amount;
-    }, 0);
-
     return (
-      <Fragment>
-        共{whaleReports.length} 筆訂單, {totalSpend} 儲值金額
-      </Fragment>
+      <div>
+        <strong style={{ color: "blue" }}>{row.char_name} </strong>
+        {ranking_badge}
+        <br />
+        {opt ? (
+          <Link to={`/vip/user_dashboard/${row.game_id}?user=${row.role_id}`}>
+            {row.role_id}
+          </Link>
+        ) : (
+          row.role_id
+        )}
+      </div>
     );
   };
 
   const columns = [
+    {
+      dataField: "game_id",
+      text: "遊戲",
+      sort: true,
+      formatter: (cellContent, row) => {
+        return (
+          <small>
+            {cellContent === "g66naxx2tw" ? "明日之後" : "第五人格"}
+          </small>
+        );
+      },
+      classes: "table-user",
+    },
+    {
+      dataField: "role_id",
+      text: "角色",
+      sort: true,
+      formatter: RoleColumn,
+      classes: "table-user",
+    },
+
+    {
+      dataField: "char_name",
+      text: "角色",
+      hidden: true,
+    },
     {
       dataField: "wire_name",
       text: "匯款名",
@@ -136,21 +196,53 @@ const DaddyListHome = () => {
     {
       dataField: "detail",
       isDummyField: true,
-      text: "訂單明細",
-      formatter: ReportsColumn,
+      text: "購買資訊",
+      formatter: (cellContent, row) => {
+        return (
+          <small>
+            最近一次下單時間：
+            <Moment format="YYYY-MM-DD HH:mm">{row.last_active_at}</Moment>
+            (約
+            <Moment diff={row.last_active_at} unit="days" decimal={false}>
+              {new Date()}
+            </Moment>{" "}
+            天前 )
+            <br />
+            訂單總數：{row.total_orders_num} <br />
+            訂單總金額：{row.total_orders_amount}
+          </small>
+        );
+      },
       sort: false,
     },
     {
-      dataField: "address",
-      text: "地址",
+      dataField: "area",
+      text: "居住地區",
       sort: false,
     },
     {
-      dataField: "action",
-      isDummyColumn: true,
-      text: "Action",
+      dataField: "gender",
+      text: "性別",
+      formatter: (cellContent, row) => {
+        return <span>{genderOptions[cellContent]}</span>;
+      },
       sort: false,
-      classes: "table-action",
+    },
+    {
+      dataField: "birthday",
+      text: "生日",
+      formatter: (cellContent, row) => {
+        return (
+          <small>
+            <Moment format="YYYY-MM-DD">{cellContent}</Moment>(約
+            <Moment diff={cellContent} unit="years" decimal={false}>
+              {new Date()}
+            </Moment>{" "}
+            歲 )
+          </small>
+        );
+      },
+      sort: false,
     },
   ];
   const paginationOptions = {
@@ -173,14 +265,32 @@ const DaddyListHome = () => {
       },
     ],
   };
+  const fileName = `VIP儲值服務用戶_${moment().format(
+    "YYYY-MM-DD"
+  )}${Date.now()}`;
+  const csvHeaders = [
+    { label: "遊戲id", key: "game_id" },
+    { label: "伺服器", key: "server_id" },
+    { label: "角色ID", key: "role_id" },
+    { label: "角色名稱", key: "char_name" },
+    { label: "VIP等級", key: "vip_ranking" },
+    { label: "匯款戶名", key: "wire_name" },
+    { label: "最近下單日", key: "last_active_at" },
+    { label: "總金額", key: "total_orders_amount" },
+    { label: "性別", key: "gender" },
+    { label: "生日", key: "birthday" },
+    { label: "EMail", key: "email" },
+    { label: "手機", key: "phone" },
+  ];
+
   return (
     <Fragment>
       <PageTitle
         breadCrumbItems={[
           { label: "VIP", path: "/vip", active: false },
-          { label: "大戶", path: "/vip/daddy", active: true },
+          { label: "VIP儲值服務用戶", path: "/vip/daddy", active: true },
         ]}
-        title={"VIP - 大戶列表"}
+        title={"VIP - VIP儲值服務用戶"}
       />
       <Row className="mb-2">
         <Col lg={6}> </Col>
@@ -189,7 +299,7 @@ const DaddyListHome = () => {
         <Col>
           <Card>
             <CardBody>
-              <Row>
+              {/* <Row>
                 <Col sm={4}>
                   <Button color="danger" className="mb-2">
                     <i className="mdi mdi-plus-circle mr-2"></i> Add Customer
@@ -211,13 +321,28 @@ const DaddyListHome = () => {
                     </Button>
                   </div>
                 </Col>
-              </Row>
+              </Row> */}
+
+              <CSVLink
+                data={daddyList.map((item) => ({
+                  ...item,
+                  last_active_at: moment(item.last_active_at).format(
+                    "YYYY-MM-DD HH:mm:ss"
+                  ),
+                  birthday: moment(item.birthday).format("YYYY-MM-DD"),
+                  gender: genderOptions[item.gender],
+                  phone: `'${item.phone}`,
+                }))}
+                headers={csvHeaders}
+                filename={fileName + ".csv"}
+              >
+                下載 csv檔案
+              </CSVLink>
 
               <DaddyTable
                 data={daddyList}
                 columns={columns}
                 paginationOptions={paginationOptions}
-                expandRow={expandRow}
               />
             </CardBody>
           </Card>
@@ -233,7 +358,7 @@ export default DaddyListHome;
 const DaddyTable = (mainProps) => {
   const customTotal = (from, to, size) => (
     <label className="react-bootstrap-table-pagination-total ml-2">
-      Showing {from} to {to} of {size}
+      {from} ~ {to} /共 {size} 筆
     </label>
   );
 
@@ -243,7 +368,7 @@ const DaddyTable = (mainProps) => {
     onSizePerPageChange,
   }) => (
     <Fragment>
-      <label className="d-inline mr-1">Display</label>
+      <label className="d-inline mr-1">顯示</label>
       <UncontrolledDropdown className="d-inline">
         <DropdownToggle
           caret
@@ -268,7 +393,7 @@ const DaddyTable = (mainProps) => {
           ))}
         </DropdownMenu>
       </UncontrolledDropdown>
-      <label className="d-inline ml-1">customers</label>
+      <label className="d-inline ml-1">用戶</label>
     </Fragment>
   );
 
@@ -301,7 +426,7 @@ const DaddyTable = (mainProps) => {
                   <SizePerPageDropdownStandalone {...paginationProps} />
                 </Col>
                 <Col md={6} className="text-sm-right mt-2 mt-sm-0">
-                  Search: <SearchBar {...props.searchProps} />
+                  關鍵字搜尋: <SearchBar {...props.searchProps} />
                 </Col>
               </Row>
 
