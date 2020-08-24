@@ -203,7 +203,7 @@ const WhaleUserModel = {
       .catch((err) => ({ error: err.message }));
   },
   saveVipWhale: async (record) => {
-    return await db2
+    return await db1
       .promise()
       .query("insert into vip_whales set ?", record)
       .then(([rows, fields]) => {
@@ -216,7 +216,7 @@ const WhaleUserModel = {
       .catch((err) => ({ error: err.message }));
   },
   updateVipWhaleByWhale_id: async (whale_id, record) => {
-    return await db2
+    return await db1
       .promise()
       .query("Update vip_whales set ? where whale_id=?", [record, whale_id])
       .then(([rows, fields]) => {
