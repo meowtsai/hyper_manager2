@@ -20,6 +20,7 @@ router.get(
   async (req, res) => {
     //const game_id = req.params.game_id;
     const plist = DaddyModel.getAll();
+
     //const preports = DaddyModel.findAllReports();
 
     Promise.all([plist])

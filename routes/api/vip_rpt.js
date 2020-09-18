@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const checkPermission = require("../../middleware/checkPermission");
 const VipOffersModel = require("../../models/VipOffersModel");
+const DaddyModel = require("../../models/DaddyModel");
 //@route: GET /api/vip_rpt/test
 //@desc: get test res
 //@access: public
@@ -21,10 +22,23 @@ router.get(
       const p_past_month_data = VipOffersModel.get30daysData();
       const p_prod = VipOffersModel.getProductsSelling(days);
       const p_buyers = VipOffersModel.getTopBuyers(days);
-
-      Promise.all([p_past_month_data, p_prod, p_buyers]).then(
-        ([past_month_data, product_selling_data, top_buyers]) => {
-          res.json({ past_month_data, product_selling_data, top_buyers });
+      const p_ages = DaddyModel.getGenderAgeGroupsData();
+      const p_area = DaddyModel.getAreaData();
+      Promise.all([p_past_month_data, p_prod, p_buyers, p_ages, p_area]).then(
+        ([
+          past_month_data,
+          product_selling_data,
+          top_buyers,
+          gender_ages,
+          area,
+        ]) => {
+          res.json({
+            past_month_data,
+            product_selling_data,
+            top_buyers,
+            gender_ages,
+            area,
+          });
         }
       );
     } catch (error) {

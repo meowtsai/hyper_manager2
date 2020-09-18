@@ -4,7 +4,7 @@ import { Bar, defaults as ChartjsDefaults, Chart } from "react-chartjs-2";
 import { Card, CardBody } from "reactstrap";
 
 const BarChart = ({ data = [] }) => {
-  console.log("data.length", data.length);
+  //console.log("data.length", data.length);
   if (data.length === 0) {
     return null;
   }

@@ -4,6 +4,9 @@ import { connect } from "react-redux";
 import PageTitle from "../../../components/PageTitle";
 import { Row, Col } from "reactstrap";
 import BarChart from "./BarChart";
+import AgeGroupsBarChart from "./AgeGroupsBarChart";
+import AreaDonutChart from "./AreaDonutChart";
+
 import Products from "./Products";
 import TopBuyers from "./TopBuyers";
 import PropTypes from "prop-types";
@@ -32,6 +35,15 @@ const VipDashboardHome = ({ getVipDashboardData, data }) => {
         ]}
         title={mainTitle}
       />
+
+      <Row className="mb-2">
+        <Col sm={6}>
+          <AgeGroupsBarChart data={data.gender_ages} />
+        </Col>
+        <Col sm={6}>
+          <AreaDonutChart data={data.area} />
+        </Col>
+      </Row>
       <Row className="mb-2">
         <Col sm={12}>
           <BarChart data={data.past_month_data} />

@@ -76,6 +76,46 @@ const DaddyModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+  getGenderAgeGroupsData: async (id) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query(
+        `SELECT gender, 
+      SUM(CASE WHEN age >=18 AND age <=25 THEN 1 ELSE 0 END) as '18-25',
+      SUM(CASE WHEN age >=26 AND age <=35 THEN 1 ELSE 0 END) as '26-35',
+      SUM(CASE WHEN age >=36 AND age <=45 THEN 1 ELSE 0 END) as '36-45',
+      SUM(CASE WHEN age >=46 AND age <=55 THEN 1 ELSE 0 END) as '46-55',
+      SUM(CASE WHEN age >=56 AND age <=65 THEN 1 ELSE 0 END) as '56-65',
+      SUM(CASE WHEN age >65  then 1 else 0 end) as '65+'
+      from (SELECT gender, TIMESTAMPDIFF(YEAR, birthday, CURDATE()) AS age from  vip_whales) A
+      GROUP BY gender `
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  getAreaData: async (id) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query(
+        "SELECT distinct area,count(*) as cnt FROM vip_whales GROUP BY area order by cnt desc"
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows;
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 module.exports = DaddyModel;
