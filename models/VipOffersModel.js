@@ -63,6 +63,7 @@ const VipOffersModel = {
         left join servers si on a.server_id =si.server_id
         left join vip_products vp on vp.product_id=a.product_id
         left join admin_users b on a.admin_uid =b.uid
+        where a.create_time between CURDATE() - INTERVAL 60 DAY AND CURDATE()
 
         ;`
       )
