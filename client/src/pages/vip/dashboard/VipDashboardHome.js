@@ -10,6 +10,7 @@ import AreaDonutChart from "./AreaDonutChart";
 import Products from "./Products";
 import TopBuyers from "./TopBuyers";
 import PropTypes from "prop-types";
+import Past30DaysTable from "./Past30DaysTable";
 import { getVipDashboardData } from "../../../redux/actions";
 
 const VipDashboardHome = ({ getVipDashboardData, data }) => {
@@ -49,6 +50,12 @@ const VipDashboardHome = ({ getVipDashboardData, data }) => {
           <BarChart data={data.past_month_data} />
         </Col>
       </Row>
+      <Row className="mb-2">
+        <Col sm={12}>
+          <Past30DaysTable data={data.past_month_data} />
+        </Col>
+      </Row>
+
       <Row>
         <Col xl={3}>
           <TopBuyers

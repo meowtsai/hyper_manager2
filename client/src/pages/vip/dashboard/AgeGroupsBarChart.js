@@ -42,6 +42,7 @@ const AgeGroupsBarChart = ({ data = [] }) => {
 
     xaxis: {
       categories: [
+        "年齡<18",
         "年齡18-25",
         "年齡26-35",
         "年齡36-45",
@@ -73,6 +74,7 @@ const AgeGroupsBarChart = ({ data = [] }) => {
       item.name = "中性";
     }
     item.data = [
+      d["18-"],
       d["18-25"],
       d["26-35"],
       d["36-45"],

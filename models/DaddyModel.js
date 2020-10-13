@@ -82,6 +82,7 @@ const DaddyModel = {
       .promise()
       .query(
         `SELECT gender, 
+        SUM(CASE WHEN age <=17 THEN 1 ELSE 0 END) as '18-',
       SUM(CASE WHEN age >=18 AND age <=25 THEN 1 ELSE 0 END) as '18-25',
       SUM(CASE WHEN age >=26 AND age <=35 THEN 1 ELSE 0 END) as '26-35',
       SUM(CASE WHEN age >=36 AND age <=45 THEN 1 ELSE 0 END) as '36-45',
