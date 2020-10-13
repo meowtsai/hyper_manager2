@@ -182,10 +182,10 @@ const VipOffersModel = {
     return await db2
       .promise()
       .query(
-        `SELECT  a.game_id,g.name as game_name, DATE_FORMAT(update_time, '%Y/%m/%d') as udate, sum(wire_amount) as amount, count(*) as count
+        `SELECT  a.game_id,g.name as game_name, DATE_FORMAT(wire_time, '%Y/%m/%d') as udate, sum(wire_amount) as amount, count(*) as count
         FROM    vip_wire_report a left join games g on a.game_id = g.game_id
-        WHERE   report_status=4 and update_time BETWEEN CURDATE() - INTERVAL 30 DAY AND now()
-        group by a.game_id,g.name,DATE_FORMAT(update_time, '%Y/%m/%d')`
+        WHERE   report_status=4 and wire_time BETWEEN CURDATE() - INTERVAL 30 DAY AND now()
+        group by a.game_id,g.name,DATE_FORMAT(wire_time, '%Y/%m/%d')`
       )
       .then(([rows, fields]) => {
         if (rows.length > 0) {
