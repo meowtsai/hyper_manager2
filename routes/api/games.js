@@ -1,23 +1,23 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const GamesModel = require('../../models/GamesModel');
-const Admin_user = require('../../models/Admin_user');
-const moment = require('moment');
-const auth = require('../../middleware/auth');
-const checkPermission = require('../../middleware/checkPermission');
-const validator = require('validator');
-const helper = require('../../utils/helper');
-const image_path = require('../../config/default')['image_path'];
-const image_upload_dir = require('../../config/default')['image_upload_dir'];
-const path = require('path');
+const GamesModel = require("../../models/GamesModel");
+const Admin_user = require("../../models/Admin_user");
+const moment = require("moment");
+const auth = require("../../middleware/auth");
+const checkPermission = require("../../middleware/checkPermission");
+const validator = require("validator");
+const helper = require("../../utils/helper");
+const image_path = require("../../config/default")["image_path2"];
+const image_upload_dir = require("../../config/default")["image_upload_dir2"];
+const path = require("path");
 //@route: GET /api/games/list
 //@desc: get game list
 //@access: private
 
 router.get(
-  '/list',
+  "/list",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'game_setting', 'modify');
+    return checkPermission(req, res, next, "game_setting", "modify");
   },
   async (req, res) => {
     const games_list = await GamesModel.getAll();
@@ -27,9 +27,9 @@ router.get(
 
 //create a new game $this->zacl->check("game_setting", "modify");
 router.post(
-  '/',
+  "/",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'game_setting', 'modify');
+    return checkPermission(req, res, next, "game_setting", "modify");
   },
   async (req, res) => {
     //console.log("game post", req.body);
@@ -77,26 +77,26 @@ router.post(
               }
             );
             //console.log("keyName", keyName);
-            if (keyName === 'file_logo') {
+            if (keyName === "file_logo") {
               game_record.logo_path = (
                 image_path +
-                'pictures/' +
+                "pictures/" +
                 new_file_name
-              ).replace('manager', 'game');
+              ).replace("manager", "game");
             }
-            if (keyName === 'file_title') {
+            if (keyName === "file_title") {
               game_record.title_path = (
                 image_path +
-                'pictures/' +
+                "pictures/" +
                 new_file_name
-              ).replace('manager', 'game');
+              ).replace("manager", "game");
             }
-            if (keyName === 'file_bg') {
+            if (keyName === "file_bg") {
               game_record.bg_path = (
                 image_path +
-                'pictures/' +
+                "pictures/" +
                 new_file_name
-              ).replace('manager', 'game');
+              ).replace("manager", "game");
             }
           });
         }
@@ -108,7 +108,7 @@ router.post(
 
       if (result.affectedRows === 1) {
         res.json({
-          msg: '新增成功',
+          msg: "新增成功",
           newRecord: game_record,
         });
       } else {
@@ -119,9 +119,9 @@ router.post(
 );
 
 router.get(
-  '/detail/:game_id',
+  "/detail/:game_id",
   function (req, res, next) {
-    return checkPermission(req, res, next, 'game_setting', 'modify');
+    return checkPermission(req, res, next, "game_setting", "modify");
   },
   async (req, res) => {
     const game_id = req.params.game_id;
@@ -129,7 +129,7 @@ router.get(
     if (g) {
       res.json(g);
     } else {
-      res.status(400).json({ msg: '沒有這個遊戲' });
+      res.status(400).json({ msg: "沒有這個遊戲" });
     }
   }
 );
@@ -141,22 +141,22 @@ const validateGameInput = (data) => {
   const { game_id, name, fanpage, site } = data;
 
   if (!name || validator.isEmpty(name)) {
-    errors.game_name = '遊戲名稱必須填寫。';
+    errors.game_name = "遊戲名稱必須填寫。";
   } else if (name && !validator.isByteLength(name, { min: 2, max: 50 })) {
-    errors.game_name = '遊戲名稱長度必須在2~40之間。';
+    errors.game_name = "遊戲名稱長度必須在2~40之間。";
   }
 
   if (!game_id || validator.isEmpty(game_id)) {
-    errors.game_id = 'Game Id 必須填寫。';
+    errors.game_id = "Game Id 必須填寫。";
   } else if (game_id && !validator.isAscii(game_id)) {
-    errors.game_id = 'Game Id 格式不正確，只能用字母和數字。';
+    errors.game_id = "Game Id 格式不正確，只能用字母和數字。";
   }
 
   if (fanpage && !validator.isURL(fanpage)) {
-    errors.fanpage = '粉絲團網址格式不正確，必須是網址。';
+    errors.fanpage = "粉絲團網址格式不正確，必須是網址。";
   }
   if (site && !validator.isURL(site)) {
-    errors.site = '遊戲官網格式不正確，必須是網址。';
+    errors.site = "遊戲官網格式不正確，必須是網址。";
   }
 
   return {
