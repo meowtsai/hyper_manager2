@@ -45,14 +45,14 @@ import {
   REMOVE_QUESTION_FROM_BATCH_FAILED,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH,
   ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS,
-  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED
-} from './constants';
+  ADD_MULTIPLE_QUESTIONS_TO_BATCH_FAILED,
+} from "./constants";
 
 const INIT_STATE = {
   list: [],
   current: {},
   loading: true,
-  error: '',
+  error: "",
   allgames: [],
   antsHandleData: [],
   qCountData: [],
@@ -64,7 +64,7 @@ const INIT_STATE = {
   user_history: [],
   vip: null,
   add_favor_ok: false,
-  tasks: []
+  tasks: [],
 };
 
 type ServiceAction = { type: string, payload: {} | string };
@@ -86,7 +86,7 @@ type State = {
   ovAllocate?: [] | null,
   ovAllocateNew?: [] | null,
   user_history?: [] | null,
-  updateOKMessage?: string
+  updateOKMessage?: string,
 };
 
 const Service = (state: State = INIT_STATE, action: ServiceAction) => {
@@ -103,7 +103,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
       return {
         ...state,
         loading: true,
-        error: null
+        error: null,
       };
     case REMOVE_QUESTION_FROM_BATCH:
     case ADD_QUESTION_TO_BATCH:
@@ -114,19 +114,19 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         ...state,
         loading:
           Object.keys(action.payload).length === 1 &&
-          action.payload.status === '1'
+          action.payload.status === "1"
             ? false
             : true,
-        error: null
+        error: null,
       };
     case ADD_QUESTION_TO_BATCH_SUCCESS:
       return {
         ...state,
         current: {
           ...state.current,
-          q_batch_info: [action.payload.batch_info]
+          q_batch_info: [action.payload.batch_info],
         },
-        list: state.list.map(q => {
+        list: state.list.map((q) => {
           if (q.id === action.payload.batch_info.question_id) {
             return { ...q, is_batch: 1 };
           } else {
@@ -135,13 +135,13 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         }),
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
 
     case ADD_MULTIPLE_QUESTIONS_TO_BATCH_SUCCESS:
       return {
         ...state,
-        list: state.list.map(q => {
+        list: state.list.map((q) => {
           if (action.payload.ids.indexOf(q.id) > -1) {
             return { ...q, is_batch: 1 };
           } else {
@@ -149,16 +149,16 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           }
         }),
         loading: false,
-        error: null
+        error: null,
       };
     case REMOVE_QUESTION_FROM_BATCH_SUCCESS:
       return {
         ...state,
         current: {
           ...state.current,
-          q_batch_info: []
+          q_batch_info: [],
         },
-        list: state.list.map(q => {
+        list: state.list.map((q) => {
           if (q.id === Number.parseInt(action.payload.removed_q_id)) {
             return { ...q, is_batch: 0 };
           } else {
@@ -168,7 +168,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
 
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
     case ALLOCATE_QUESTION_SUCCESS:
       return {
@@ -177,18 +177,18 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           ...state.current,
           question: {
             ...state.current.question,
-            ...action.payload.updatedField
-          }
+            ...action.payload.updatedField,
+          },
         },
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
     case FAVORITE_QUESTION_ACTION_SUCCESS:
       //res.json({question_id:qId, is_favorite: action === "add" ? 1 : 0});
       return {
         ...state,
-        list: state.list.map(q => {
+        list: state.list.map((q) => {
           if (q.id === action.payload.question_id) {
             return { ...q, is_favorite: action.payload.is_favorite };
           } else {
@@ -199,11 +199,11 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           ...state.current,
           question: {
             ...state.current.question,
-            is_favorite: action.payload.is_favorite
-          }
+            is_favorite: action.payload.is_favorite,
+          },
         },
         loading: false,
-        error: null
+        error: null,
       };
     case REPLY_QUESTION_SUCCESS:
       return {
@@ -212,38 +212,38 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           ...state.current,
           question: {
             ...state.current.question,
-            ...action.payload.updateQuestionData
+            ...action.payload.updateQuestionData,
           },
 
           replies: action.payload.updateQuestionData
             ? [
                 ...state.current.replies,
-                { id: action.payload.id, ...action.payload.updatedField }
+                { id: action.payload.id, ...action.payload.updatedField },
               ]
             : [
-                ...state.current.replies.map(reply =>
+                ...state.current.replies.map((reply) =>
                   reply.id !== action.payload.id
                     ? reply
                     : { ...reply, ...action.payload.updatedField }
-                )
-              ]
+                ),
+              ],
         },
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
 
     case GET_QUESTIONS_BY_USER_SUCCESS:
       return {
         ...state,
         user_history: action.payload.list,
-        vip: action.payload.vip
+        vip: action.payload.vip,
       };
     case GET_QUESTIONS_BY_USER_FAILED:
     case GET_QUESTIONS_BY_USER:
       return {
         ...state,
-        user_history: []
+        user_history: [],
       };
     case CLOSE_QUESTION_SUCCESS:
       return {
@@ -252,12 +252,12 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           ...state.current,
           question: {
             ...state.current.question,
-            ...action.payload.updatedField
-          }
+            ...action.payload.updatedField,
+          },
         },
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
 
     case CLEAR_MESSAGE:
@@ -265,7 +265,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         ...state,
         loading: false,
         error: null,
-        updateOKMessage: null
+        updateOKMessage: null,
       };
     case GET_CURRENT_QUESTION_SUCCESS:
       return {
@@ -274,7 +274,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         question_type: action.payload.question_type,
         question_status: action.payload.question_status,
         loading: false,
-        error: null
+        error: null,
       };
     case GET_SERVICE_CONFIG_SUCCESS:
       return {
@@ -285,18 +285,18 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         cs_admins: action.payload.cs_admins,
         ants_admins: action.payload.ants_admins,
         loading: false,
-        error: null
+        error: null,
       };
     case GET_SERVICE_STATISTICS_BY_HOUR_SUCCESS:
       return {
         ...state,
         question_type: action.payload.question_type,
-        allgames: action.payload.statReportData.reduce(function(prev, curr) {
+        allgames: action.payload.statReportData.reduce(function (prev, curr) {
           if (tmpGameIds.indexOf(curr.game_id) < 0) {
             tmpGameIds.push(curr.game_id);
             return [
               ...prev,
-              { game_id: curr.game_id, game_name: curr.game_name }
+              { game_id: curr.game_id, game_name: curr.game_name },
             ];
           } else {
             return prev;
@@ -305,7 +305,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         statReplyData: action.payload.statReplyData,
         statReportData: action.payload.statReportData,
         loading: false,
-        error: null
+        error: null,
       };
     case GET_SERVICE_STATISTICS_SUCCESS:
       const {
@@ -313,18 +313,33 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         qCountData,
         csHandleData,
         csHandleAllocationData,
-        antsHandleAllocationData
+        antsHandleAllocationData,
       } = action.payload;
+
+      const stat_games = [
+        ...antsHandleData.map((d) => ({
+          game_id: d.game_id,
+          game_name: d.game_name,
+        })),
+        ...qCountData.map((d) => ({
+          game_id: d.game_id,
+          game_name: d.game_name,
+        })),
+        ...csHandleData.map((d) => ({
+          game_id: d.game_id,
+          game_name: d.game_name,
+        })),
+      ];
 
       return {
         ...state,
         question_type: action.payload.question_type,
-        allgames: qCountData.reduce(function(prev, curr) {
+        allgames: stat_games.reduce(function (prev, curr) {
           if (tmpGameIds.indexOf(curr.game_id) < 0) {
             tmpGameIds.push(curr.game_id);
             return [
               ...prev,
-              { game_id: curr.game_id, game_name: curr.game_name }
+              { game_id: curr.game_id, game_name: curr.game_name },
             ];
           } else {
             return prev;
@@ -336,7 +351,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         csHandleAllocationData,
         antsHandleAllocationData,
         loading: false,
-        error: null
+        error: null,
       };
 
     case GET_OVERVIEW_SUCCESS:
@@ -348,7 +363,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         ovAllocate,
         ovAllocateNew,
         loading: false,
-        error: null
+        error: null,
       };
 
     case GET_QUESTIONS_SUCCESS:
@@ -360,7 +375,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         newAllocationStatus,
         allocation_status,
         add_favor_ok,
-        tasks
+        tasks,
       } = action.payload;
       return {
         ...state,
@@ -373,7 +388,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
         add_favor_ok,
         tasks,
         loading: false,
-        error: null
+        error: null,
       };
     case ALLOCATE_QUESTION_FAILED:
     case GET_SERVICE_STATISTICS_FAILED:
@@ -392,7 +407,7 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
     case UPDATE_QUESTION_TYPE_SUCCESS:
       return {
         ...state,
-        list: state.list.map(item =>
+        list: state.list.map((item) =>
           item.id === action.payload.id
             ? { ...item, type: action.payload.type }
             : item
@@ -401,30 +416,30 @@ const Service = (state: State = INIT_STATE, action: ServiceAction) => {
           ...state.current,
           question: {
             ...state.current.question,
-            type: action.payload.type
-          }
+            type: action.payload.type,
+          },
         },
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
     case UPDATE_QUESTION_STATUS_SUCCESS:
       return {
         ...state,
-        list: state.list.map(item =>
+        list: state.list.map((item) =>
           item.id === action.payload.id
             ? { ...item, status: action.payload.status }
             : item
         ),
         updateOKMessage: action.payload.msg,
         loading: false,
-        error: null
+        error: null,
       };
 
     case GET_TEST_DATA_SUCCESS:
       return {
         ...state,
-        test_list: action.payload
+        test_list: action.payload,
       };
 
     default:
