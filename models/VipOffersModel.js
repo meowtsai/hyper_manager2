@@ -53,7 +53,15 @@ const VipOffersModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
-  getOrderList: async () => {
+  getOrderList: async (query) => {
+    //console.log("getOrderList model query", query);
+    const {
+      start,
+      end,
+      selectedGame,
+      selectedTimeField = "create_time",
+    } = query;
+
     return await db2
       .promise()
       .query(
@@ -63,8 +71,12 @@ const VipOffersModel = {
         left join servers si on a.server_id =si.server_id
         left join vip_products vp on vp.product_id=a.product_id
         left join admin_users b on a.admin_uid =b.uid
-        where a.create_time between CURDATE() - INTERVAL 90 DAY AND now()
-
+        where a.${selectedTimeField} between '${start}' AND '${end}' 
+        ${
+          selectedGame !== "" && selectedGame
+            ? `and a.game_id='${selectedGame}'`
+            : ""
+        }
         ;`
       )
       .then(([rows, fields]) => {

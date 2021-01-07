@@ -23,7 +23,7 @@ import {
   EDIT_VIP_PRODUCT,
   EDIT_VIP_PRODUCT_SUCCESS,
   EDIT_VIP_PRODUCT_FAILED,
-} from './constants';
+} from "./constants";
 
 type VipOfferAction = { type: string, payload: {} | string };
 
@@ -58,8 +58,9 @@ export const getVipProductsByGameIdFailed = (
   payload: error,
 });
 
-export const getVipOrders = (): VipOfferAction => ({
+export const getVipOrders = (query): VipOfferAction => ({
   type: GET_VIP_ORDERS,
+  payload: query,
 });
 
 export const getVipOrdersSuccess = (data: []): VipOfferAction => ({

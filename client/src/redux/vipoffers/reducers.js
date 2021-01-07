@@ -24,7 +24,7 @@ import {
   EDIT_VIP_PRODUCT,
   EDIT_VIP_PRODUCT_SUCCESS,
   EDIT_VIP_PRODUCT_FAILED,
-} from './constants';
+} from "./constants";
 
 const INIT_STATE = {
   vip_offer_list: [],
@@ -85,6 +85,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         error: null,
       };
     case GET_VIP_ORDERS_SUCCESS:
+      //console.log("action.payload", action.payload);
       return {
         ...state,
         updateOKMessage: null,
@@ -122,7 +123,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         loading: false,
         error: null,
         errors: {},
-        updateOKMessage: '編輯成功!',
+        updateOKMessage: "編輯成功!",
       };
     case EDIT_VIP_PRODUCT_SUCCESS:
       return {
@@ -134,7 +135,7 @@ const VipOffers = (state: State = INIT_STATE, action: VipOfferAction) => {
         loading: false,
         error: null,
         errors: {},
-        updateOKMessage: '編輯成功!',
+        updateOKMessage: "編輯成功!",
       };
     case DELETE_VIP_WIRE_REPORT_SUCCESS:
       return {

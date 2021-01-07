@@ -48,11 +48,14 @@ function* getVipOffers() {
   }
 }
 
-function* getVipOrder() {
+function* getVipOrder({ payload }) {
+  //console.log("getVipOrder payload", payload);
+
   const options = {
-    method: "GET",
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     url: "/api/vip_offers/order_list",
+    data: payload,
   };
 
   try {

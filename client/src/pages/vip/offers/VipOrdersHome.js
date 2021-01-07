@@ -43,17 +43,23 @@ const VipOrdersHome = ({
 
   const [searchActivated, setSearchActivated] = useState(false);
 
+  const [condition, setCondition] = useState({
+    start: moment().add(-2, "months").format("YYYY-MM-DDT00:00"),
+    end: moment().format("YYYY-MM-DDT23:59"),
+  });
+
   const mainTitle = "VIP 訂單列表";
   useEffect(() => {
-    getVipOrders();
+    getVipOrders(condition);
     document.title = mainTitle;
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    if (records.length > 0) {
-      setArrangedData(records);
-    }
+    setArrangedData(records);
+    // if (records.length > 0) {
+
+    // }
   }, [records]);
 
   const deleteClick = (e, report_id) => {
@@ -70,6 +76,18 @@ const VipOrdersHome = ({
         (item) =>
           item.phone.indexOf(filterVal) > -1 ||
           item.email.indexOf(filterVal) > -1
+      );
+    }
+    return data;
+  };
+
+  const filterByRoleNameOrRoleID = (filterVal, data) => {
+    //console.log("filterVal", filterVal);
+    if (filterVal) {
+      return data.filter(
+        (item) =>
+          item.char_name.indexOf(filterVal) > -1 ||
+          item.role_id.indexOf(filterVal) > -1
       );
     }
     return data;
@@ -209,7 +227,10 @@ const VipOrdersHome = ({
     {
       dataField: "char_name",
       text: "角色",
-      filter: textFilter(),
+      filter: textFilter({
+        placeholder: "名稱或數字id",
+        onFilter: filterByRoleNameOrRoleID,
+      }),
       formatter: (cellContent, row) => {
         const opt = vipRankingOptions.filter(
           (opt) => opt.value === row.vip_ranking
@@ -364,6 +385,18 @@ const VipOrdersHome = ({
       )
     );
   };
+
+  const handleHistorySearchClick = (e) => {
+    e.preventDefault();
+    setCondition({ start: beginTime, end: endTime });
+    //console.log("selectedTimeField", selectedTimeField);
+    getVipOrders({
+      start: beginTime,
+      end: endTime,
+      selectedGame,
+      selectedTimeField,
+    });
+  };
   const clearSearch = (e) => {
     //console.log(inStockDateFilter);
     setSearchActivated(false);
@@ -390,6 +423,7 @@ const VipOrdersHome = ({
                 name="gameSelect"
                 id="gameSelect"
                 onChange={(e) => setSelectedGame(e.target.value)}
+                value={selectedGame}
               >
                 <option value="">全遊戲</option>
                 <option value="g66naxx2tw">明日之後</option>
@@ -400,6 +434,7 @@ const VipOrdersHome = ({
                 name="timeFieldSelect"
                 id="timeFieldSelect"
                 onChange={(e) => setSelectedTimeField(e.target.value)}
+                value={selectedTimeField}
               >
                 <option value="wire_time">匯款時間</option>
                 <option value="create_time">建單時間</option>
@@ -448,6 +483,12 @@ const VipOrdersHome = ({
                 onClick={(e) => clearSearch(e)}
               >
                 清除條件
+              </button>
+              <button
+                className={`btn btn-outline-info ml-2`}
+                onClick={(e) => handleHistorySearchClick(e)}
+              >
+                <i className="mdi mdi-cloud-search-outline" /> 搜尋歷史訂單
               </button>
             </FormGroup>
           </Form>

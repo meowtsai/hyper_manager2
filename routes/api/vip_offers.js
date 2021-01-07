@@ -38,14 +38,17 @@ router.get(
   }
 );
 
-router.get(
+router.post(
   "/order_list",
   function (req, res, next) {
     return checkPermission(req, res, next, "vip", "read");
   },
   async (req, res) => {
+    //console.log("order_list", req.body);
+    //{ start: '2020-10-07T00:00', end: '2021-01-07T23:59' }
+    const query = req.body;
     try {
-      const order_list = await VipOffersModel.getOrderList();
+      const order_list = await VipOffersModel.getOrderList(query);
       if (order_list.error) {
         return res
           .status(500)
