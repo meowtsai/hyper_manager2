@@ -140,6 +140,23 @@ const WhaleUserModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+  //
+  findG66ServiceRequestByOldRoldIdAndUpdate: async (record) => {
+    return await db2
+      .promise()
+      .query(
+        "update vip_requests set role_id=? where game_id='g66naxx2tw' and role_id=? ",
+        [record.char_in_game_id, record.role_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "更新失敗" };
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 
   findServiceRequestAndRemove: async (vr_id) => {
     return await db2
@@ -154,6 +171,7 @@ const WhaleUserModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+
   findByRoleIdAndUpdate: async (game_id, role_id, record) => {
     return await db2
       .promise()
@@ -167,6 +185,19 @@ const WhaleUserModel = {
           return rows;
         } else {
           return { error: "更新失敗" };
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
+  saveWhaleUser: async (record) => {
+    return await db2
+      .promise()
+      .query("insert into whale_users set ?", record)
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "新增失敗" };
         }
       })
       .catch((err) => ({ error: err.message }));
@@ -188,6 +219,7 @@ const WhaleUserModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+
   findVipReportLog: async (report_id) => {
     //console.log("findOne", account);
     return await db2
@@ -227,6 +259,29 @@ const WhaleUserModel = {
         }
       })
       .catch((err) => ({ error: err.message }));
+  },
+  updateListFinalise: () => {
+    db2.query(
+      "update  whale_users set ip=null where site='g66naxx2tw' and vip_ranking is null and deposit_total>150000"
+    );
+    db2.query(
+      "delete from whale_users where site='g66naxx2tw' and server_name in('g66_520004','g66_510001','g66_520002')"
+    );
+    db2.query(
+      "update whale_users set char_name='(空白)'  where trim(replace(char_name,'　',''))=''"
+    );
+    db2.query(
+      "update whale_users set server_name ='g66_600091' where server_name in ('g66_530006','g66_530007')"
+    );
+    db2.query(
+      "update whale_users set server_name ='g66_600179' where server_name in ('g66_530001','g66_530003')"
+    );
+    db2.query(
+      "update whale_users set server_name ='g66_600180' where server_name in ('g66_600091','g66_530008')"
+    );
+    db2.query(
+      "update whale_users set server_name ='g66_600192' where server_name in ('g66_530009','g66_530010')"
+    );
   },
 };
 

@@ -51,7 +51,7 @@ const RequestReportHome = ({
     // eslint-disable-next-line
   }, []);
   useEffect(() => {
-    if (requestData.length > 0) {
+    if (requestData.length > 0 && gameId !== "") {
       setArrangedData(requestData);
       const selAdminOptionsArray = new Set(
         requestData.map((q) => q.admin_name)
@@ -173,6 +173,8 @@ const RequestReportHome = ({
       sort: true,
     },
   ];
+
+  console.log(arrangedData.length);
   return (
     <Fragment>
       <PageTitle
@@ -185,9 +187,9 @@ const RequestReportHome = ({
 
       <QuerySearchBox handleSearchClick={handleSearchClick} games={games} />
 
-      {requestData.length > 0 && (
+      {arrangedData.length > 0 && (
         <CSVLink
-          data={requestData
+          data={arrangedData
             .map((record) => ({
               ...record,
               create_time: moment(record.create_time).format(

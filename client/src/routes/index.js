@@ -192,6 +192,12 @@ const VipOrdersForm = React.lazy(() =>
   import("../pages/vip/offers/VipOrdersForm")
 );
 
+//
+
+const VIpUploadTaskHome = React.lazy(() =>
+  import("../pages/vip/uploadTask/VIpUploadTaskHome")
+);
+
 //Games
 const GamesHome = React.lazy(() => import("../pages/games"));
 const GamesEditForm = React.lazy(() => import("../pages/games/form"));
@@ -931,6 +937,12 @@ const vipRoutes = {
       path: "/vip/daddy",
       name: "VIP儲值服務用戶",
       component: DaddyListHome,
+      route: PrivateRoute,
+    },
+    {
+      path: "/vip/upload",
+      name: "鯨魚用戶名單上傳",
+      component: VIpUploadTaskHome,
       route: PrivateRoute,
     },
   ],
