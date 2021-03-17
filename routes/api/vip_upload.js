@@ -6,7 +6,7 @@ const momnet = require("moment");
 const checkPermission = require("../../middleware/checkPermission");
 const WhaleUserModel = require("../../models/WhaleUserModel");
 
-const image_upload_dir = require("../../config/default")["image_upload_dir"];
+const image_upload_dir = require("../../config/default")["image_upload_dir2"];
 const helper = require("../../utils/helper");
 /* 上傳VIP 更新名單  */
 
