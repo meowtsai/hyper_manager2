@@ -10,23 +10,24 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  UncontrolledButtonDropdown
+  UncontrolledButtonDropdown,
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import filterFactory, {
   textFilter,
-  selectFilter
+  selectFilter,
 } from "react-bootstrap-table2-filter";
 import PageTitle from "../../../components/PageTitle";
 import {
   getAllocateData,
   takeAllocationTasks,
   clearAllocationMessage,
-  reassignAllocationTask
+  reassignAllocationTask,
 } from "../../../redux/actions";
 import Moment from "react-moment";
+import moment from "moment";
 import Spinner from "../../../components/Spinner";
 import PropTypes from "prop-types";
 import AllocateStatusBadge from "./AllocateStatusBadge";
@@ -42,10 +43,11 @@ const AllocateListPage = ({
   allocationStatus,
   cs_members,
   reassignAllocationTask,
-  user
+  user,
 }) => {
   const [arrangedData, setArrangedData] = useState([]);
   const [selAssigneeOptions, setSelAssigneeOptions] = useState({});
+  const [selGameOptions, setSelGameOptions] = useState({});
   const [defaultAssignee, setDefaultAssignee] = useState("");
 
   const mainTitle = "派單系統 - 待處理列表";
@@ -61,7 +63,10 @@ const AllocateListPage = ({
     setArrangedData(records);
 
     let timeOutId;
-    const selAssigneeOptionsArray = new Set(records.map(q => q.assignee_name));
+    const selAssigneeOptionsArray = new Set(
+      records.map((q) => q.assignee_name)
+    );
+
     let tmpS = {};
     selAssigneeOptionsArray.forEach((g, index) => {
       if (g === user.admin_name) {
@@ -71,6 +76,14 @@ const AllocateListPage = ({
       tmpS[index] = g;
     });
     setSelAssigneeOptions(tmpS);
+
+    const selGameOptionsArray = new Set(records.map((q) => q.game_name));
+    let tmpG = {};
+    selGameOptionsArray.forEach((g, i) => {
+      tmpG[i] = g;
+    });
+
+    setSelGameOptions(tmpG);
 
     timeOutId = setTimeout(() => {
       getAllocateData();
@@ -114,12 +127,26 @@ const AllocateListPage = ({
   let selStatusOptions = {};
 
   const selectOption = allocationStatus
-    ? Object.keys(allocationStatus).map(statusKey => statusKey)
+    ? Object.keys(allocationStatus).map((statusKey) => statusKey)
     : [];
 
   selectOption.forEach((t, index) => {
     selStatusOptions[t] = allocationStatus[t].text;
   });
+
+  const filterByUpdateDate = (filterVal, data) => {
+    console.log("filterByUpdateDate", filterVal);
+    if (filterVal) {
+      return data.filter(
+        (item) =>
+          moment().diff(
+            moment(item.allocate_update_time).format("YYYY-MM-DD"),
+            "days"
+          ) === parseInt(filterVal)
+      );
+    }
+    return data;
+  };
 
   //#  	案件編號：點選案件編號可連結至案件檢視頁面
   // 問題類型：用戶所選擇的問題類型
@@ -128,23 +155,20 @@ const AllocateListPage = ({
   // 負責人：
   const columns = [
     {
-      dataField: "question_ctime",
-      text: "提問時間",
-      sort: true,
-      formatter: (cellContent, row) => {
-        return (
-          <Moment format="YYYY-MM-DD HH:mm:ss">{row.allocation_time}</Moment>
-        );
-      }
-    },
-    {
       dataField: "question_id",
       text: "提問單",
       headerStyle: (column, colIndex) => {
         return { width: "100px" };
       },
       filter: textFilter(),
-      sort: true
+      sort: true,
+    },
+    {
+      dataField: "game_name",
+      text: "遊戲",
+      filter: selectFilter({
+        options: selGameOptions,
+      }),
     },
     {
       dataField: "character_name",
@@ -162,7 +186,7 @@ const AllocateListPage = ({
             <span className="d-block">UID:{row.partner_uid}</span>
           </p>
         );
-      }
+      },
     },
     {
       dataField: "content",
@@ -184,14 +208,14 @@ const AllocateListPage = ({
                   __html:
                     row.content.length > 100
                       ? row.content.substr(0, 100) + "..."
-                      : row.content
+                      : row.content,
                 }}
                 title={row.content}
               ></p>
             </Link>
           </Fragment>
         );
-      }
+      },
     },
 
     {
@@ -211,7 +235,7 @@ const AllocateListPage = ({
             </p>
           </Fragment>
         );
-      }
+      },
     },
     {
       dataField: "allocate_status",
@@ -229,8 +253,8 @@ const AllocateListPage = ({
       },
       filter: selectFilter({
         options: selStatusOptions,
-        defaultValue: 1
-      })
+        defaultValue: 1,
+      }),
     },
 
     {
@@ -239,15 +263,36 @@ const AllocateListPage = ({
       sort: true,
       filter: selectFilter({
         options: selAssigneeOptions,
-        defaultValue: defaultAssignee
+        defaultValue: defaultAssignee,
       }),
       style: (cell, row) => {
         if (row.ins_status === "new") {
           return {
-            backgroundColor: "#81c784"
+            backgroundColor: "#81c784",
           };
         }
-      }
+      },
+    },
+    {
+      dataField: "allocate_update_time",
+      text: "後送變更時間",
+      sort: true,
+      filter: selectFilter({
+        options: [
+          { value: "", label: "--" },
+          { value: "0", label: "當日" },
+          { value: "1", label: "昨日" },
+          { value: "2", label: "前日" },
+        ],
+        onFilter: filterByUpdateDate,
+      }),
+      formatter: (cellContent, row) => {
+        return (
+          <Moment format="YYYY-MM-DD HH:mm:ss">
+            {row.allocate_update_time}
+          </Moment>
+        );
+      },
     },
     {
       dataField: "action",
@@ -265,10 +310,10 @@ const AllocateListPage = ({
                 手動指派
               </DropdownToggle>
               <DropdownMenu>
-                {cs_members.map(cs => (
+                {cs_members.map((cs) => (
                   <DropdownItem
                     key={`assign_${cs.uid}`}
-                    onClick={e => reassignClick(row.id, cs.uid)}
+                    onClick={(e) => reassignClick(row.id, cs.uid)}
                   >
                     {cs.name}
                   </DropdownItem>
@@ -277,8 +322,8 @@ const AllocateListPage = ({
             </UncontrolledButtonDropdown>
           );
         } else return null;
-      }
-    }
+      },
+    },
   ];
 
   const customTotal = (from, to, size) => (
@@ -312,7 +357,7 @@ const AllocateListPage = ({
       <PageTitle
         breadCrumbItems={[
           { label: "客服", path: "/service/", active: false },
-          { label: "派單系統", path: "/service/allocate/list", active: true }
+          { label: "派單系統", path: "/service/allocate/list", active: true },
         ]}
         title={mainTitle}
       />
@@ -347,13 +392,13 @@ const AllocateListPage = ({
                 defaultSorted={[
                   {
                     dataField: "id",
-                    order: "desc"
-                  }
+                    order: "desc",
+                  },
                 ]}
                 pagination={paginationFactory({
                   sizePerPage: 10,
                   showTotal: true,
-                  paginationTotalRenderer: customTotal
+                  paginationTotalRenderer: customTotal,
                 })}
                 wrapperClasses="table-responsive"
               />
@@ -367,9 +412,9 @@ const AllocateListPage = ({
 
 AllocateListPage.propTypes = {
   getAllocateData: PropTypes.func.isRequired,
-  takeAllocationTasks: PropTypes.func.isRequired
+  takeAllocationTasks: PropTypes.func.isRequired,
 };
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   records: state.ServiceAllocate.list,
   cs_members: state.ServiceAllocate.cs_members,
   loading: state.ServiceAllocate.loading,
@@ -379,12 +424,12 @@ const mapStateToProps = state => ({
   question_type: state.Service.question_type,
   question_status: state.Service.question_status,
   allocationStatus: state.ServiceAllocate.allocationStatus,
-  user: state.Auth.user
+  user: state.Auth.user,
 });
 
 export default connect(mapStateToProps, {
   getAllocateData,
   takeAllocationTasks,
   clearAllocationMessage,
-  reassignAllocationTask
+  reassignAllocationTask,
 })(AllocateListPage);

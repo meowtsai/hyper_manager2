@@ -219,6 +219,23 @@ const WhaleUserModel = {
       })
       .catch((err) => ({ error: err.message }));
   },
+  findLastLoginByGameId: async (game_id) => {
+    //console.log("findOne", account);
+    return await db2
+      .promise()
+      .query(
+        "select max(last_login) as last_login from whale_users where site=?",
+        [game_id]
+      )
+      .then(([rows, fields]) => {
+        if (rows.length > 0) {
+          return rows[0];
+        } else {
+          return null;
+        }
+      })
+      .catch((err) => ({ error: err.message }));
+  },
 
   findVipReportLog: async (report_id) => {
     //console.log("findOne", account);

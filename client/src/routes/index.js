@@ -198,6 +198,9 @@ const VIpUploadTaskHome = React.lazy(() =>
   import("../pages/vip/uploadTask/VIpUploadTaskHome")
 );
 
+const testProgressbar = React.lazy(() =>
+  import("../pages/vip/uploadTask/testProgressbar")
+);
 //Games
 const GamesHome = React.lazy(() => import("../pages/games"));
 const GamesEditForm = React.lazy(() => import("../pages/games/form"));
@@ -943,6 +946,12 @@ const vipRoutes = {
       path: "/vip/upload",
       name: "鯨魚用戶名單上傳",
       component: VIpUploadTaskHome,
+      route: PrivateRoute,
+    },
+    {
+      path: "/vip/test-progress",
+      name: "測試",
+      component: testProgressbar,
       route: PrivateRoute,
     },
   ],

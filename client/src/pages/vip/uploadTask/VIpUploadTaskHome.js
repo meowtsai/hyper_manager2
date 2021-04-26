@@ -15,12 +15,15 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import LoaderWidget from "../../../components/Loader";
+import LoaderProgressBar from "../../../components/LoaderProgressBar";
+
 import axios from "axios";
 
 const VIpUploadTaskHome = () => {
   const [file01, setFile01] = useState("");
   const [lines, setLines] = useState([]);
   const [errors, setErrors] = useState({});
+  const [currentProcessIndex, setCurrentProcessIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({});
   const [game, setGame] = useState({ gameId: "", gameName: "" });
@@ -87,21 +90,38 @@ const VIpUploadTaskHome = () => {
   const formSubmit = async (e) => {
     e.preventDefault();
 
-    let formData = new FormData();
-
-    if (file01 !== "") {
-      //record.close_date=close_date;
-      console.log("file01", file01[0]);
-      formData.append(`site`, game.gameId);
-
-      formData.append(`vipList`, file01[0]);
-    }
-    setLoading(true);
+    //setLoading(true);
     axios.defaults.timeout = 180000;
+
+    //1. 將檔案上傳
+    //2. 在client 端將資料分批 每100筆
+    let rInsertCount = 0,
+      rUpdateCount = 0;
     try {
-      const result = await axios.post("/api/vip_upload", formData);
+      for (let i = 0; i < lines.length / 100; i++) {
+        setCurrentProcessIndex(i);
+        let formData = new FormData();
+        formData.append(`site`, game.gameId);
+
+        //formData.append(`vipList`, file01[0]);
+        formData.append(
+          `lines`,
+          JSON.stringify(lines.slice(i * 100, i * 100 + 100))
+        );
+
+        const result = await axios.post("/api/vip_upload", formData);
+        const { insertCount, updateCount } = result.data;
+        rInsertCount = rInsertCount + insertCount;
+        rUpdateCount = rUpdateCount + updateCount;
+        console.log(i, result.data);
+      }
+
       setLoading(false);
-      setMessage(result.data);
+      setMessage({
+        msg: `作業完成，共新增 ${rInsertCount}筆, 更新${rUpdateCount}筆`,
+      });
+      setCurrentProcessIndex(0);
+
       setLines([]);
       setFile01("");
       setGame({ gameId: "", gameName: "" });
@@ -114,6 +134,14 @@ const VIpUploadTaskHome = () => {
     //console.log("result", result);
     //editRecord('govletter', formData);
   };
+
+  if (currentProcessIndex > 0) {
+    return (
+      <LoaderProgressBar
+        value={(100 / (lines.length / 100)) * currentProcessIndex}
+      />
+    );
+  }
 
   if (loading) {
     return <LoaderWidget />;

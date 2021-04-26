@@ -5,8 +5,8 @@ const AllocationModel = {
     return await db2
       .promise()
       .query(
-        `select qa.id, qa.create_time as allocation_time, q.create_time as question_ctime, qa.question_id,  q.server_id, s.name as server_name,g.name as game_name,
-        q.character_name,q.partner_uid, q.type, q.phone, q.email, q.content, qa.allocate_cause, qa.allocate_status, qa.assignor, au.name as assignor_name,  qa.assignee, aus.name as assignee_name,(SELECT allocate_note FROM question_allocation_records a
+        `select qa.id, qa.create_time as allocation_time, q.create_time as question_ctime, qa.question_id,  q.server_id, s.name as server_name,g.name as game_name,g.game_id as game_id,
+        q.character_name,q.partner_uid, q.type, q.phone, q.email, q.content, qa.allocate_cause, qa.allocate_status,IFNULL(qa.update_time, qa.create_time) as allocate_update_time,  qa.assignor, au.name as assignor_name,  qa.assignee, aus.name as assignee_name,(SELECT allocate_note FROM question_allocation_records a
           where a.allocation_id =qa.id
           ORDER BY id DESC LIMIT 1) as lastestNote
         from question_allocation qa left join questions q on qa.question_id =q.id
@@ -26,9 +26,9 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  getRecordsByQid: async q_ids => {
+  getRecordsByQid: async (q_ids) => {
     //console.log("q_ids", q_ids);
     return await db2
       .promise()
@@ -46,9 +46,9 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  getRecordsByQidSingle: async q_id => {
+  getRecordsByQidSingle: async (q_id) => {
     //console.log("q_ids", q_ids);
     return await db2
       .promise()
@@ -68,9 +68,9 @@ const AllocationModel = {
           return null;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findOne: async id => {
+  findOne: async (id) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -82,7 +82,7 @@ const AllocationModel = {
           return null;
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getToByAssignTasks: async () => {
     return await db1
@@ -95,9 +95,9 @@ const AllocationModel = {
       .then(([rows, fields]) => {
         return rows;
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  assign: async assignee => {
+  assign: async (assignee) => {
     return await db1
       .promise()
       .query(
@@ -111,9 +111,9 @@ const AllocationModel = {
           return { error: "更新失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findCurrentTasks: async assignee => {
+  findCurrentTasks: async (assignee) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -128,9 +128,9 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findAssigneeLogsForThePastOneHour: async assignee => {
+  findAssigneeLogsForThePastOneHour: async (assignee) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -146,9 +146,9 @@ const AllocationModel = {
         //   return true;
         // }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  findHandledLogsForThePastOneHour: async assignee => {
+  findHandledLogsForThePastOneHour: async (assignee) => {
     //console.log("findOne", account);
     return await db2
       .promise()
@@ -159,9 +159,9 @@ const AllocationModel = {
       .then(([rows, fields]) => {
         return rows[0].chk;
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  save: async record => {
+  save: async (record) => {
     return await db1
       .promise()
       .query("insert into question_allocation set ?", record)
@@ -172,7 +172,7 @@ const AllocationModel = {
           return { error: "新增失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   findByIdAndUpdate: async (id, newRecord) => {
     return await db1
@@ -185,9 +185,9 @@ const AllocationModel = {
           return { error: "更新失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  getLogsByAllocationId: async allocation_id => {
+  getLogsByAllocationId: async (allocation_id) => {
     //console.log("q_ids", q_ids);
     return await db2
       .promise()
@@ -206,9 +206,9 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  getLogsByUid: async uid => {
+  getLogsByUid: async (uid) => {
     //console.log("q_ids", q_ids);
     return await db2
       .promise()
@@ -224,9 +224,9 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
-  saveLog: async newRecord => {
+  saveLog: async (newRecord) => {
     return await db1
       .promise()
       .query("insert into question_allocation_records set ?", newRecord)
@@ -237,7 +237,7 @@ const AllocationModel = {
           return { error: "新增失敗" };
         }
       })
-      .catch(err => ({ error: err.message }));
+      .catch((err) => ({ error: err.message }));
   },
   getAllocateOverview: async () => {
     return await db2
@@ -256,8 +256,8 @@ const AllocationModel = {
           return [];
         }
       })
-      .catch(err => ({ error: err.message }));
-  }
+      .catch((err) => ({ error: err.message }));
+  },
 };
 
 module.exports = AllocationModel;
