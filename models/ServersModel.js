@@ -8,7 +8,7 @@ const ServersModel = {
     return await db2
       .promise()
       .query(
-        "select server_id,name as server_name, server_status from servers where game_id=? order by server_id desc",
+        "select server_id,name as server_name, server_status,address from servers where game_id=? order by server_id desc",
         [game_id]
       )
       .then(([rows, fields]) => {
@@ -19,7 +19,20 @@ const ServersModel = {
         }
       })
       .catch(err => ({ error: err.message }));
-  }
+  },
+  save: async server => {
+    return await db1
+      .promise()
+      .query("insert into servers set ?", server)
+      .then(([rows, fields]) => {
+        if (rows.affectedRows > 0) {
+          return rows;
+        } else {
+          return { error: "新增失敗" };
+        }
+      })
+      .catch(err => ({ error: err.message }));
+  },
 };
 
 module.exports = ServersModel;
