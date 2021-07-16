@@ -24,10 +24,16 @@ const CaseViewBasic = ({ row, config_status, deleteRef, deleteAttach }) => {
             </tr>
             <tr>
               <th>發文字號：</th>
-              <td>{row.o_case_id}</td>
+              <td colSpan="3">{row.o_case_id}</td>
+             
+            </tr>
+            <tr>
               <th>申訴人：</th>
               <td>{row.appellant}</td>
+              <th>電話：</th>
+              <td>{row.phone}</td>
             </tr>
+
             <tr>
               <th>發文日期：</th>
               <td>{<Moment format="YYYY-MM-DD">{row.o_case_date}</Moment>}</td>
